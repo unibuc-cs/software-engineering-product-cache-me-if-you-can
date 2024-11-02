@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/obj/Debug/net6.0/Developer-ToolboxTests.sourcelink.json
+/.vs/Developer-ToolboxTests/FileContentIndex/897f7a63-dc02-498f-8897-5b8ae2e02b45.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/72c7a0cd-9fe5-420a-8b43-cb4f2cea3f7a.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/55d12dbb-f20a-4b1f-976f-13d2b36e6e88.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/5cf79575-c6ea-4af3-9db9-bda5449dd13b.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/4059d2ba-a9c2-4fc3-8aad-50a2ed159bf0.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/0d4290c0-b372-4ecb-a1b6-4826164f4964.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/1c112b48-9f20-4473-85d7-70a229c9ebd8.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/4802a91b-df56-4e6b-8cd7-9244d8ddd89d.vsidx
+/.vs/Developer-ToolboxTests/FileContentIndex/7a32a625-a1d4-47f1-adee-2be718ed01dc.vsidx
+*.vsidx
