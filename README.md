@@ -247,7 +247,7 @@ Cristi, age 27, is a 5-year experienced full-stack developer at a multinational 
 - As an administrator, I want to control the email notification settings to manage how often users receive updates.
 
 # Backlog
-
+:link: Task prioritization in Projects Kanban Board: https://github.com/orgs/unibuc-cs/projects/48
 - **Dockerizing the Application**
   - Create 2 Docker images for .NET App and Backend Server
   - Create Dockerfiles and build the images
