@@ -248,6 +248,10 @@ Cristi, age 27, is a 5-year experienced full-stack developer at a multinational 
 
 # Backlog
 :link: Task prioritization in Projects Kanban Board: https://github.com/orgs/unibuc-cs/projects/48
+<p align="center">
+  <img src="Diagrams/MDS-Diagrams/kanban.png" alt="kanban">
+</p>
+
 - **Dockerizing the Application**
   - Create 2 Docker images for .NET App and Backend Server
   - Create Dockerfiles and build the images
