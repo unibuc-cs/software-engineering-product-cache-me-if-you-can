@@ -180,6 +180,37 @@ FOR coding enthusiasts WHO seek an interactive platform for learning programming
   <img src="Diagrams/MDS-Diagrams/plantUML.png" alt="plantUML" style="max-height: 500px;">
 </p>
 
+### ERD
+<p align="center">
+  <img src="Diagrams/MDS-Diagrams/ERD_Updated.png" alt="ERD updated" style="max-height: 500px;">
+</p>
+
+# Functional requirements
+ - The platform should facilitate users to practice solving problems and to share knowledge.
+ - The platform should allow users to ask and answer technical questions.
+ - The platform should improve content by letting users provide feedback to questions and answers.
+ - The platform should ease finding already asked questions related to a certain topic.
+ - The platform should allow moderators to manage posted content. 
+ - The platform should provide domain-classified coding exercises of different levels of difficulty.
+ - The platform should provide an environment where users can code the solution of the exercises on the platform and should evaluate the submitted solutions.
+ - The platform should make learning and practicing more attractive by rewarding users that ask for help, answer questions or solve exercises with reputation points and badges.
+ - The platform should provide a leaderboard, ranking users by the contribution on the platform.
+ - The platform should provide a detailed image of the user's progress in their private dashboard, where they can consult statistics of their activity.
+ - The platform should motivate users by inviting them to participate in weekly challenges, where they find a competitive environment, exciting exercises to solve and rewards to win.
+ - The platform should provide a learning paths section. A learning path contains difficulty-ordered exercises with detailed explanations and instructions. The exercises should be unlocked progressively, respective to the user’s experience.
+ - The platform should provide email notifications for significant events and actions on the platform.
+
+# User Personas
+## Andreea, a Computer Sciences student
+Andreea, age 19, is a first-year student at Faculty of Mathematics and Informatics of University of Bucharest. She was born in Bucharest as an only child, her mother works as a high school teacher and her father as a project manager. She has always been enthusiastic about technology and innovation, always trying to find out how things work. Andreea is permanently searching for new experiences and wants to have insights in lots of domains. 
+She loves sport competitions and she trains daily for marathons.
+<br><br>Andreea wants to experiment with new technologies and to understand what a career in IT looks like. Her short-term goal is to achieve some knowledge in multiple different topics and not get limited by the subjects she studies at faculty. Andreea would use the Developer Toolbox platform to learn the basics of new programming languages and to take the first steps into diverse career paths, trying to decide what she likes to do most. Also, she would want to ask experienced users about their job requirements and advice in her career decision.
+
+## Cristi, a full-stack developer
+Cristi, age 27, is a 5-year experienced full-stack developer at a multinational corporation. He was born in Brasov, but came to Bucharest for his Bachelor’s studies. He graduated a Master’s degree in Software Engineering and decided to stay in Bucharest for a few more years.
+<br><br>Cristi enjoys being a team leader for the interns team, he likes to help his new inexperienced colleagues when they need it, to answer their questions and to guide them in their learning journey. He has excellent communication and leadership skills and is always up-to-date with the newest trends in his domain. Cristi would like to become a moderator on the Developer Toolbox platform in order to get involved in the exercises and challenges creation and in order to ensure that the application and its community remain an enthusiastic and welcoming place for the users. Moreover, Cristi would like to share his knowledge on the forum and to practice advanced-leveled and interview type exercises.
+
+
 # Product features
 | Input                                      | Activation                                             | Action                                                                 | Output                                                                                           |
 |--------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
