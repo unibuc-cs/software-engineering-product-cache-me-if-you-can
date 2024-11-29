@@ -22,6 +22,7 @@ namespace Developer_Toolbox.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<Activity> Activities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
