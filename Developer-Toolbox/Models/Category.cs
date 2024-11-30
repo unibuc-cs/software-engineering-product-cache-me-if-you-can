@@ -13,5 +13,7 @@ namespace Developer_Toolbox.Models
         [Required(ErrorMessage = "The logo of the category is mandatory")]
         public string? Logo { get; set; } = "/images/categories/default.png";
         public virtual ICollection<Exercise>? Exercises { get; set; }
+
+        public virtual ICollection<Badge>? RelatedBadges { get; set; }
     }
 }

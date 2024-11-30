@@ -30,6 +30,8 @@ namespace Developer_Toolbox.Models
         public virtual ICollection<Bookmark>? Bookmarks { get; set; }
         public virtual ICollection<Reaction>? Reactions { get; set; }
 
+        public virtual ICollection<Badge>? Badges { get; set; }
+
         [NotMapped]
         public IEnumerable<SelectListItem>? AllRoles { get; set; }
 
