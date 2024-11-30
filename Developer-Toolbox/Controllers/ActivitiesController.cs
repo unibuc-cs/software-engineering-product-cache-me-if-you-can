@@ -9,13 +9,23 @@ namespace Developer_Toolbox.Controllers
     public class ActivitiesController : Controller
     {
         private readonly ApplicationDbContext db;
-        public ActivitiesController(ApplicationDbContext db)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public ActivitiesController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
         {
             this.db = db;
+            _userManager = userManager;
+        }
+
+        private void SetAccessRights()
+        {
+            ViewBag.EsteAdmin = User.IsInRole("Admin");
         }
 
         public IActionResult Index()
         {
+            SetAccessRights();
+
             // transmitem mesajele primite in view
             if (TempData.ContainsKey("message"))
             {

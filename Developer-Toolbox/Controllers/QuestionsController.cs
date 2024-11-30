@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using System.Threading.Channels;
 using static Humanizer.On;
 using static System.Collections.Specialized.BitVector32;
 
@@ -285,6 +286,8 @@ namespace Developer_Toolbox.Controllers
                 db.Questions.Add(question);
                 db.SaveChanges();
 
+                RewardActivity((int)ActivitiesEnum.POST_QUESTION);
+
                 TempData["message"] = "The question has been successfully added.";
                 TempData["messageType"] = "alert-primary";
 
@@ -387,6 +390,21 @@ namespace Developer_Toolbox.Controllers
             }
 
             return View(question);
+        }
+
+        [NonAction]
+        private void RewardActivity(int activityId)
+        {
+            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
+            if (reward == null) { return; }
+
+            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
+            if (user == null) { return; }
+
+            user.ReputationPoints += reward;
+       
+            db.SaveChanges();
+
         }
 
     }

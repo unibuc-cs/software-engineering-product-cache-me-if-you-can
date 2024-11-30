@@ -56,6 +56,9 @@ namespace Developer_Toolbox.Controllers
             {
                 db.Answers.Add(answ);
                 db.SaveChanges();
+
+                RewardActivity((int)ActivitiesEnum.POST_ANSWER);
+
                 return Redirect("/Questions/Show/" + answ.QuestionId);
             }
 
@@ -74,6 +77,7 @@ namespace Developer_Toolbox.Controllers
             Answer answ = db.Answers.Find(id);
             db.Answers.Remove(answ);
             db.SaveChanges();
+
             return Redirect("/Questions/Show/" + answ.QuestionId);
         }
 
@@ -129,6 +133,21 @@ namespace Developer_Toolbox.Controllers
             }
 
             return View(answer);
+        }
+
+        [NonAction]
+        private void RewardActivity(int activityId)
+        {
+            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
+            if (reward == null) { return; }
+
+            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
+            if (user == null) { return; }
+
+            user.ReputationPoints += reward;
+
+            db.SaveChanges();
+
         }
 
     }

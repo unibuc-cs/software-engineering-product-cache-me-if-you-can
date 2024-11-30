@@ -300,6 +300,8 @@ namespace Developer_Toolbox.Controllers
 
                 db.SaveChanges();
 
+                RewardActivity((int)ActivitiesEnum.ADD_EXERCISE);
+
                 TempData["message"] = "The Exercise has been added";
                 TempData["messageType"] = "alert-success";
 
@@ -426,8 +428,11 @@ namespace Developer_Toolbox.Controllers
             //nu permiterm stergerea exercitiului decat de admin sau de autorul lui
             if (exercise.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
             {
+
                 db.Exercises.Remove(exercise);
                 db.SaveChanges();
+
+
                 TempData["message"] = "The exercise has been deleted!";
                 TempData["messageType"] = "alert-danger";
 
@@ -484,9 +489,21 @@ namespace Developer_Toolbox.Controllers
                         {
                             var score = Convert.ToDouble(innerResult["score"]);
                             solution1.Score = (int?)score;
+
+
+                            if (solution1.Score == 100)
+                            {
+                                // reward only if it is the first 100 score solution for the exercise
+                                var solutions = db.Solutions.Where(s => s.ExerciseId == id && s.UserId == _userManager.GetUserId(User) && s.Score == 100);
+                                var alreadySolved = solutions.Any();
+                                if (!alreadySolved)
+                                {
+                                    RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE);
+                                }
+                            }
+
                             db.Add(solution1);
                             db.SaveChanges();
-
                             return Json(new { status = 200, test_results = jsonResponse, score = score });
                         }
                     }
@@ -575,6 +592,20 @@ namespace Developer_Toolbox.Controllers
             }
 
             return View(exercise);
+        }
+
+        [NonAction]
+        private void RewardActivity(int activityId)
+        {
+            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
+            if (reward == null) { return; }
+
+            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
+            if (user == null) { return; }
+
+            user.ReputationPoints += reward;
+            db.SaveChanges();
+
         }
     }
 

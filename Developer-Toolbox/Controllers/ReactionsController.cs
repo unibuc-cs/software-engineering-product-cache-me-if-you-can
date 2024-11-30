@@ -58,6 +58,7 @@ namespace Developer_Toolbox.Controllers
                         reaction.Liked = true;
                         // Incrementam numărului de like-uri
                         question.LikesNr++;
+                        RewardActivity((int)ActivitiesEnum.BE_UPVOTED);
                     }
                     
                    
@@ -70,6 +71,7 @@ namespace Developer_Toolbox.Controllers
                     // Incrementam numărului de like-uri
                     question.LikesNr++;
                     db.Reactions.Add(reaction);
+                    RewardActivity((int)ActivitiesEnum.BE_UPVOTED);
                 }
 
                 
@@ -98,11 +100,12 @@ namespace Developer_Toolbox.Controllers
                         {
                             reaction.Liked = false;
                             question.LikesNr--;
+                            RewardActivity((int)ActivitiesEnum.BE_UPVOTED, true);
                         }
                         reaction.Disliked = true;
                         // Incrementam numărului de dislike-uri
                         question.DislikesNr++;
-                    }
+                }
                 }
                 else
                 {
@@ -137,6 +140,7 @@ namespace Developer_Toolbox.Controllers
                     reaction.Liked = false;
                     // Decrementam numărului de like-uri
                     question.LikesNr--;
+                    RewardActivity((int)ActivitiesEnum.BE_UPVOTED, true);
                 }
 
 
@@ -193,6 +197,27 @@ namespace Developer_Toolbox.Controllers
             }
 
             return View(reaction);
+        }
+
+
+        [NonAction]
+        private void RewardActivity(int activityId, bool cancel = false)
+        {
+            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
+            if (reward == null) { return; }
+
+            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
+            if (user == null) { return; }
+
+            if (cancel == true)
+            {
+                user.ReputationPoints -= reward;
+            } else
+            {
+                user.ReputationPoints += reward;
+            }
+            db.SaveChanges();
+
         }
 
     }

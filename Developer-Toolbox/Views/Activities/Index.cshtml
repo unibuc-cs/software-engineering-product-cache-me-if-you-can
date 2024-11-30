@@ -5,11 +5,14 @@
     }
     <br />
 
-    <div class="d-flex justify-content-end">
-        <a class=" btn btn-success custom-btn mr-10" href="/Activities/Edit">Edit rewards</a>
-    </div>
+    @if (ViewBag.EsteAdmin)
+    {
+        <div class="d-flex justify-content-end">
+            <a class=" btn btn-success custom-btn mr-10" href="/Activities/Edit">Edit rewards</a>
+        </div>
 
-    <hr />
+        <hr />
+    }
 
     <h2 class="text-center"> Activities <i class="bi bi-clipboard2-check-fill"></i> </h2>
     <br />

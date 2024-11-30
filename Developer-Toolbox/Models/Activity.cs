@@ -12,6 +12,9 @@ namespace Developer_Toolbox.Models
         [Required(ErrorMessage = "Description required!")]
         public string? Description { get; set; }
 
+
+        [Range(0, 100,
+            ErrorMessage = "Reputation points gain must be a value between 0 and 100!")]
         public int? ReputationPoints { get; set; }
 
     }
