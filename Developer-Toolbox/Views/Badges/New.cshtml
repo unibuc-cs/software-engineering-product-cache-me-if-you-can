@@ -1,0 +1,82 @@
+﻿@model Developer_Toolbox.Models.Badge
+
+
+
+<div class="container py-5">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
+    <h2 class="text-center">Add badge</h2>
+
+    <div class="row">
+        <div class="col-6 offset-3">
+            <form class="d-flex flex-column gap-3 overflow-auto" method="post" enctype="multipart/form-data" action="/Badges/New">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div>
+                    @Html.Label("Title", "Badge title")
+
+                    @Html.TextBox("Title", null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                </div>
+                <div>
+                    @Html.Label("Description", "Badge description")
+
+                    @Html.TextArea("Description", null, new { @class = "form-control"})
+                    @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+                </div>
+                <div>
+                    <label for="file">Upload Image</label>
+                    <input type="file" id="file" name="file" style="margin:1em" />
+                    @Html.ValidationMessage("Image", null, new { @class = "text-danger" })
+                </div>
+                <div>
+                    <label>Select activity</label>
+                    @Html.DropDownListFor(m => m.TargetActivityId,
+                    new SelectList(Model.TargetActivities, "Value", "Text"),
+                    "Select Activity", new { @class = "form-control" })
+
+                    @Html.ValidationMessageFor(m => m.TargetActivityId, null, new { @class = "text-danger" })
+                </div>
+                <div>
+                    @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed")
+
+                    @Html.Editor("TargetNoOfTimes", null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.TargetNoOfTimes, "", new { @class = "text-danger" })
+                </div>
+                <div>
+                    <label>Select targeted category</label>
+                    @Html.DropDownListFor(m => m.TargetCategoryId,
+                    new SelectList(Model.TargetCategories, "Value", "Text"),
+                    "Select Activity", new { @class = "form-control" })
+
+                    @Html.ValidationMessageFor(m => m.TargetCategoryId, null, new { @class = "text-danger" })
+                </div>
+
+                <div class="d-flex gap-1 justify-content-start mt-2">
+                    @Html.Label("Targeted level of difficulty")
+                    @Html.DropDownListFor(
+                    (badge => badge.TargetLevel),
+                    (IEnumerable<SelectListItem>)ViewBag.LevelOfDifficulty,
+                    "Select",
+                    new { @class = "form-control" }
+                    )
+                </div>
+
+                <div>
+                    <label>Select targeted tags</label>
+                    @Html.ListBoxFor(m => m.TargetTags,
+                    new SelectList(Model.TargetTagsItems, "Value", "Text"),
+                    new { @class = "form-control" })
+
+                    @Html.ValidationMessageFor(m => m.TargetTags, null, new { @class = "text-danger" })
+                </div>
+
+
+                <button class="btn btn-outline" style="background-color:#eee; color:black;" type="submit">Add badge</button>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -23,6 +23,7 @@ namespace Developer_Toolbox.Data
         public DbSet<Bookmark> Bookmarks { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
         public DbSet<Activity> Activities { get; set; }
+        public DbSet<Badge> Badges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
