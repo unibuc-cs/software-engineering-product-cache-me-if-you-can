@@ -65,7 +65,7 @@
 
                 <div class="optionalFields questionRelated">
                     <label>Select targeted tags</label>
-                    @Html.ListBoxFor(m => m.TargetTags,
+                    @Html.ListBoxFor(m => m.SelectedTagsIds,
                     new SelectList(Model.TargetTagsItems, "Value", "Text"),
                     new { @class = "form-control" })
                 </div>

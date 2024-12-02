@@ -33,7 +33,9 @@ namespace Developer_Toolbox.Models
         [Required(ErrorMessage = "Number of times the user must complete the activity is required!")]
         public int? TargetNoOfTimes { get; set; }
 
-        public virtual ICollection<Tag>? TargetTags { get; set; }
+        [NotMapped]
+        public virtual ICollection<int>? SelectedTagsIds { get; set; }
+        public virtual ICollection<BadgeTag>? BadgeTags { get; set; }
         [NotMapped]
         public IEnumerable<SelectListItem>? TargetTagsItems { get; set; }
 

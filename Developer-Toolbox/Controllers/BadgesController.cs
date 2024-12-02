@@ -12,18 +12,19 @@ namespace Developer_Toolbox.Controllers
     public class BadgesController : Controller
     {
         private readonly ApplicationDbContext db;
-
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private IWebHostEnvironment _env;
 
         public BadgesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IAnswerRepository answerRepository)
+            IWebHostEnvironment environment)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _env = environment;
         }
         public IActionResult Index()
         {
@@ -62,7 +63,7 @@ namespace Developer_Toolbox.Controllers
             badge.AllTargetActivities = activities.ToList();
 
             // preluam activitatile posibile pentru dropdown
-            badge.TargetActivities = ActivitiesToSelectItems();
+            badge.TargetActivities = ActivitiesToSelectItems(activities);
 
             // preluam categoriile posibile pentru dropdown
             badge.TargetCategories = GetAllCategories();
@@ -79,53 +80,80 @@ namespace Developer_Toolbox.Controllers
 
         [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
-        public IActionResult New(Badge badge)
+        public async Task<IActionResult> New(Badge badge, IFormFile file)
         {
 
-/*            var sanitizer = new HtmlSanitizer();
-
-            // verificam daca se respecta formatul test cases
-            if (ex.TestCases != null && !HasValidStructure(ex.TestCases))
+            if (badge.TargetNoOfTimes  <= 0)
             {
-                ModelState.AddModelError("TestCases", "The test cases have an invalid format!");
+                ModelState.AddModelError("TargetNoOfTimes", "The number of times the activity must be completed cannot be 0 or negative!");
             }
 
             if (ModelState.IsValid)
             {
-                //protejam de cross-scripting
-                ex.Restrictions = sanitizer.Sanitize(ex.Restrictions);
-                ex.Examples = sanitizer.Sanitize(ex.Examples);
+                badge.AuthorId = _userManager.GetUserId(User);
 
-                db.Exercises.Add(ex);
+                // incercam sa uploadam imaginea pentru logo
+                var res = await SaveImage(file);
 
+                if (res == null)
+                {
+                    ModelState.AddModelError("Image", "Please load a jpg, jpeg, png, and gif file type.");
+                }
+                else
+                {
+                    badge.Image = res;
+                }
+
+                db.Badges.Add(badge);
                 db.SaveChanges();
 
-                RewardActivity((int)ActivitiesEnum.ADD_EXERCISE);
+                if(badge.SelectedTagsIds != null)
+                {
+                    foreach (var tagId in badge.SelectedTagsIds)
+                    {
+                        db.BadgeTags.Add(new BadgeTag(badge.Id, tagId));
+                    }
+                    db.SaveChanges();
+                }
 
-                TempData["message"] = "The Exercise has been added";
+                TempData["message"] = "The Badge has been added";
                 TempData["messageType"] = "alert-success";
 
-                return Redirect("/Exercises/Index/" + ex.CategoryId);
+                return RedirectToAction("Index");
 
             }
             else
             {
-                // pentru dropdown
-                ex.Categories = GetAllCategories();
+                foreach (var modelStateEntry in ModelState.Values)
+                {
+                    foreach (var error in modelStateEntry.Errors)
+                    {
+                        // pentru debug
+                        var errorMessage = error.ErrorMessage;
+                        var exception = error.Exception;
+                    }
+                }
 
-                List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+                var activities = from act in db.Activities
+                                 select act;
 
-                // convertim List<string> in List<SelectListItem>
-                List<SelectListItem> selectListItems = optionsList.Select(option =>
-                    new SelectListItem { Text = option, Value = option })
-                    .ToList();
+                badge.AllTargetActivities = activities.ToList();
 
-                ViewBag.OptionsSelectList = selectListItems;
+                // preluam activitatile posibile pentru dropdown
+                badge.TargetActivities = ActivitiesToSelectItems(activities);
 
-                return View(ex);
-            }*/
+                // preluam categoriile posibile pentru dropdown
+                badge.TargetCategories = GetAllCategories();
 
-             return View(badge);
+
+                // setam dificultatile pentru dropdown
+                ViewBag.LevelOfDifficulty = GetAllLevelsOfDifficulty();
+
+                // preluam tagurile posibile pentru dropdown
+                badge.TargetTagsItems = GetAllTags();
+
+                return View(badge);
+            }
         }
 
         [NonAction]
@@ -150,13 +178,10 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        public IEnumerable<SelectListItem> ActivitiesToSelectItems()
+        public IEnumerable<SelectListItem> ActivitiesToSelectItems(IQueryable<Activity> activities)
         {
             // preluam activitatile disponibile pentru dropdown
             var selectList = new List<SelectListItem>();
-
-            var activities = from act in db.Activities
-                             select act;
 
             foreach (var activity in activities)
             {
@@ -206,6 +231,42 @@ namespace Developer_Toolbox.Controllers
             }
 
             return selectList;
+        }
+
+        private async Task<string?> SaveImage(IFormFile file)
+        {
+            if (file == null)
+            {
+                return null;
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return null;
+            }
+
+            var uploadsFolder = Path.Combine("img", "badges");
+            var webRootPath = _env.WebRootPath;
+
+            var uploadsFolderPath = Path.Combine(webRootPath, uploadsFolder);
+
+            if (!Directory.Exists(uploadsFolderPath))
+            {
+                Directory.CreateDirectory(uploadsFolderPath);
+            }
+
+            var uniqueFileName = $"{Guid.NewGuid().ToString()}{fileExtension}";
+            var filePath = Path.Combine(uploadsFolderPath, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            var relativeFilePath = Path.Combine(uploadsFolder, uniqueFileName).Replace(Path.DirectorySeparatorChar, '/');
+            return $"/{relativeFilePath}";
         }
     }
 }

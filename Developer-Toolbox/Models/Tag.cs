@@ -11,7 +11,7 @@ namespace Developer_Toolbox.Models
         [Required(ErrorMessage ="The name field is required!")]
         public string? Name { get; set; }
 
-        public virtual ICollection<Badge>? RelatedBadges { get; set; }
+        public virtual ICollection<BadgeTag>? BadgeTags { get; set; }
 
     }
 }
