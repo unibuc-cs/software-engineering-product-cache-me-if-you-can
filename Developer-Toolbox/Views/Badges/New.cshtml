@@ -35,7 +35,7 @@
                     <label>Select activity</label>
                     @Html.DropDownListFor(m => m.TargetActivityId,
                     new SelectList(Model.TargetActivities, "Value", "Text"),
-                    "Select Activity", new { @class = "form-control" })
+                    "Select activity", new { @class = "form-control" })
 
                     @Html.ValidationMessageFor(m => m.TargetActivityId, null, new { @class = "text-danger" })
                 </div>
@@ -49,7 +49,7 @@
                     <label>Select targeted category</label>
                     @Html.DropDownListFor(m => m.TargetCategoryId,
                     new SelectList(Model.TargetCategories, "Value", "Text"),
-                    "Select Activity", new { @class = "form-control" })
+                    "Select category", new { @class = "form-control" })
 
                     @Html.ValidationMessageFor(m => m.TargetCategoryId, null, new { @class = "text-danger" })
                 </div>

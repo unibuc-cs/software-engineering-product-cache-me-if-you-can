@@ -17,7 +17,6 @@ namespace Developer_Toolbox.Models
             ErrorMessage = "Reputation points gain must be a value between 0 and 100!")]
         public int? ReputationPoints { get; set; }
 
-        [NotMapped]
         public bool isPracticeRelated { get; set; }
 
         public virtual ICollection<Badge>? RelatedBadges { get; set; }
