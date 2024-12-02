@@ -1,11 +1,16 @@
-﻿using Developer_Toolbox.Data;
+﻿using Castle.Core.Resource;
+using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
 using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -56,26 +61,9 @@ namespace Developer_Toolbox.Controllers
             }
 
             Badge badge = new Badge();
+            badge.TargetNoOfTimes = 1;
 
-            var activities = from act in db.Activities
-                             select act;
-
-            badge.AllTargetActivities = activities.ToList();
-
-            // preluam activitatile posibile pentru dropdown
-            badge.TargetActivities = ActivitiesToSelectItems(activities);
-
-            // preluam categoriile posibile pentru dropdown
-            badge.TargetCategories = GetAllCategories();
-
-
-            // setam dificultatile pentru dropdown
-            ViewBag.LevelOfDifficulty = GetAllLevelsOfDifficulty();
-
-            // preluam tagurile posibile pentru dropdown
-            badge.TargetTagsItems = GetAllTags();
-
-            return View(badge);
+            return View(initBadge(badge));
         }
 
         [Authorize(Roles = "Admin,Moderator")]
@@ -116,7 +104,7 @@ namespace Developer_Toolbox.Controllers
                     db.SaveChanges();
                 }
 
-                TempData["message"] = "The Badge has been added";
+                TempData["message"] = "The badge has been added";
                 TempData["messageType"] = "alert-success";
 
                 return RedirectToAction("Index");
@@ -134,24 +122,130 @@ namespace Developer_Toolbox.Controllers
                     }
                 }
 
-                var activities = from act in db.Activities
-                                 select act;
+                badge.TargetNoOfTimes = 1;
+                return View(initBadge(badge));
+            }
+        }
 
-                badge.AllTargetActivities = activities.ToList();
+        [Authorize(Roles = "Admin,Moderator")]
+        public ActionResult Edit(int id)
+        {
+            //transmitem mesajele primite in view
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.Message = TempData["message"];
+                ViewBag.MessageType = TempData["messageType"];
+            }
 
-                // preluam activitatile posibile pentru dropdown
-                badge.TargetActivities = ActivitiesToSelectItems(activities);
+            // preluam badge ul cautat
+            Badge badge = db.Badges.Find(id);
+            badge = initBadge(badge);
 
-                // preluam categoriile posibile pentru dropdown
-                badge.TargetCategories = GetAllCategories();
+            if (!(bool)badge.TargetActivity.isPracticeRelated)
+            {
+                var tags = from bt in db.BadgeTags
+                           join t in db.Tags on bt.TagId equals t.Id
+                           where bt.BadgeId == badge.Id
+                           select new SelectListItem
+                           {
+                               Value = t.Id.ToString(),
+                               Text = t.Name,
+                           };
+                ViewBag.SelectedTags = tags.ToList();
+            } else
+            {
+                ViewBag.SelectedTags = new List<SelectListItem>();
+            }
 
+            //restrictionam permisiunile
+            if (badge.AuthorId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                return View(badge);
+            }
+            else
+            {
+                TempData["message"] = "You're unable to modify a badge you didn't add!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+        }
 
-                // setam dificultatile pentru dropdown
-                ViewBag.LevelOfDifficulty = GetAllLevelsOfDifficulty();
+        [Authorize(Roles = "Admin,Moderator")]
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, Badge requestBadge, IFormFile file)
+        {
+            // preluam badge-ul cautat
+            Badge badge = db.Badges.Find(id);
+            requestBadge = initBadge(requestBadge);
+            requestBadge.TargetNoOfTimes = badge.TargetNoOfTimes;
+            requestBadge.TargetActivityId = badge.TargetActivityId;
 
-                // preluam tagurile posibile pentru dropdown
-                badge.TargetTagsItems = GetAllTags();
+            // incercam sa uploadam imaginea pentru logo
+            var res = await SaveImage(file);
 
+            if (res == null)
+            {
+                ModelState.AddModelError("Image", "Please load a jpg, jpeg, png or gif file type.");
+            }
+
+            ModelState.Remove("TargetNoOfTimes");
+            ModelState.Remove("TargetActivityId");
+
+            if (ModelState.IsValid)
+            {
+                if (badge.AuthorId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+                {
+                    //stergem imaginea anterioara din folder-ul imgs
+                    string path = Path.Join(_env.WebRootPath, badge.Image.Replace('/', '\\'));
+                    System.IO.File.Delete(path);
+
+                    // modificam informatiile
+                    badge.Title = requestBadge.Title;
+                    badge.Description = requestBadge.Description;
+
+                    if (file != null && file.Length > 0)
+                    {
+                        badge.Image = res;
+
+                    }
+
+                    //commit
+                    db.SaveChanges();
+
+                    TempData["message"] = "The badge has been edited";
+                    TempData["messageType"] = "alert-success";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["message"] = "You're unable to modify a badge you didn't add!";
+                    TempData["messageType"] = "alert-danger";
+                    return RedirectToAction("Index");
+                }
+
+            }
+            else
+            {
+                badge = initBadge(badge);
+                badge.Title = requestBadge.Title;
+                badge.Description = requestBadge.Description;
+
+                if (!(bool)badge.TargetActivity.isPracticeRelated)
+                {
+                    var tags = from bt in db.BadgeTags
+                               join t in db.Tags on bt.TagId equals t.Id
+                               where bt.BadgeId == badge.Id
+                               select new SelectListItem
+                               {
+                                   Value = t.Id.ToString(),
+                                   Text = t.Name,
+                               };
+                    ViewBag.SelectedTags = tags.ToList();
+                }
+                else
+                {
+                    ViewBag.SelectedTags = new List<SelectListItem>();
+                }
                 return View(badge);
             }
         }
@@ -233,6 +327,7 @@ namespace Developer_Toolbox.Controllers
             return selectList;
         }
 
+        [NonAction]
         private async Task<string?> SaveImage(IFormFile file)
         {
             if (file == null)
@@ -267,6 +362,31 @@ namespace Developer_Toolbox.Controllers
 
             var relativeFilePath = Path.Combine(uploadsFolder, uniqueFileName).Replace(Path.DirectorySeparatorChar, '/');
             return $"/{relativeFilePath}";
+        }
+
+        [NonAction]
+        private Badge initBadge(Badge badge)
+        {
+
+            var activities = from act in db.Activities
+                             select act;
+
+            badge.AllTargetActivities = activities.ToList();
+
+            // preluam activitatile posibile pentru dropdown
+            badge.TargetActivities = ActivitiesToSelectItems(activities);
+
+            // preluam categoriile posibile pentru dropdown
+            badge.TargetCategories = GetAllCategories();
+
+
+            // setam dificultatile pentru dropdown
+            ViewBag.LevelOfDifficulty = GetAllLevelsOfDifficulty();
+
+            // preluam tagurile posibile pentru dropdown
+            badge.TargetTagsItems = GetAllTags();
+
+            return badge;
         }
     }
 }
