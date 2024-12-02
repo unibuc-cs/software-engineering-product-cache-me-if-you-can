@@ -35,7 +35,7 @@
                     <label>Select activity</label>
                     @Html.DropDownListFor(m => m.TargetActivityId,
                     new SelectList(Model.TargetActivities, "Value", "Text"),
-                    "Select activity", new { @class = "form-control" })
+                    "Select activity", new { @id = "targetActivity", @class = "form-control"})
 
                     @Html.ValidationMessageFor(m => m.TargetActivityId, null, new { @class = "text-danger" })
                 </div>
@@ -45,16 +45,15 @@
                     @Html.Editor("TargetNoOfTimes", null, new { @class = "form-control" })
                     @Html.ValidationMessageFor(m => m.TargetNoOfTimes, "", new { @class = "text-danger" })
                 </div>
-                <div>
+
+                <div class="optionalFields practiceRelated">
                     <label>Select targeted category</label>
                     @Html.DropDownListFor(m => m.TargetCategoryId,
                     new SelectList(Model.TargetCategories, "Value", "Text"),
                     "Select category", new { @class = "form-control" })
-
-                    @Html.ValidationMessageFor(m => m.TargetCategoryId, null, new { @class = "text-danger" })
                 </div>
 
-                <div class="d-flex gap-1 justify-content-start mt-2">
+                <div class="optionalFields practiceRelated">
                     @Html.Label("Targeted level of difficulty")
                     @Html.DropDownListFor(
                     (badge => badge.TargetLevel),
@@ -64,15 +63,12 @@
                     )
                 </div>
 
-                <div>
+                <div class="optionalFields questionRelated">
                     <label>Select targeted tags</label>
                     @Html.ListBoxFor(m => m.TargetTags,
                     new SelectList(Model.TargetTagsItems, "Value", "Text"),
                     new { @class = "form-control" })
-
-                    @Html.ValidationMessageFor(m => m.TargetTags, null, new { @class = "text-danger" })
                 </div>
-
 
                 <button class="btn btn-outline" style="background-color:#eee; color:black;" type="submit">Add badge</button>
             </form>
@@ -80,3 +76,36 @@
     </div>
 </div>
 
+<script>
+    $(document).ready(function () {
+        $('#targetActivity').change(function () {
+
+            var selectedActivityId = $(this).val();
+
+            if (selectedActivityId !== '') {
+           
+                var allActivities = @Html.Raw(Json.Serialize(Model.AllTargetActivities)); 
+                console.log("all ", allActivities)
+                var selectedActivity = allActivities.find(act => act.id == selectedActivityId);
+                console.log("selected ", selectedActivity)
+
+                if (selectedActivity.isPracticeRelated == null) {
+                    $('.optionalFields').hide();
+                } else {
+                    if (selectedActivity.isPracticeRelated) {
+                        $('.practiceRelated').show();
+                        $('.questionRelated').hide();
+                    } else {
+                        $('.practiceRelated').hide();
+                        $('.questionRelated').show();
+                    }
+                }
+            } else {
+                $('.optionalFields').hide();
+            }
+        });
+
+        // Initially hide the additional fields
+        $('.optionalFields').hide();
+    });
+</script>

@@ -56,8 +56,13 @@ namespace Developer_Toolbox.Controllers
 
             Badge badge = new Badge();
 
+            var activities = from act in db.Activities
+                             select act;
+
+            badge.AllTargetActivities = activities.ToList();
+
             // preluam activitatile posibile pentru dropdown
-            badge.TargetActivities = GetAllActivities();
+            badge.TargetActivities = ActivitiesToSelectItems();
 
             // preluam categoriile posibile pentru dropdown
             badge.TargetCategories = GetAllCategories();
@@ -145,7 +150,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        public IEnumerable<SelectListItem> GetAllActivities()
+        public IEnumerable<SelectListItem> ActivitiesToSelectItems()
         {
             // preluam activitatile disponibile pentru dropdown
             var selectList = new List<SelectListItem>();

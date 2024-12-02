@@ -26,6 +26,8 @@ namespace Developer_Toolbox.Models
         public int? TargetActivityId { get; set; }
         public virtual Activity? TargetActivity { get; set; }
         [NotMapped]
+        public ICollection<Activity>? AllTargetActivities { get; set; }
+        [NotMapped]
         public IEnumerable<SelectListItem>? TargetActivities { get; set; }
 
         [Required(ErrorMessage = "Number of times the user must complete the activity is required!")]
