@@ -24,6 +24,7 @@ namespace Developer_Toolbox.Data
         public DbSet<Reaction> Reactions { get; set; }
         public DbSet<Activity> Activities { get; set; }
         public DbSet<Badge> Badges { get; set; }
+        public DbSet<UserBadge> UserBadges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -88,6 +89,19 @@ namespace Developer_Toolbox.Data
             .HasOne(c => c.User)
             .WithMany(c => c.Reactions)
             .HasForeignKey(c => c.UserId);
+
+            // definire primary key compus
+            modelBuilder.Entity<UserBadge>()
+            .HasKey(ub => new { ub.UserId, ub.BadgeId });
+            // definire relatii cu modelele ApplicationUser si Badge (FK)
+            modelBuilder.Entity<UserBadge>()
+            .HasOne(ub => ub.User)
+            .WithMany(ub => ub.UserBadges)
+            .HasForeignKey(ub => ub.UserId);
+            modelBuilder.Entity<UserBadge>()
+            .HasOne(ub => ub.Badge)
+            .WithMany(ub => ub.UserBadges)
+            .HasForeignKey(ub => ub.BadgeId);
         }
     }
 }

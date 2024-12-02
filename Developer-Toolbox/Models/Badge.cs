@@ -9,6 +9,10 @@ namespace Developer_Toolbox.Models
         [Key]
         public int Id { get; set; }
 
+        public string? AuthorId { get; set; }
+        public virtual ApplicationUser? Author { get; set; }
+
+
         [Required(ErrorMessage = "Title required!")]
         public string? Title { get; set; }
 
@@ -38,7 +42,7 @@ namespace Developer_Toolbox.Models
 
         public virtual string? TargetLevel { get; set; }
 
-        public virtual ICollection<ApplicationUser>? Users { get; set; }
+        public virtual ICollection<UserBadge>? UserBadges { get; set; }
 
     }
 }
