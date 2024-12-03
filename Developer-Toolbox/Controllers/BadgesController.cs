@@ -180,7 +180,7 @@ namespace Developer_Toolbox.Controllers
             requestBadge.TargetNoOfTimes = badge.TargetNoOfTimes;
             requestBadge.TargetActivityId = badge.TargetActivityId;
 
-            // incercam sa uploadam imaginea pentru logo
+            // incercam sa uploadam imaginea
             var res = await SaveImage(file);
 
             if (res == null)
@@ -248,6 +248,53 @@ namespace Developer_Toolbox.Controllers
                 }
                 return View(badge);
             }
+        }
+
+        [Authorize(Roles = "Admin,Moderator")]
+        [HttpPost]
+        public ActionResult Delete(int id)
+        {
+            // verificam daca badge-ul a fost obtinut de useri, caz in care nu mai poate fi sters
+            var alreadyUsed = db.UserBadges.Where(ub => ub.BadgeId == id).Any();
+
+            if(!alreadyUsed)
+            {
+                // preluam badge-ul care trebuie sters
+                Badge badge = db.Badges.Include("BadgeTags")
+                                       .Include("UserBadges")
+                                       .Where(b => b.Id == id)
+                                       .First();
+
+                if (badge.AuthorId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+                {
+                    // stergem imaginea din folder-ul imgs
+                    string path = Path.Join(_env.WebRootPath, badge.Image.Replace('/', '\\'));
+                    System.IO.File.Delete(path);
+
+                    // stergem badge-ul din baza de date
+                    db.Badges.Remove(badge);
+
+                    // commit
+                    db.SaveChanges();
+
+                    TempData["message"] = "The badge has been deleted";
+                    TempData["messageType"] = "alert-success";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["message"] = "You're unable to delete a badge you didn't add!";
+                    TempData["messageType"] = "alert-danger";
+                    return RedirectToAction("Index");
+                }
+            }
+            else
+            {
+                TempData["message"] = "You cannot remove a badge that has already been assigned to users!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+
         }
 
         [NonAction]
