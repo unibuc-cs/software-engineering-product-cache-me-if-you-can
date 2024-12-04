@@ -313,7 +313,11 @@ namespace Developer_Toolbox.Controllers
                 // pentru dropdown
                 ex.Categories = GetAllCategories();
 
-                List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+                List<string> optionsList = new List<string> { 
+                    DifficultyLevelsEnum.Easy.ToString(), 
+                    DifficultyLevelsEnum.Intermediate.ToString(), 
+                    DifficultyLevelsEnum.Difficult.ToString() 
+                };
 
                 // convertim List<string> in List<SelectListItem>
                 List<SelectListItem> selectListItems = optionsList.Select(option =>
@@ -339,7 +343,11 @@ namespace Developer_Toolbox.Controllers
             exercise.Categories = GetAllCategories();
 
             // pentru dropdown dificultate
-            List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+            List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
+                };
 
             // Convert List<string> in List<SelectListItem>
             List<SelectListItem> selectListItems = optionsList.Select(option =>
@@ -399,7 +407,11 @@ namespace Developer_Toolbox.Controllers
                 exercise.Categories = GetAllCategories();
 
                 // pentru dropdown dificultate
-                List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+                List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
+                };
 
                 // convertim List<string> in List<SelectListItem>
                 List<SelectListItem> selectListItems = optionsList.Select(option =>
@@ -619,9 +631,9 @@ public class DifficultyComp : IComparer<string?>
         // pentru o ordonare usoara, transformam gradele de dificultate din string in int
         private int TranslateDifficulty(string? difficulty)
         {
-            if (difficulty.ToLower().Equals("easy")) return 1;
-            if (difficulty.ToLower().Equals("intermediate")) return 2;
-            if (difficulty.ToLower().Equals("difficult")) return 3;
+            if (difficulty.Equals(DifficultyLevelsEnum.Easy.ToString())) return 1;
+            if (difficulty.Equals(DifficultyLevelsEnum.Intermediate.ToString())) return 2;
+            if (difficulty.Equals(DifficultyLevelsEnum.Difficult.ToString())) return 3;
             return 0;
         }
 

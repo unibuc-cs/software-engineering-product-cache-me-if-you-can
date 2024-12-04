@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <label for="file">Upload Image</label>
-                    <input type="file" id="file" name="file" style="margin:1em" />
+                    <input type="file" id="file" name="file" class="form-control" />
                     @Html.ValidationMessage("Image", null, new { @class = "text-danger" })
                 </div>
                 <div>
@@ -41,9 +41,8 @@
                 </div>
                 <div>
                     @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed")
-
-                    @Html.Editor("TargetNoOfTimes", null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.TargetNoOfTimes, "", new { @class = "text-danger" })
+                    @Html.Editor("TargetNoOfTimes", new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(m => m.TargetNoOfTimes, null, new { @class = "text-danger" })
                 </div>
 
                 <div class="optionalFields practiceRelated">

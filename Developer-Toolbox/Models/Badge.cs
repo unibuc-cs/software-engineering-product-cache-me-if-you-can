@@ -14,11 +14,11 @@ namespace Developer_Toolbox.Models
 
 
         [Required(ErrorMessage = "Title required!")]
-        [MaxLength(30, ErrorMessage = "Title must be lees than 30 characters long!")]
+        [MaxLength(30, ErrorMessage = "Title must be less than 30 characters long!")]
         public string? Title { get; set; }
 
         [Required(ErrorMessage = "Description required!")]
-        [MaxLength(150, ErrorMessage = "Description must be lees than 150 characters long!")]
+        [MaxLength(150, ErrorMessage = "Description must be less than 150 characters long!")]
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "The image of the badge is mandatory")]

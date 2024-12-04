@@ -31,6 +31,29 @@ namespace Developer_Toolbox.Controllers
             _roleManager = roleManager;
             _env = environment;
         }
+
+        //Conditii de afisare a butoanelor de editare si stergere
+        private void SetAccessRights()
+        {
+            ViewBag.IsModerator = User.IsInRole("Moderator");
+
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+
+            ViewBag.CurrentUser = _userManager.GetUserId(User);
+
+            // verificam daca are profilul complet
+            bool userProfilComplet = false;
+
+            if (_userManager.GetUserId(User) != null)
+            {
+                // userConectat = true;
+                if (db.ApplicationUsers.Find(_userManager.GetUserId(User)).FirstName != null)
+                    userProfilComplet = true;
+            }
+
+            ViewBag.UserProfilComplet = userProfilComplet;
+        }
+
         public IActionResult Index()
         {
             // transmitem mesajele primite in view
@@ -40,13 +63,34 @@ namespace Developer_Toolbox.Controllers
                 ViewBag.MessageType = TempData["messageType"];
             }
 
+            SetAccessRights();
 
             // preluam categoriile din baza de date 
             var badges = from badge in db.Badges
                              select badge;
 
-            // transmitem categoriile in view
-            ViewBag.Badges = badges;
+
+            // afisare paginata
+            int _perPage = 10;
+
+            int totalItems = badges.Count();
+
+            var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
+
+            var offset = 0;
+
+            if (!currentPage.Equals(0))
+            {
+                offset = (currentPage - 1) * _perPage;
+            }
+
+            var paginatedBadges = badges.Skip(offset).Take(_perPage);
+
+            ViewBag.lastPage = Math.Ceiling((float)totalItems / (float)_perPage);
+
+            // transmitem badge urile in view
+            ViewBag.Badges = paginatedBadges;
+
             return View();
         }
 
@@ -107,6 +151,8 @@ namespace Developer_Toolbox.Controllers
                 TempData["message"] = "The badge has been added";
                 TempData["messageType"] = "alert-success";
 
+                SetAccessRights();
+
                 return RedirectToAction("Index");
 
             }
@@ -164,6 +210,8 @@ namespace Developer_Toolbox.Controllers
             }
             else
             {
+                SetAccessRights();
+
                 TempData["message"] = "You're unable to modify a badge you didn't add!";
                 TempData["messageType"] = "alert-danger";
                 return RedirectToAction("Index");
@@ -174,6 +222,8 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, Badge requestBadge, IFormFile file)
         {
+            SetAccessRights();
+
             // preluam badge-ul cautat
             Badge badge = db.Badges.Find(id);
             requestBadge = initBadge(requestBadge);
@@ -254,6 +304,8 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
+            SetAccessRights();
+
             // verificam daca badge-ul a fost obtinut de useri, caz in care nu mai poate fi sters
             var alreadyUsed = db.UserBadges.Where(ub => ub.BadgeId == id).Any();
 

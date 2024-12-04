@@ -48,6 +48,13 @@
                         <li class="nav-item">
                             <a class="nav-link text-white" style="font-weight:bold;" asp-area="" asp-controller="Questions" asp-action="Index">Ask</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" style="font-weight:bold;" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Rewards</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Activities" asp-action="Index">Activities</a></li>
+                                <li><a class="dropdown-item" asp-controller="Badges" asp-action="Index">Badges</a></li>
+                            </ul>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
