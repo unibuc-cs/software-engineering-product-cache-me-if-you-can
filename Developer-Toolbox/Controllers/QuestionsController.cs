@@ -287,6 +287,7 @@ namespace Developer_Toolbox.Controllers
                 db.SaveChanges();
 
                 RewardActivity((int)ActivitiesEnum.POST_QUESTION);
+                RewardBadge((int)ActivitiesEnum.POST_QUESTION);
 
                 TempData["message"] = "The question has been successfully added.";
                 TempData["messageType"] = "alert-primary";
@@ -403,6 +404,66 @@ namespace Developer_Toolbox.Controllers
 
             user.ReputationPoints += reward;
        
+            db.SaveChanges();
+
+        }
+
+        [NonAction]
+        private void RewardBadge(int activityId)
+        {
+            var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == activityId).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                int noQuestionsPosted;
+
+                if (badge.BadgeTags != null)
+                {
+
+                    Console.WriteLine(badge.BadgeTags.Select(b => b.TagId).ToArray()[0]);
+                    // check if the user posted more than TargetNoOfTimes questions having tags in BadgeTags
+
+                    var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == _userManager.GetUserId(User)).ToList();
+                    noQuestionsPosted = 0;
+                    foreach (var question in questionsPosted)
+                    {
+                        if (question.QuestionTags.Count > 0)
+                        {
+                            var questionTags = question.QuestionTags.Select(q => q.TagId).ToList();
+                            var badgeTags = badge.BadgeTags.Select(b => b.TagId).ToList();
+                            if (questionTags.Intersect(badgeTags).Count() > 0)
+                            {
+                                noQuestionsPosted++;
+                            }
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    // check only if the user posted more than TargetNoOfTimes questions
+                    noQuestionsPosted = db.Questions.Count(q => q.UserId == _userManager.GetUserId(User));
+                    Console.WriteLine(noQuestionsPosted);
+                }
+
+                if (noQuestionsPosted >= badge.TargetNoOfTimes)
+                {
+                    // assign badge
+                    db.UserBadges.Add(new UserBadge
+                    {
+                        UserId = _userManager.GetUserId(User),
+                        BadgeId = badge.Id,
+                        ReceivedAt = DateTime.Now
+                    });
+
+                }
+            }
+
             db.SaveChanges();
 
         }
