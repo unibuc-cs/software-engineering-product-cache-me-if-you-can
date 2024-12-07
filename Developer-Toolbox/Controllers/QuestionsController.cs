@@ -287,7 +287,7 @@ namespace Developer_Toolbox.Controllers
                 db.SaveChanges();
 
                 RewardActivity((int)ActivitiesEnum.POST_QUESTION);
-                RewardBadge((int)ActivitiesEnum.POST_QUESTION);
+                RewardBadge();
 
                 TempData["message"] = "The question has been successfully added.";
                 TempData["messageType"] = "alert-primary";
@@ -409,9 +409,9 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardBadge(int activityId)
+        private void RewardBadge()
         {
-            var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == activityId).ToList();
+            var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_QUESTION).ToList();
             if (badges == null) { return; }
 
             foreach (var badge in badges)
@@ -424,8 +424,6 @@ namespace Developer_Toolbox.Controllers
 
                 if (badge.BadgeTags != null)
                 {
-
-                    Console.WriteLine(badge.BadgeTags.Select(b => b.TagId).ToArray()[0]);
                     // check if the user posted more than TargetNoOfTimes questions having tags in BadgeTags
 
                     var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == _userManager.GetUserId(User)).ToList();
@@ -448,7 +446,6 @@ namespace Developer_Toolbox.Controllers
                 {
                     // check only if the user posted more than TargetNoOfTimes questions
                     noQuestionsPosted = db.Questions.Count(q => q.UserId == _userManager.GetUserId(User));
-                    Console.WriteLine(noQuestionsPosted);
                 }
 
                 if (noQuestionsPosted >= badge.TargetNoOfTimes)
