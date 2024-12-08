@@ -5,11 +5,14 @@
     }
     <br />
 
-    <div class="d-flex justify-content-end">
-        <a class=" btn btn-success custom-btn mr-10" href="/Badges/New">New Badge</a>
-    </div>
+    @if (ViewBag.IsAdmin || ViewBag.IsModerator)
+    {
+        <div class="d-flex justify-content-end">
+            <a class=" btn btn-success custom-btn mr-10" href="/Badges/New">New Badge</a>
+        </div>
 
-    <hr />
+        <hr />
+    }
 
     <h2 class="text-center"> Badges <i class="bi bi-clipboard2-check-fill"></i> </h2>
     <br />
