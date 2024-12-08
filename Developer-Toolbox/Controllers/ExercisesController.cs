@@ -302,7 +302,7 @@ namespace Developer_Toolbox.Controllers
 
                 RewardActivity((int)ActivitiesEnum.ADD_EXERCISE);
 
-                RewardBadge();
+                RewardBadgeForAddingExercise();
 
                 TempData["message"] = "The Exercise has been added";
                 TempData["messageType"] = "alert-success";
@@ -504,20 +504,21 @@ namespace Developer_Toolbox.Controllers
                             var score = Convert.ToDouble(innerResult["score"]);
                             solution1.Score = (int?)score;
 
+                            db.Add(solution1);
+                            db.SaveChanges();
 
                             if (solution1.Score == 100)
                             {
                                 // reward only if it is the first 100 score solution for the exercise
                                 var solutions = db.Solutions.Where(s => s.ExerciseId == id && s.UserId == _userManager.GetUserId(User) && s.Score == 100);
-                                var alreadySolved = solutions.Any();
+                                var alreadySolved = solutions.Count() > 1;
                                 if (!alreadySolved)
                                 {
                                     RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE);
+                                    RewardBadgeForSolvingExercise(id);
                                 }
                             }
 
-                            db.Add(solution1);
-                            db.SaveChanges();
                             return Json(new { status = 200, test_results = jsonResponse, score = score });
                         }
                     }
@@ -623,7 +624,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardBadge()
+        private void RewardBadgeForAddingExercise()
         {
             var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_EXERCISE).ToList();
             if (badges == null) { return; }
@@ -637,6 +638,58 @@ namespace Developer_Toolbox.Controllers
                 int noExercisesPosted = db.Exercises.Count(ex => ex.UserId == _userManager.GetUserId(User));
 
                 if (noExercisesPosted >= badge.TargetNoOfTimes)
+                {
+                    // assign badge
+                    db.UserBadges.Add(new UserBadge
+                    {
+                        UserId = _userManager.GetUserId(User),
+                        BadgeId = badge.Id,
+                        ReceivedAt = DateTime.Now
+                    });
+
+                }
+            }
+
+            db.SaveChanges();
+
+        }
+
+
+        [NonAction]
+        private void RewardBadgeForSolvingExercise(int exerciseId)
+        {
+            var badges = db.Badges.Include("TargetCategory").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.SOLVE_EXERCISE).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                int noExercisesSolved = 0;
+
+                var exercisesSolved = db.Solutions.Include("Exercise").Where(s => s.UserId == _userManager.GetUserId(User) && s.Score == 100).Select(s => s.Exercise).Distinct().ToList();
+
+                if (badge.TargetLevel != null && badge.TargetCategory != null)
+                {
+                    // check if the user solved more than TargetNoOfTimes exercises having both category = TargetCategory and level = TargetLevel
+                    noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory) && ex.Difficulty.Equals(badge.TargetLevel));
+                }
+                else if (badge.TargetLevel != null)
+                {
+                    noExercisesSolved = exercisesSolved.Count(ex => ex.Difficulty.Equals(badge.TargetLevel));
+                }
+                else if (badge.TargetCategory != null)
+                {
+                    noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory));
+                }
+                else
+                {
+                    noExercisesSolved = exercisesSolved.Count();
+                }
+
+                if (noExercisesSolved >= badge.TargetNoOfTimes)
                 {
                     // assign badge
                     db.UserBadges.Add(new UserBadge
