@@ -302,6 +302,8 @@ namespace Developer_Toolbox.Controllers
 
                 RewardActivity((int)ActivitiesEnum.ADD_EXERCISE);
 
+                RewardBadge();
+
                 TempData["message"] = "The Exercise has been added";
                 TempData["messageType"] = "alert-success";
 
@@ -616,6 +618,37 @@ namespace Developer_Toolbox.Controllers
             if (user == null) { return; }
 
             user.ReputationPoints += reward;
+            db.SaveChanges();
+
+        }
+
+        [NonAction]
+        private void RewardBadge()
+        {
+            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_EXERCISE).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                int noExercisesPosted = db.Exercises.Count(ex => ex.UserId == _userManager.GetUserId(User));
+
+                if (noExercisesPosted >= badge.TargetNoOfTimes)
+                {
+                    // assign badge
+                    db.UserBadges.Add(new UserBadge
+                    {
+                        UserId = _userManager.GetUserId(User),
+                        BadgeId = badge.Id,
+                        ReceivedAt = DateTime.Now
+                    });
+
+                }
+            }
+
             db.SaveChanges();
 
         }
