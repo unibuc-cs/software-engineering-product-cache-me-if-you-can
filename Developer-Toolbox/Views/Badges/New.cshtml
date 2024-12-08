@@ -46,14 +46,14 @@
                 </div>
 
                 <div class="optionalFields practiceRelated">
-                    <label>Select targeted category</label>
+                    <label>Select targeted category (optional)</label>
                     @Html.DropDownListFor(m => m.TargetCategoryId,
                     new SelectList(Model.TargetCategories, "Value", "Text"),
                     "Select category", new { @class = "form-control" })
                 </div>
 
                 <div class="optionalFields practiceRelated">
-                    @Html.Label("Targeted level of difficulty")
+                    @Html.Label("Targeted level of difficulty (optional)")
                     @Html.DropDownListFor(
                     (badge => badge.TargetLevel),
                     (IEnumerable<SelectListItem>)ViewBag.LevelOfDifficulty,
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="optionalFields questionRelated">
-                    <label>Select targeted tags</label>
+                    <label>Select targeted tags (optional)</label>
                     @Html.ListBoxFor(m => m.SelectedTagsIds,
                     new SelectList(Model.TargetTagsItems, "Value", "Text"),
                     new { @class = "form-control" })

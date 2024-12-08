@@ -3,6 +3,7 @@ using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -76,6 +77,9 @@ namespace Developer_Toolbox.Controllers
 
                 
                 db.SaveChanges();
+
+                RewardBadge(question.UserId);
+
                 return Redirect("/Questions/Show/" + questionId);// Redirecționam la pagina intrebarii
             }
             // Tratam cazul în care întrebarea nu există sau alte erori
@@ -216,6 +220,66 @@ namespace Developer_Toolbox.Controllers
             {
                 user.ReputationPoints += reward;
             }
+            db.SaveChanges();
+
+        }
+
+        [NonAction]
+        private void RewardBadge(string questionAuthorId)
+        {
+            var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.BE_UPVOTED).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == questionAuthorId);
+                if (usersBadges) continue;
+
+                int noUpvotes = 0;
+
+                var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == questionAuthorId).ToList();
+
+                if (badge.BadgeTags?.Count != 0)
+                {
+                    // check if the user has been upvoted more than TargetNoOfTimes
+                    foreach (var question in questionsPosted)
+                    {
+                        if (question.QuestionTags?.Count > 0)
+                        {
+                            var questionTags = question.QuestionTags.Select(q => q.TagId).ToList();
+                            var badgeTags = badge.BadgeTags?.Select(b => b.TagId).ToList();
+                            if (questionTags.Intersect(badgeTags).Count() > 0)
+                            {
+                                noUpvotes += (int)(question.LikesNr == null ? 0 : question.LikesNr);
+                            }
+                        }
+
+                    }
+                }
+                else
+                {
+                    foreach (var question in questionsPosted)
+                    {
+                        noUpvotes += (int)question.LikesNr;
+
+                    }
+                }
+
+                // check only if the user received more upvotes than TargetNoOfTimes
+                if (noUpvotes >= badge.TargetNoOfTimes)
+                {
+                    // assign badge
+                    db.UserBadges.Add(new UserBadge
+                    {
+                        UserId = questionAuthorId,
+                        BadgeId = badge.Id,
+                        ReceivedAt = DateTime.Now
+                    });
+
+                }
+            }
+
             db.SaveChanges();
 
         }

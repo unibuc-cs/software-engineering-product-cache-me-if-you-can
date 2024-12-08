@@ -166,10 +166,8 @@ namespace Developer_Toolbox.Controllers
 
                 int noAnswersPosted;
 
-                if (badge.BadgeTags != null)
+                if (badge.BadgeTags?.Count != 0)
                 {
-
-                    Console.WriteLine(badge.BadgeTags.Select(b => b.TagId).ToArray()[0]);
                     // check if the user posted more than TargetNoOfTimes answers to questions having tags in BadgeTags
 
                     var answersPosted = db.Answers.Include("Question").Include("Question.QuestionTags").Where(a => a.UserId == _userManager.GetUserId(User)).ToList();

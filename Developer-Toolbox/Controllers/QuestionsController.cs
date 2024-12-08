@@ -422,7 +422,7 @@ namespace Developer_Toolbox.Controllers
 
                 int noQuestionsPosted;
 
-                if (badge.BadgeTags != null)
+                if (badge.BadgeTags?.Count != 0)
                 {
                     // check if the user posted more than TargetNoOfTimes questions having tags in BadgeTags
 
@@ -430,10 +430,10 @@ namespace Developer_Toolbox.Controllers
                     noQuestionsPosted = 0;
                     foreach (var question in questionsPosted)
                     {
-                        if (question.QuestionTags.Count > 0)
+                        if (question.QuestionTags?.Count > 0)
                         {
                             var questionTags = question.QuestionTags.Select(q => q.TagId).ToList();
-                            var badgeTags = badge.BadgeTags.Select(b => b.TagId).ToList();
+                            var badgeTags = badge.BadgeTags?.Select(b => b.TagId).ToList();
                             if (questionTags.Intersect(badgeTags).Count() > 0)
                             {
                                 noQuestionsPosted++;
