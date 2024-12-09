@@ -7,14 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Web;
-using Xunit.Sdk;
 using System.Text.RegularExpressions;
-using Humanizer;
 using Developer_Toolbox.Repositories;
+using Developer_Toolbox.Interfaces;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -25,19 +22,23 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IExerciseRepository _exerciseRepository;
+        private readonly IRewardBadge _IRewardBadge;
 
         // This is for code execution:  <summary>
         private readonly HttpClient _httpClient;
 
         public ExercisesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, HttpClient httpClient, IExerciseRepository exerciseRepository)
+            RoleManager<IdentityRole> roleManager, HttpClient httpClient, 
+            IExerciseRepository exerciseRepository,
+            IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _httpClient = httpClient;   // variable for http request to send the code
             _exerciseRepository = exerciseRepository;
+            _IRewardBadge = iRewardBadge;
         }
 
 
@@ -635,22 +636,8 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                int noExercisesPosted = db.Exercises.Count(ex => ex.UserId == _userManager.GetUserId(User));
-
-                if (noExercisesPosted >= badge.TargetNoOfTimes)
-                {
-                    // assign badge
-                    db.UserBadges.Add(new UserBadge
-                    {
-                        UserId = _userManager.GetUserId(User),
-                        BadgeId = badge.Id,
-                        ReceivedAt = DateTime.Now
-                    });
-
-                }
+                _IRewardBadge.RewardAddExerciseBadge(badge, _userManager.GetUserId(User));
             }
-
-            db.SaveChanges();
 
         }
 
@@ -667,42 +654,8 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                int noExercisesSolved = 0;
-
-                var exercisesSolved = db.Solutions.Include("Exercise").Where(s => s.UserId == _userManager.GetUserId(User) && s.Score == 100).Select(s => s.Exercise).Distinct().ToList();
-
-                if (badge.TargetLevel != null && badge.TargetCategory != null)
-                {
-                    // check if the user solved more than TargetNoOfTimes exercises having both category = TargetCategory and level = TargetLevel
-                    noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory) && ex.Difficulty.Equals(badge.TargetLevel));
-                }
-                else if (badge.TargetLevel != null)
-                {
-                    noExercisesSolved = exercisesSolved.Count(ex => ex.Difficulty.Equals(badge.TargetLevel));
-                }
-                else if (badge.TargetCategory != null)
-                {
-                    noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory));
-                }
-                else
-                {
-                    noExercisesSolved = exercisesSolved.Count();
-                }
-
-                if (noExercisesSolved >= badge.TargetNoOfTimes)
-                {
-                    // assign badge
-                    db.UserBadges.Add(new UserBadge
-                    {
-                        UserId = _userManager.GetUserId(User),
-                        BadgeId = badge.Id,
-                        ReceivedAt = DateTime.Now
-                    });
-
-                }
+                _IRewardBadge.RewardSolveExerciseBadge(badge, _userManager.GetUserId(User));
             }
-
-            db.SaveChanges();
 
         }
     }

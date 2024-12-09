@@ -1,4 +1,5 @@
 ﻿using Developer_Toolbox.Data;
+using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -14,16 +15,19 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAnswerRepository _answerRepository;
+        private readonly IRewardBadge _IRewardBadge;
 
         public AnswersController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IAnswerRepository answerRepository)
+            IAnswerRepository answerRepository,
+            IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _answerRepository = answerRepository;
+            _IRewardBadge = iRewardBadge;
         }
 
         private void SetAccessRights()
@@ -164,49 +168,9 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                int noAnswersPosted;
-
-                if (badge.BadgeTags?.Count != 0)
-                {
-                    // check if the user posted more than TargetNoOfTimes answers to questions having tags in BadgeTags
-
-                    var answersPosted = db.Answers.Include("Question").Include("Question.QuestionTags").Where(a => a.UserId == _userManager.GetUserId(User)).ToList();
-                    Console.WriteLine(answersPosted);
-                    noAnswersPosted = 0;
-                    foreach (var answer in answersPosted)
-                    {
-                        if (answer.Question?.QuestionTags?.Count > 0)
-                        {
-                            var questionTags = answer.Question.QuestionTags.Select(q => q.TagId).ToList();
-                            var badgeTags = badge.BadgeTags.Select(b => b.TagId).ToList();
-                            if (questionTags.Intersect(badgeTags).Count() > 0)
-                            {
-                                noAnswersPosted++;
-                            }
-                        }
-
-                    }
-                }
-                else
-                {
-                    // check only if the user posted more than TargetNoOfTimes questions
-                    noAnswersPosted = db.Answers.Count(q => q.UserId == _userManager.GetUserId(User));
-                }
-
-                if (noAnswersPosted >= badge.TargetNoOfTimes)
-                {
-                    // assign badge
-                    db.UserBadges.Add(new UserBadge
-                    {
-                        UserId = _userManager.GetUserId(User),
-                        BadgeId = badge.Id,
-                        ReceivedAt = DateTime.Now
-                    });
-
-                }
+                _IRewardBadge.RewardPostAnswerBadge(badge, _userManager.GetUserId(User));
+                
             }
-
-            db.SaveChanges();
 
         }
 

@@ -1,16 +1,11 @@
-﻿using Castle.Core.Resource;
-using Developer_Toolbox.Data;
+﻿using Developer_Toolbox.Data;
+using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
-using Developer_Toolbox.Repositories;
-using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -20,16 +15,19 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private IWebHostEnvironment _env;
+        private readonly IRewardBadge _IRewardBadge;
 
         public BadgesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _env = environment;
+            _IRewardBadge = iRewardBadge;
         }
 
         //Conditii de afisare a butoanelor de editare si stergere
@@ -147,6 +145,8 @@ namespace Developer_Toolbox.Controllers
                     }
                     db.SaveChanges();
                 }
+
+                RewardBadge(badge);
 
                 TempData["message"] = "The badge has been added";
                 TempData["messageType"] = "alert-success";
@@ -487,5 +487,35 @@ namespace Developer_Toolbox.Controllers
 
             return badge;
         }
+
+        [NonAction]
+        private void RewardBadge(Badge badge)
+        {
+            var userIds = db.ApplicationUsers.Select(u => u.Id).ToList();
+
+            foreach (var userId in userIds) 
+            {
+                switch (badge.TargetActivityId)
+                {
+                    case (int)ActivitiesEnum.POST_QUESTION:
+                        _IRewardBadge.RewardPostQuestionBadge(badge, userId);
+                        break;
+                    case (int)ActivitiesEnum.POST_ANSWER:
+                        _IRewardBadge.RewardPostAnswerBadge(badge, userId);
+                        break;
+                    case (int)ActivitiesEnum.BE_UPVOTED:
+                        _IRewardBadge.RewardBeUpvotedBadge(badge, userId);
+                        break;
+                    case (int)ActivitiesEnum.SOLVE_EXERCISE:
+                        _IRewardBadge.RewardSolveExerciseBadge(badge, userId);
+                        break;
+                    case (int)ActivitiesEnum.ADD_EXERCISE:
+                        _IRewardBadge.RewardAddExerciseBadge(badge, userId);
+                        break;
+                }
+            }
+
+        }
+
     }
 }

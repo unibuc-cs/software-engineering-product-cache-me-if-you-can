@@ -1,13 +1,10 @@
 ﻿using Developer_Toolbox.Data;
+using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System.Threading.Channels;
-using static Humanizer.On;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -18,16 +15,19 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IQuestionRepository _questionRepository;
+        private readonly IRewardBadge _IRewardBadge;
 
         public QuestionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IQuestionRepository questionRepository)
+            IQuestionRepository questionRepository,
+             IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _questionRepository = questionRepository;
+            _IRewardBadge = iRewardBadge;
         }
 
         private void SetAccessRights()
@@ -420,48 +420,8 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                int noQuestionsPosted;
-
-                if (badge.BadgeTags?.Count != 0)
-                {
-                    // check if the user posted more than TargetNoOfTimes questions having tags in BadgeTags
-
-                    var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == _userManager.GetUserId(User)).ToList();
-                    noQuestionsPosted = 0;
-                    foreach (var question in questionsPosted)
-                    {
-                        if (question.QuestionTags?.Count > 0)
-                        {
-                            var questionTags = question.QuestionTags.Select(q => q.TagId).ToList();
-                            var badgeTags = badge.BadgeTags?.Select(b => b.TagId).ToList();
-                            if (questionTags.Intersect(badgeTags).Count() > 0)
-                            {
-                                noQuestionsPosted++;
-                            }
-                        }
-                        
-                    }
-                }
-                else
-                {
-                    // check only if the user posted more than TargetNoOfTimes questions
-                    noQuestionsPosted = db.Questions.Count(q => q.UserId == _userManager.GetUserId(User));
-                }
-
-                if (noQuestionsPosted >= badge.TargetNoOfTimes)
-                {
-                    // assign badge
-                    db.UserBadges.Add(new UserBadge
-                    {
-                        UserId = _userManager.GetUserId(User),
-                        BadgeId = badge.Id,
-                        ReceivedAt = DateTime.Now
-                    });
-
-                }
+                _IRewardBadge.RewardPostQuestionBadge(badge, _userManager.GetUserId(User));
             }
-
-            db.SaveChanges();
 
         }
 

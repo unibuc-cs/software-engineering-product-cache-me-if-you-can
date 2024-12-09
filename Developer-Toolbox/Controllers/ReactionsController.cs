@@ -1,4 +1,5 @@
 ﻿using Developer_Toolbox.Data;
+using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -15,16 +16,19 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IReactionRepository _reactionRepository;
+        private readonly IRewardBadge _IRewardBadge;
 
         public ReactionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IReactionRepository reactionRepository)
+            IReactionRepository reactionRepository,
+            IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _reactionRepository = reactionRepository;
+            _IRewardBadge = iRewardBadge;
         }
 
         private void SetAccessRights()
@@ -236,51 +240,8 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == questionAuthorId);
                 if (usersBadges) continue;
 
-                int noUpvotes = 0;
-
-                var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == questionAuthorId).ToList();
-
-                if (badge.BadgeTags?.Count != 0)
-                {
-                    // check if the user has been upvoted more than TargetNoOfTimes
-                    foreach (var question in questionsPosted)
-                    {
-                        if (question.QuestionTags?.Count > 0)
-                        {
-                            var questionTags = question.QuestionTags.Select(q => q.TagId).ToList();
-                            var badgeTags = badge.BadgeTags?.Select(b => b.TagId).ToList();
-                            if (questionTags.Intersect(badgeTags).Count() > 0)
-                            {
-                                noUpvotes += (int)(question.LikesNr == null ? 0 : question.LikesNr);
-                            }
-                        }
-
-                    }
-                }
-                else
-                {
-                    foreach (var question in questionsPosted)
-                    {
-                        noUpvotes += (int)question.LikesNr;
-
-                    }
-                }
-
-                // check only if the user received more upvotes than TargetNoOfTimes
-                if (noUpvotes >= badge.TargetNoOfTimes)
-                {
-                    // assign badge
-                    db.UserBadges.Add(new UserBadge
-                    {
-                        UserId = questionAuthorId,
-                        BadgeId = badge.Id,
-                        ReceivedAt = DateTime.Now
-                    });
-
-                }
+                _IRewardBadge.RewardBeUpvotedBadge(badge, questionAuthorId);
             }
-
-            db.SaveChanges();
 
         }
 
