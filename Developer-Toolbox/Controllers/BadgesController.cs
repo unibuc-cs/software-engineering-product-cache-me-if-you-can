@@ -120,6 +120,15 @@ namespace Developer_Toolbox.Controllers
 
             if (ModelState.IsValid)
             {
+                if (isDuplicate(badge))
+                {
+                    TempData["message"] = "The badge hasn't been added because it is a duplicate!";
+                    TempData["messageType"] = "alert-danger";
+
+                    SetAccessRights();
+
+                    return RedirectToAction("Index");
+                }
                 badge.AuthorId = _userManager.GetUserId(User);
 
                 // incercam sa uploadam imaginea pentru logo
@@ -512,6 +521,48 @@ namespace Developer_Toolbox.Controllers
                     case (int)ActivitiesEnum.ADD_EXERCISE:
                         _IRewardBadge.RewardAddExerciseBadge(badge, userId);
                         break;
+                }
+            }
+
+        }
+
+        [NonAction]
+        private bool isDuplicate(Badge badge)
+        {
+            var badgesForTheSameActivityAndNoOfTimes = db.Badges.Include("BadgeTags").Include("TargetCategory").Where(b => b.TargetActivityId == badge.TargetActivityId && b.TargetNoOfTimes == badge.TargetNoOfTimes).ToList();
+            var activity = db.Activities.Where(a => a.Id == badge.TargetActivityId).FirstOrDefault();
+            if ((bool)activity.isPracticeRelated)
+            {
+                if (badge.TargetCategoryId != null && badge.TargetLevel != null)
+                {
+                    return badgesForTheSameActivityAndNoOfTimes.Any(b => b.TargetCategoryId.Equals(badge.TargetCategoryId) && b.TargetLevel.Equals(badge.TargetLevel));
+                }
+                else if (badge.TargetCategoryId != null)
+                {
+                    return badgesForTheSameActivityAndNoOfTimes.Any(b => b.TargetCategoryId.Equals(badge.TargetCategoryId));
+                }
+                else if (badge.TargetLevel != null)
+                {
+                    return badgesForTheSameActivityAndNoOfTimes.Any(b => b.TargetLevel.Equals(badge.TargetLevel));
+                }
+                else
+                {
+                    return badgesForTheSameActivityAndNoOfTimes.Any();
+                }
+            } 
+            else if (badge.TargetActivityId == (int)ActivitiesEnum.ADD_EXERCISE)
+            {
+                return badgesForTheSameActivityAndNoOfTimes.Any();
+            }
+            else
+            {
+                if (badge.BadgeTags != null && badge.BadgeTags.Any())
+                {
+                    return badgesForTheSameActivityAndNoOfTimes.Any(b => b.BadgeTags != null && b.BadgeTags.Equals(badge.BadgeTags));
+                }
+                else
+                {
+                    return badgesForTheSameActivityAndNoOfTimes.Any();
                 }
             }
 

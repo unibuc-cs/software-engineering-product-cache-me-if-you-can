@@ -28,7 +28,7 @@ namespace Developer_Toolbox.Models
         public int? TargetActivityId { get; set; }
         public virtual Activity? TargetActivity { get; set; }
         [NotMapped]
-        public ICollection<Activity>? AllTargetActivities { get; set; }
+        public virtual ICollection<Activity>? AllTargetActivities { get; set; }
         [NotMapped]
         public IEnumerable<SelectListItem>? TargetActivities { get; set; }
 
