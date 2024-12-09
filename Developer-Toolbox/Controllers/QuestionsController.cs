@@ -1,12 +1,10 @@
 ﻿using Developer_Toolbox.Data;
+using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using static Humanizer.On;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -17,16 +15,19 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IQuestionRepository _questionRepository;
+        private readonly IRewardBadge _IRewardBadge;
 
         public QuestionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IQuestionRepository questionRepository)
+            IQuestionRepository questionRepository,
+             IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _questionRepository = questionRepository;
+            _IRewardBadge = iRewardBadge;
         }
 
         private void SetAccessRights()
@@ -285,6 +286,9 @@ namespace Developer_Toolbox.Controllers
                 db.Questions.Add(question);
                 db.SaveChanges();
 
+                RewardActivity((int)ActivitiesEnum.POST_QUESTION);
+                RewardBadge();
+
                 TempData["message"] = "The question has been successfully added.";
                 TempData["messageType"] = "alert-primary";
 
@@ -387,6 +391,38 @@ namespace Developer_Toolbox.Controllers
             }
 
             return View(question);
+        }
+
+        [NonAction]
+        private void RewardActivity(int activityId)
+        {
+            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
+            if (reward == null) { return; }
+
+            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
+            if (user == null) { return; }
+
+            user.ReputationPoints += reward;
+       
+            db.SaveChanges();
+
+        }
+
+        [NonAction]
+        private void RewardBadge()
+        {
+            var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_QUESTION).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                _IRewardBadge.RewardPostQuestionBadge(badge, _userManager.GetUserId(User));
+            }
+
         }
 
     }

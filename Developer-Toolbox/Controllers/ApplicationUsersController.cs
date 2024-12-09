@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -96,7 +97,8 @@ namespace Developer_Toolbox.Controllers
             ViewBag.Answers = answers;
             ViewBag.AnswerCount = answerCount;
             ViewBag.QuestionCount = questionCount;
-            ViewBag.Scor = answerCount * 10 + questionCount * 5;
+            /*            ViewBag.Scor = answerCount * 10 + questionCount * 5;*/
+            ViewBag.Scor = user.ReputationPoints;
 
 
             if (TempData.ContainsKey("message"))
@@ -125,8 +127,9 @@ namespace Developer_Toolbox.Controllers
 
             user.Id = _userManager.GetUserId(User);
 
-           // if (ModelState.IsValid)
-           // {
+            // if (ModelState.IsValid)
+            // {
+                user.ReputationPoints = 0;
 
                 db.ApplicationUsers.Add(user);
 

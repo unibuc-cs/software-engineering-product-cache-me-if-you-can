@@ -7,14 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Web;
-using Xunit.Sdk;
 using System.Text.RegularExpressions;
-using Humanizer;
 using Developer_Toolbox.Repositories;
+using Developer_Toolbox.Interfaces;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -25,19 +22,23 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IExerciseRepository _exerciseRepository;
+        private readonly IRewardBadge _IRewardBadge;
 
         // This is for code execution:  <summary>
         private readonly HttpClient _httpClient;
 
         public ExercisesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, HttpClient httpClient, IExerciseRepository exerciseRepository)
+            RoleManager<IdentityRole> roleManager, HttpClient httpClient, 
+            IExerciseRepository exerciseRepository,
+            IRewardBadge iRewardBadge)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _httpClient = httpClient;   // variable for http request to send the code
             _exerciseRepository = exerciseRepository;
+            _IRewardBadge = iRewardBadge;
         }
 
 
@@ -300,6 +301,10 @@ namespace Developer_Toolbox.Controllers
 
                 db.SaveChanges();
 
+                RewardActivity((int)ActivitiesEnum.ADD_EXERCISE);
+
+                RewardBadgeForAddingExercise();
+
                 TempData["message"] = "The Exercise has been added";
                 TempData["messageType"] = "alert-success";
 
@@ -311,7 +316,11 @@ namespace Developer_Toolbox.Controllers
                 // pentru dropdown
                 ex.Categories = GetAllCategories();
 
-                List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+                List<string> optionsList = new List<string> { 
+                    DifficultyLevelsEnum.Easy.ToString(), 
+                    DifficultyLevelsEnum.Intermediate.ToString(), 
+                    DifficultyLevelsEnum.Difficult.ToString() 
+                };
 
                 // convertim List<string> in List<SelectListItem>
                 List<SelectListItem> selectListItems = optionsList.Select(option =>
@@ -337,7 +346,11 @@ namespace Developer_Toolbox.Controllers
             exercise.Categories = GetAllCategories();
 
             // pentru dropdown dificultate
-            List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+            List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
+                };
 
             // Convert List<string> in List<SelectListItem>
             List<SelectListItem> selectListItems = optionsList.Select(option =>
@@ -397,7 +410,11 @@ namespace Developer_Toolbox.Controllers
                 exercise.Categories = GetAllCategories();
 
                 // pentru dropdown dificultate
-                List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+                List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
+                };
 
                 // convertim List<string> in List<SelectListItem>
                 List<SelectListItem> selectListItems = optionsList.Select(option =>
@@ -426,8 +443,11 @@ namespace Developer_Toolbox.Controllers
             //nu permiterm stergerea exercitiului decat de admin sau de autorul lui
             if (exercise.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
             {
+
                 db.Exercises.Remove(exercise);
                 db.SaveChanges();
+
+
                 TempData["message"] = "The exercise has been deleted!";
                 TempData["messageType"] = "alert-danger";
 
@@ -484,8 +504,21 @@ namespace Developer_Toolbox.Controllers
                         {
                             var score = Convert.ToDouble(innerResult["score"]);
                             solution1.Score = (int?)score;
+
                             db.Add(solution1);
                             db.SaveChanges();
+
+                            if (solution1.Score == 100)
+                            {
+                                // reward only if it is the first 100 score solution for the exercise
+                                var solutions = db.Solutions.Where(s => s.ExerciseId == id && s.UserId == _userManager.GetUserId(User) && s.Score == 100);
+                                var alreadySolved = solutions.Count() > 1;
+                                if (!alreadySolved)
+                                {
+                                    RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE);
+                                    RewardBadgeForSolvingExercise(id);
+                                }
+                            }
 
                             return Json(new { status = 200, test_results = jsonResponse, score = score });
                         }
@@ -576,6 +609,55 @@ namespace Developer_Toolbox.Controllers
 
             return View(exercise);
         }
+
+        [NonAction]
+        private void RewardActivity(int activityId)
+        {
+            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
+            if (reward == null) { return; }
+
+            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
+            if (user == null) { return; }
+
+            user.ReputationPoints += reward;
+            db.SaveChanges();
+
+        }
+
+        [NonAction]
+        private void RewardBadgeForAddingExercise()
+        {
+            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_EXERCISE).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                _IRewardBadge.RewardAddExerciseBadge(badge, _userManager.GetUserId(User));
+            }
+
+        }
+
+
+        [NonAction]
+        private void RewardBadgeForSolvingExercise(int exerciseId)
+        {
+            var badges = db.Badges.Include("TargetCategory").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.SOLVE_EXERCISE).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                _IRewardBadge.RewardSolveExerciseBadge(badge, _userManager.GetUserId(User));
+            }
+
+        }
     }
 
     }
@@ -588,9 +670,9 @@ public class DifficultyComp : IComparer<string?>
         // pentru o ordonare usoara, transformam gradele de dificultate din string in int
         private int TranslateDifficulty(string? difficulty)
         {
-            if (difficulty.ToLower().Equals("easy")) return 1;
-            if (difficulty.ToLower().Equals("intermediate")) return 2;
-            if (difficulty.ToLower().Equals("difficult")) return 3;
+            if (difficulty.Equals(DifficultyLevelsEnum.Easy.ToString())) return 1;
+            if (difficulty.Equals(DifficultyLevelsEnum.Intermediate.ToString())) return 2;
+            if (difficulty.Equals(DifficultyLevelsEnum.Difficult.ToString())) return 3;
             return 0;
         }
 
