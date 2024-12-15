@@ -38,5 +38,8 @@ namespace Developer_Toolbox.Models
         [Required(ErrorMessage = "Test cases required")]
         public string? TestCases { get; set; }
 
+        // Relație Many-to-Many cu WeeklyChallenge
+        public virtual ICollection<WeeklyChallengeExercise>? WeeklyChallengeExercises { get; set; }
+
     }
 }
