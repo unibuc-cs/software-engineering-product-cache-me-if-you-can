@@ -24,6 +24,7 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _emailService;
 
         // This is for code execution:  <summary>
         private readonly HttpClient _httpClient;
@@ -32,7 +33,7 @@ namespace Developer_Toolbox.Controllers
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, HttpClient httpClient,
             IExerciseRepository exerciseRepository,
-            IRewardBadge iRewardBadge)
+            IRewardBadge iRewardBadge, IEmailService emailService)
         {
             db = context;
             _userManager = userManager;
@@ -40,6 +41,7 @@ namespace Developer_Toolbox.Controllers
             _httpClient = httpClient;   // variable for http request to send the code
             _exerciseRepository = exerciseRepository;
             _IRewardBadge = iRewardBadge;
+            _emailService = emailService;
         }
 
 
