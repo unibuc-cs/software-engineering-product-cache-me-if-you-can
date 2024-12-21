@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -46,19 +47,73 @@ namespace Developer_Toolbox.Controllers
             // Preluăm datele din baza de date
             var weeklyChallenges = db.WeeklyChallenges
                                       .OrderByDescending(wc => wc.StartDate);
+            // MOTOR DE CAUTARE
 
-            // Afisare paginată
-            int perPage = 3;
+            var search = "";
+            if (Convert.ToString(HttpContext.Request.Query["search"]) != null)
+            {
+                search = Convert.ToString(HttpContext.Request.Query["search"]).Trim();
+                // Cautare challenge(dupa titlu si descriere)
+                weeklyChallenges = db.WeeklyChallenges
+                    .Where(wc => wc.Title.Contains(search) || wc.Description.Contains(search))
+                    .OrderByDescending(wc => wc.StartDate);
+
+            }
+
+            //AFISARE PAGINATA
+
+            // Alegem sa afisam 3 articole pe pagina
+            int _perPage = 3;
+
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.message = TempData["message"].ToString();
+            }
+
+
+            // Fiind un numar variabil de intrebari, verificam de fiecare data utilizand 
+            // metoda Count()
+
+            int totalItems = weeklyChallenges.Count();
+
+
+            // Se preia pagina curenta din View-ul asociat
+            // Numarul paginii este valoarea parametrului page din ruta
+            // /Questions/Index?page=valoare
+
             var currentPage = Convert.ToInt32(HttpContext.Request.Query["page"]);
-            if (currentPage == 0) currentPage = 1;
 
-            var offset = (currentPage - 1) * perPage;
+            // Pentru prima pagina offsetul o sa fie zero
+            // Pentru pagina 2 o sa fie 3 
+            // Asadar offsetul este egal cu numarul de intrebari care au fost deja afisate pe paginile anterioare
+            var offset = 0;
 
-            var paginatedChallenges = weeklyChallenges.Skip(offset).Take(perPage).ToList();
+            // Se calculeaza offsetul in functie de numarul paginii la care suntem
+            if (!currentPage.Equals(0))
+            {
+                offset = (currentPage - 1) * _perPage;
+            }
 
-            ViewBag.WeeklyChallenges = paginatedChallenges;
-            ViewBag.LastPage = Math.Ceiling((double)weeklyChallenges.Count() / perPage);
-            ViewBag.PaginationBaseUrl = "/WeeklyChallenges/Index?page";
+            // Se preiau intrebarile corespunzatoare pentru fiecare pagina la care ne aflam 
+            // in functie de offset
+            var paginatedWeeklyChallenges = weeklyChallenges.Skip(offset).Take(_perPage);
+
+
+            // Preluam numarul ultimei pagini
+
+            ViewBag.lastPage = Math.Ceiling((float)totalItems / (float)_perPage);
+
+            // Trimitem intrebarile cu ajutorul unui ViewBag catre View-ul corespunzator
+            ViewBag.WeeklyChallenges = paginatedWeeklyChallenges;
+
+            if (search != "")
+            {
+                ViewBag.PaginationBaseUrl = "/WeeklyChallenges/Index/?search=" + search + "&page";
+            }
+            else
+            {
+                ViewBag.PaginationBaseUrl = "/WeeklyChallenges/Index/?page";
+            }
 
             return View();
         }
@@ -82,6 +137,17 @@ namespace Developer_Toolbox.Controllers
                 .ToList();
 
             ViewBag.Exercises = exercises;
+
+            // setam dificultatile pentru dropdown
+            List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+
+            // convertim List<string> in List<SelectListItem>
+            List<SelectListItem> selectListItems = optionsList.Select(option =>
+                new SelectListItem { Text = option, Value = option })
+                .ToList();
+
+            ViewBag.OptionsSelectList = selectListItems;
+
             return View(weeklyChallenge);
         }
 
@@ -92,6 +158,7 @@ namespace Developer_Toolbox.Controllers
 
         public IActionResult New(WeeklyChallenge weeklyChallenge, [FromForm] List<int> ExerciseIds)
         {
+
             if (!ModelState.IsValid)
             {
                 // Dacă validarea modelului nu reușește, trimitem din nou datele către view.
@@ -201,9 +268,19 @@ namespace Developer_Toolbox.Controllers
                 TempData["messageType"] = "alert-danger";
                 return RedirectToAction("Index");
             }
-
             // Adăugăm lista de exerciții în ViewBag pentru a o folosi în formular
             ViewBag.Exercises = db.Exercises.ToList();
+
+            // setam dificultatile pentru dropdown
+            List<string> optionsList = new List<string> { "Easy", "Intermediate", "Difficult" };
+
+            // convertim List<string> in List<SelectListItem>
+            List<SelectListItem> selectListItems = optionsList.Select(option =>
+                new SelectListItem { Text = option, Value = option })
+                .ToList();
+
+            ViewBag.OptionsSelectList = selectListItems;
+
             return View(weeklyChallenge); // Returnăm WeeklyChallenge în view pentru editare
         }
 

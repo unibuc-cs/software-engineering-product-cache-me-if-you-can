@@ -1,4 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Developer_Toolbox.Models.CustomValidations;
+
+
 namespace Developer_Toolbox.Models
 {
     public class WeeklyChallenge
@@ -13,9 +16,8 @@ namespace Developer_Toolbox.Models
         [Required(ErrorMessage = "The description field is required!")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "Difficulty is required.")]
-        [Range(1, 10, ErrorMessage = "Difficulty must be between 1 and 10.")]
-        public int Difficulty { get; set; }
+        [Required(ErrorMessage = "Level of difficulty required!")]
+        public string? Difficulty { get; set; }
 
         [Required(ErrorMessage = "Reward points are required.")]
         [Range(10, 1000, ErrorMessage = "Reward points must be between 10 and 1000.")]
@@ -27,6 +29,7 @@ namespace Developer_Toolbox.Models
         public DateTime EndDate { get; set; } = DateTime.Now;
 
         // Relație Many-to-Many cu Exercise
+        //[MinimumCount(1, ErrorMessage = "At least one exercise is required.")]
         public virtual ICollection<WeeklyChallengeExercise>? WeeklyChallengeExercises { get; set; }
     }
 }

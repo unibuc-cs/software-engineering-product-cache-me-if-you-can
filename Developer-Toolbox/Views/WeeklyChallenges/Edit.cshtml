@@ -30,10 +30,14 @@
                 </div>
 
                 <!-- Difficulty -->
-                <div>
-                    @Html.LabelFor(m => m.Difficulty, "Level of Difficulty")
-                    <input type="number" class="form-control" asp-for="Difficulty" min="1" max="10" />
-                    @Html.ValidationMessageFor(m => m.Difficulty, "", new { @class = "text-danger" })
+                <div class="d-flex gap-1 justify-content-start mt-2">
+                    @Html.Label("Level of difficulty")
+                    @Html.DropDownListFor(
+                             (m => m.Difficulty),
+                             (IEnumerable<SelectListItem>)ViewBag.OptionsSelectList,
+                             "Select",
+                             new { @class = "form-control" }
+                             )
                 </div>
 
                 <!-- Reward Points -->
