@@ -17,18 +17,21 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAnswerRepository _answerRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
 
         public AnswersController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IAnswerRepository answerRepository,
-            IRewardBadge iRewardBadge)
+            IRewardBadge iRewardBadge,
+            IEmailService iEmailService)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _answerRepository = answerRepository;
             _IRewardBadge = iRewardBadge;
+            _IEmailService = iEmailService;
         }
 
         private void SetAccessRights()
@@ -65,6 +68,9 @@ namespace Developer_Toolbox.Controllers
 
                 RewardActivity((int)ActivitiesEnum.POST_ANSWER);
                 RewardBadge();
+
+
+                NotifyQuestionAuthor(answ.QuestionId);
 
                 return Redirect("/Questions/Show/" + answ.QuestionId);
             }
@@ -186,7 +192,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardBadge()
+        private async void RewardBadge()
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_ANSWER).ToList();
             if (badges == null) { return; }
@@ -198,8 +204,25 @@ namespace Developer_Toolbox.Controllers
                 if (usersBadges) continue;
 
                 _IRewardBadge.RewardPostAnswerBadge(badge, _userManager.GetUserId(User));
+
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+                string userEmail = await _userManager.GetEmailAsync(user);
+                string userName = await _userManager.GetUserNameAsync(user);
+                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
                 
             }
+
+        }
+
+        [NonAction]
+        private async void NotifyQuestionAuthor(int? questionId)
+        {
+            Question question = db.Questions.Find(questionId);
+            ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
+            if (user == null) { return; }
+            string userEmail = await _userManager.GetEmailAsync(user);
+            string userName = await _userManager.GetUserNameAsync(user);
+            await _IEmailService.SendAnsweredReceivedEmailAsync(userEmail, userName, question);
 
         }
 

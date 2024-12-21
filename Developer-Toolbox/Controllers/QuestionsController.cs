@@ -17,18 +17,21 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IQuestionRepository _questionRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
 
         public QuestionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IQuestionRepository questionRepository,
-             IRewardBadge iRewardBadge)
+             IRewardBadge iRewardBadge,
+             IEmailService emailService)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _questionRepository = questionRepository;
             _IRewardBadge = iRewardBadge;
+            _IEmailService = emailService;
         }
 
         private void SetAccessRights()
@@ -431,7 +434,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardBadge()
+        private async void RewardBadge()
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_QUESTION).ToList();
             if (badges == null) { return; }
@@ -443,6 +446,11 @@ namespace Developer_Toolbox.Controllers
                 if (usersBadges) continue;
 
                 _IRewardBadge.RewardPostQuestionBadge(badge, _userManager.GetUserId(User));
+
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+                string userEmail = await _userManager.GetEmailAsync(user);
+                string userName = await _userManager.GetUserNameAsync(user);
+                _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
             }
 
         }
