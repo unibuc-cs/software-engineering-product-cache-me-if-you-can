@@ -66,10 +66,10 @@ namespace Developer_Toolbox.Controllers
                 db.SaveChanges();
 
                 RewardActivity((int)ActivitiesEnum.POST_ANSWER);
-                RewardBadge();
+                RewardBadge().Wait();
 
 
-                NotifyQuestionAuthor(answ.QuestionId);
+                NotifyQuestionAuthor(answ.QuestionId).Wait();
 
                 return Redirect("/Questions/Show/" + answ.QuestionId);
             }
@@ -85,10 +85,15 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public IActionResult Delete(int id)
         {
-            SetAccessRights();
             Answer answ = db.Answers.Find(id);
             db.Answers.Remove(answ);
             db.SaveChanges();
+
+            // daca raspunsul a fost sters pentru ca incalca standardele comunitatii, cel care a postat este notificat prin email
+            if (User.IsInRole("Moderator") && answ.UserId != _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                NotifyAnswerAuthor(answ);
+            }
 
             return Redirect("/Questions/Show/" + answ.QuestionId);
         }
@@ -107,6 +112,14 @@ namespace Developer_Toolbox.Controllers
         public IActionResult Edit(int id, Answer requestAnswer)
         {
             Answer answ = db.Answers.Find(id);
+
+            if (User.IsInRole("User") && answ.UserId != _userManager.GetUserId(User))
+            {
+                TempData["message"] = "You're unable to delete an answer you didn't add!";
+                TempData["messageType"] = "alert-danger";
+                return Redirect("/Questions/Show/" + answ.QuestionId);
+            }
+
             try
             {
 
@@ -163,7 +176,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private async void RewardBadge()
+        private async Task RewardBadge()
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_ANSWER).ToList();
             if (badges == null) { return; }
@@ -186,7 +199,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private async void NotifyQuestionAuthor(int? questionId)
+        private async Task NotifyQuestionAuthor(int? questionId)
         {
             Question question = db.Questions.Find(questionId);
             ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
@@ -194,6 +207,17 @@ namespace Developer_Toolbox.Controllers
             string userEmail = await _userManager.GetEmailAsync(user);
             string userName = await _userManager.GetUserNameAsync(user);
             await _IEmailService.SendAnsweredReceivedEmailAsync(userEmail, userName, question);
+
+        }
+
+        [NonAction]
+        private async void NotifyAnswerAuthor(Answer answer)
+        {
+            ApplicationUser user = db.ApplicationUsers.Find(answer.UserId);
+            if (user == null) { return; }
+            string userEmail = await _userManager.GetEmailAsync(user);
+            string userName = await _userManager.GetUserNameAsync(user);
+            await _IEmailService.SendContentDeletedByAdminEmailAsync(userEmail, userName, answer.Content);
 
         }
 
