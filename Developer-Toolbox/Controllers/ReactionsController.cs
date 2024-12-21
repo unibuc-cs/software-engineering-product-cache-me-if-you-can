@@ -248,7 +248,7 @@ namespace Developer_Toolbox.Controllers
                 ApplicationUser user = await _userManager.GetUserAsync(User);
                 string userEmail = await _userManager.GetEmailAsync(user);
                 string userName = await _userManager.GetUserNameAsync(user);
-                _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
             }
 
         }

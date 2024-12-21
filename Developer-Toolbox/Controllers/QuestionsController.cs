@@ -385,14 +385,20 @@ namespace Developer_Toolbox.Controllers
 
                 db.SaveChanges();
 
+                // daca intrebarea a fost stearsa pentru ca incalca standardele comunitatii, cel care a postat este notificat prin email
+                if (User.IsInRole("Moderator") && question.UserId != _userManager.GetUserId(User) || User.IsInRole("Admin"))
+                {
+                    NotifyQuestionAuthor(question);
+                }
+
                 return RedirectToAction("Index");
-            } 
+            }
             else
             {
                 TempData["message"] = "You are not allowed to delete a question that you didn't post!";
                 return RedirectToAction("Index");
             }
-        }
+            }
 
         // Noua metodă GetAllQuestions
         public IActionResult GetAllQuestions()
@@ -450,8 +456,19 @@ namespace Developer_Toolbox.Controllers
                 ApplicationUser user = await _userManager.GetUserAsync(User);
                 string userEmail = await _userManager.GetEmailAsync(user);
                 string userName = await _userManager.GetUserNameAsync(user);
-                _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
             }
+
+        }
+
+        [NonAction]
+        private async void NotifyQuestionAuthor(Question question)
+        {
+            ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
+            if (user == null) { return; }
+            string userEmail = await _userManager.GetEmailAsync(user);
+            string userName = await _userManager.GetUserNameAsync(user);
+            await _IEmailService.SendContentDeletedByAdminEmailAsync(userEmail, userName, question.Title + "<br>" + question.Description);
 
         }
 
