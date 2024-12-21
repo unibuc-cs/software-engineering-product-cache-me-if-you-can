@@ -45,21 +45,21 @@ namespace Developer_Toolbox.Interfaces
             }
         }
 
-        public async Task SendBadgeAwardedEmailAsync(string userEmail, string userName, string badgeName)
+        public async Task SendBadgeAwardedEmailAsync(string userEmail, string userName, Badge badge)
         {
-            var subject = $"Congratulations! You've earned the {badgeName} badge!";
+            var subject = $"Congratulations! You've earned the {badge.Title} badge!";
             var htmlBody = $@"
             <h2>Congratulations {userName}!</h2>
-            <p>You've earned the <strong>{badgeName}</strong> badge on our coding platform.</p>
+            <p>You've earned the <strong>{badge.Title}: {badge.Description}</strong> badge on our platform.</p>
             <p>Keep up the great work and continue developing your coding skills!</p>
             <br>
             <p>Best regards,</p>
-            <p>Your Coding Platform Team</p>";
+            <p>Developer Toolbox Team</p>";
 
             await SendEmailAsync(userEmail, subject, htmlBody);
         }
 
-        public async Task SendChallengeStartedEmailAsync(string userEmail, string userName, string challengeName, DateTime endDate)
+/*        public async Task SendChallengeStartedEmailAsync(string userEmail, string userName, string challengeName, DateTime endDate)
         {
             var subject = $"New Coding Challenge: {challengeName} Has Started!";
             var htmlBody = $@"
@@ -72,18 +72,37 @@ namespace Developer_Toolbox.Interfaces
             <p>Your Coding Platform Team</p>";
 
             await SendEmailAsync(userEmail, subject, htmlBody);
-        }
+        }*/
 
-        public async Task SendChallengeEndedEmailAsync(string userEmail, string userName, string challengeName)
+        public async Task SendAnsweredReceivedEmailAsync(string userEmail, string userName, Question question)
         {
-            var subject = $"Coding Challenge: {challengeName} Has Ended";
+            var subject = $"You have received a new answer!";
             var htmlBody = $@"
             <h2>Hello {userName}!</h2>
-            <p>The coding challenge <strong>{challengeName}</strong> has ended.</p>
-            <p>Login to see your results and compare them with other participants!</p>
+            <p>You have a new answer to your question: </p>
             <br>
-            <p>Keep coding!</p>
-            <p>Your Coding Platform Team</p>";
+            <p><strong>{question.Title}</strong></p>
+            <p>{question.Description}</p>
+            <br>
+            <p>Log in to see the comment you have received!</p>
+            <br>
+            <p>Developer Toolbox Team</p>";
+
+            await SendEmailAsync(userEmail, subject, htmlBody);
+        }
+
+        public async Task SendContentDeletedByAdminEmailAsync(string userEmail, string userName, string deletedContent)
+        {
+            var subject = $"Some content you posted was deleted by our moderators";
+            var htmlBody = $@"
+            <h2>Hello {userName}!</h2>
+            <p>The moderators on our platform try to keep it a secure and friendly space where everybody can learn and practice coding.</p>
+            <p>We write to inform you that the following content you posted on the platform does not comply with our content standards and was removed.</p>
+            <br>
+            <p>{deletedContent}</p>
+            <br>
+            <p>Thank you for your understanding.</p>
+            <p>Developer Toolbox Team</p>";
 
             await SendEmailAsync(userEmail, subject, htmlBody);
         }
