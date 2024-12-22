@@ -26,6 +26,8 @@ namespace Developer_Toolbox.Data
         public DbSet<Badge> Badges { get; set; }
         public DbSet<UserBadge> UserBadges { get; set; }
         public DbSet<BadgeTag> BadgeTags { get; set; }
+        public DbSet<WeeklyChallengeExercise> WeeklyChallengeExercises { get; set; }
+        public DbSet<WeeklyChallenge> WeeklyChallenges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -116,6 +118,21 @@ namespace Developer_Toolbox.Data
             .HasOne(bt => bt.Badge)
             .WithMany(bt => bt.BadgeTags)
             .HasForeignKey(bt => bt.BadgeId);
+
+
+            // Configurarea relației Many-to-Many
+            modelBuilder.Entity<WeeklyChallengeExercise>()
+                .HasKey(wce => new { wce.WeeklyChallengeId, wce.ExerciseId });
+
+            modelBuilder.Entity<WeeklyChallengeExercise>()
+                .HasOne(wce => wce.WeeklyChallenge)
+                .WithMany(wce => wce.WeeklyChallengeExercises)
+                .HasForeignKey(wce => wce.WeeklyChallengeId);
+
+            modelBuilder.Entity<WeeklyChallengeExercise>()
+                .HasOne(wce => wce.Exercise)
+                .WithMany(wce => wce.WeeklyChallengeExercises)
+                .HasForeignKey(wce => wce.ExerciseId);
         }
     }
 }
