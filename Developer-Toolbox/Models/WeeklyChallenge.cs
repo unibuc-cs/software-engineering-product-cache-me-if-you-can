@@ -4,7 +4,7 @@ using Developer_Toolbox.Models.CustomValidations;
 
 namespace Developer_Toolbox.Models
 {
-    public class WeeklyChallenge
+    public class WeeklyChallenge: IValidatableObject
     {
         [Key]
         public int Id { get; set; }
@@ -29,7 +29,19 @@ namespace Developer_Toolbox.Models
         public DateTime EndDate { get; set; } = DateTime.Now;
 
         // Relație Many-to-Many cu Exercise
-        //[MinimumCount(1, ErrorMessage = "At least one exercise is required.")]
+        [MinimumCount(1, ErrorMessage = "At least one exercise is required.")]
         public virtual ICollection<WeeklyChallengeExercise>? WeeklyChallengeExercises { get; set; }
+
+        // Custom validation
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (EndDate < StartDate)
+            {
+                yield return new ValidationResult(
+                    "End date cannot be earlier than start date.",
+                    new[] { nameof(EndDate) }
+                );
+            }
+        }
     }
 }

@@ -164,11 +164,25 @@ namespace Developer_Toolbox.Controllers
                 // Dacă validarea modelului nu reușește, trimitem din nou datele către view.
                 var exercises = db.Exercises.Select(e => new { e.Id, e.Title }).ToList();
                 ViewBag.Exercises = exercises;
+                List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
+                };
+
+                // convertim List<string> in List<SelectListItem>
+                List<SelectListItem> selectListItems = optionsList.Select(option =>
+                    new SelectListItem { Text = option, Value = option })
+                    .ToList();
+
+                ViewBag.OptionsSelectList = selectListItems;
                 return View(weeklyChallenge);
             }
+           
 
             try
             {
+
                 // Inițializăm lista pentru relația Many-to-Many
                 weeklyChallenge.WeeklyChallengeExercises = new List<WeeklyChallengeExercise>();
 
@@ -290,6 +304,7 @@ namespace Developer_Toolbox.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, WeeklyChallenge updatedChallenge, List<int> ExerciseIds)
         {
+
             // Preluăm WeeklyChallenge din baza de date, inclusiv exercițiile asociate
             var weeklyChallenge = db.WeeklyChallenges
                 .Include(wc => wc.WeeklyChallengeExercises)
@@ -300,6 +315,7 @@ namespace Developer_Toolbox.Controllers
             {
                 TempData["message"] = "The requested Weekly Challenge does not exist.";
                 TempData["messageType"] = "alert-danger";
+
                 return RedirectToAction("Index");
             }
 
@@ -333,10 +349,25 @@ namespace Developer_Toolbox.Controllers
                 // Redirecționăm către pagina Show pentru a vizualiza provocarea actualizată
                 return RedirectToAction("Show", new { id = weeklyChallenge.Id });
             }
+            else
+            {
+                // Dacă validarea modelului nu reușește, trimitem din nou datele către view.
+                var exercises = db.Exercises.Select(e => new { e.Id, e.Title }).ToList();
+                ViewBag.Exercises = exercises;
+                List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
+                };
 
-            // Dacă validarea nu a reușit, adăugăm lista de exerciții și returnăm formularul de editare
-            ViewBag.Exercises = db.Exercises.ToList();
-            return View(updatedChallenge); // Returnăm modelul actualizat cu erorile de validare
+                // convertim List<string> in List<SelectListItem>
+                List<SelectListItem> selectListItems = optionsList.Select(option =>
+                    new SelectListItem { Text = option, Value = option })
+                    .ToList();
+
+                ViewBag.OptionsSelectList = selectListItems;
+                return View(weeklyChallenge);
+            }
         }
 
 

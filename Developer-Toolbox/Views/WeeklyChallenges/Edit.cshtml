@@ -73,6 +73,7 @@
                             <label for="exercise-@exercise.Id" class="form-check-label">@exercise.Title</label>
                         </div>
                     }
+                    @Html.ValidationMessageFor(m => m.WeeklyChallengeExercises, "", new { @class = "text-danger" })
                 </div>
 
                 <!-- Submit Button -->
