@@ -311,5 +311,24 @@ namespace Developer_Toolbox.Interfaces
 
             this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
         }
+
+        public void RewardAddChallengeBadge(Badge badge, string userId)
+        {
+/*            int noChallengesPosted = db.WeeklyChallenges.Count(ex => ex. == userId);*/
+
+            /*if (noExercisesPosted >= badge.TargetNoOfTimes)
+            {
+                // assign badge
+                db.UserBadges.Add(new UserBadge
+                {
+                    UserId = userId,
+                    BadgeId = badge.Id,
+                    ReceivedAt = DateTime.Now
+                });
+
+            }*/
+
+            db.SaveChanges();
+        }
     }
 }
