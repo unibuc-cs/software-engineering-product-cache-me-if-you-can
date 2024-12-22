@@ -217,9 +217,9 @@ namespace Developer_Toolbox.Interfaces
 
         public void RewardAddChallengeBadge(Badge badge, string userId)
         {
-/*            int noChallengesPosted = db.WeeklyChallenges.Count(ex => ex. == userId);*/
+            int noChallengesPosted = db.WeeklyChallenges.Count(ex => ex.UserId == userId);
 
-            /*if (noExercisesPosted >= badge.TargetNoOfTimes)
+            if (noChallengesPosted >= badge.TargetNoOfTimes)
             {
                 // assign badge
                 db.UserBadges.Add(new UserBadge
@@ -229,7 +229,7 @@ namespace Developer_Toolbox.Interfaces
                     ReceivedAt = DateTime.Now
                 });
 
-            }*/
+            }
 
             db.SaveChanges();
         }
