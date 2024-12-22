@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Developer_Toolbox.Interfaces;
 using Hangfire;
 
 namespace Developer_Toolbox.Controllers
@@ -16,6 +17,8 @@ namespace Developer_Toolbox.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
 
         public WeeklyChallengesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
@@ -195,6 +198,7 @@ namespace Developer_Toolbox.Controllers
                     });
                 }
 
+                weeklyChallenge.UserId = _userManager.GetUserId(User);
                 // Salvăm noul WeeklyChallenge
                 db.WeeklyChallenges.Add(weeklyChallenge);
                 db.SaveChanges();
@@ -427,6 +431,28 @@ namespace Developer_Toolbox.Controllers
             TempData["message"] = "The Weekly Challenge was successfully deleted.";
             TempData["messageType"] = "alert-success";
             return RedirectToAction("Index");
+        }
+
+        [NonAction]
+        private async void RewardBadgeForAddingChallenge()
+        {
+            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_CHALLENGE).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                _IRewardBadge.RewardAddChallengeBadge(badge, _userManager.GetUserId(User));
+
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+                string userEmail = await _userManager.GetEmailAsync(user);
+                string userName = await _userManager.GetUserNameAsync(user);
+                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+            }
+
         }
 
         public void SendNotificationToUsers(int challengeId)
