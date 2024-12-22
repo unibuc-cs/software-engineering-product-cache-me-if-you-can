@@ -22,13 +22,18 @@ namespace Developer_Toolbox.Controllers
         private readonly IEmailService _IEmailService;
         private readonly IWeeklyChallengeRepository _weeklyChallengeRepository;
 
-        public WeeklyChallengesController(ApplicationDbContext context, 
+        public WeeklyChallengesController(
+            ApplicationDbContext context, 
             UserManager<ApplicationUser> userManager,
+            IRewardBadge IRewardBadge,
+            IEmailService IEmailService,
             IWeeklyChallengeRepository weeklyChallengeRepository
             )
         {
             db = context;
             _userManager = userManager;
+            _IRewardBadge = IRewardBadge;
+            _IEmailService = IEmailService;
             _weeklyChallengeRepository = weeklyChallengeRepository;
         }
 
@@ -212,6 +217,8 @@ namespace Developer_Toolbox.Controllers
                 // Adăugăm job-ul Hangfire pentru notificarea utilizatorilor
                 // Hangfire: notifică utilizatorii (pentru exemplu, trimiterea unui e-mail)
                 BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));
+
+                RewardBadgeForAddingChallenge().Wait();
 
                 TempData["message"] = "The weekly challenge has been successfully added.";
                 TempData["messageType"] = "alert-success";
@@ -440,7 +447,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private async void RewardBadgeForAddingChallenge()
+        private async Task RewardBadgeForAddingChallenge()
         {
             var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_CHALLENGE).ToList();
             if (badges == null) { return; }

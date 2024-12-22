@@ -535,7 +535,7 @@ namespace Developer_Toolbox.Controllers
         {
             var badgesForTheSameActivityAndNoOfTimes = db.Badges.Include("BadgeTags").Include("TargetCategory").Where(b => b.TargetActivityId == badge.TargetActivityId && b.TargetNoOfTimes == badge.TargetNoOfTimes).ToList();
             var activity = db.Activities.Where(a => a.Id == badge.TargetActivityId).FirstOrDefault();
-            if ((bool)activity.isPracticeRelated)
+            if (activity.isPracticeRelated == null || activity.isPracticeRelated == true)
             {
                 if (badge.TargetCategoryId != null && badge.TargetLevel != null)
                 {
