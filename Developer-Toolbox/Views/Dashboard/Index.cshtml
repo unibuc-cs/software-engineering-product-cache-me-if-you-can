@@ -14,7 +14,7 @@
             </div>
         </div>
 
-     @*    <!-- Unanswered Questions -->
+       <!-- Unanswered Questions -->
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
@@ -23,14 +23,14 @@
                 </div>
             </div>
         </div>
-        *@
+        
         <!-- Top Active Users -->
         <div class="col-md-12 mt-4">
             <h5>Top Active Users</h5>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>User ID</th>
+                        <th>User</th>
                         <th>Total Questions</th>
                     </tr>
                 </thead>
@@ -38,7 +38,10 @@
                     @foreach (var user in Model.TopActiveUsers)
                     {
                         <tr>
-                            <td>@user.UserId</td>
+                            <td>
+                                <i class="bi bi-person"></i>
+                                @user.FirstName @user.LastName
+                            </td>
                             <td>@user.TotalQuestions</td>
                         </tr>
                     }

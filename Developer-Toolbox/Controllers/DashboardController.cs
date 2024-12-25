@@ -53,19 +53,37 @@ namespace Developer_Toolbox.Controllers
 
         private async Task<List<UserStats>> GetTopActiveUsers()
         {
-            // Fetch top 5 active users based on the number of questions they posted
-            return await Task.FromResult(
-                _context.Questions
-                    .GroupBy(q => q.UserId)
-                    .OrderByDescending(g => g.Count())
-                    .Take(5)
-                    .Select(g => new UserStats
+            // Group the questions by UserId and count the number of questions for each user
+            var userQuestionCounts = await _context.Questions
+                .GroupBy(q => q.UserId)
+                .Select(g => new
+                {
+                    UserId = g.Key,
+                    TotalQuestions = g.Count()
+                })
+                .OrderByDescending(g => g.TotalQuestions)
+                .Take(5)
+                .ToListAsync();
+
+            // Join the result with the ApplicationUser table to get FirstName and LastName
+            var topUsers = userQuestionCounts
+                .Join(
+                    _context.ApplicationUsers,  // Join with ApplicationUser table
+                    userStats => userStats.UserId, // Join on UserId
+                    user => user.Id,             // UserId in ApplicationUser
+                    (userStats, user) => new UserStats
                     {
-                        UserId = g.Key,
-                        TotalQuestions = g.Count()
+                        UserId = userStats.UserId,
+                        TotalQuestions = userStats.TotalQuestions,
+                        FirstName = user.FirstName ?? "N/A", // Add FirstName
+                        LastName = user.LastName ?? "N/A"    // Add LastName
                     })
-                    .ToList());
+                .ToList();
+
+            return topUsers;
         }
+
+
     }
 
     // Model for dashboard statistics
@@ -81,5 +99,8 @@ namespace Developer_Toolbox.Controllers
     {
         public string UserId { get; set; }
         public int TotalQuestions { get; set; }
+        public string FirstName { get; set; } // Add FirstName
+        public string LastName { get; set; } // Add LastName
     }
+    
 }
