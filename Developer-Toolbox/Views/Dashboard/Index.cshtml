@@ -1,0 +1,49 @@
+﻿@model Developer_Toolbox.Controllers.DashboardStats
+
+<div class="container mt-5">
+    <h2>Dashboard</h2>
+
+    <div class="row">
+        <!-- Total Users -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text">@Model.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+
+     @*    <!-- Unanswered Questions -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Unanswered Questions</h5>
+                    <p class="card-text">@Model.UnansweredQuestions</p>
+                </div>
+            </div>
+        </div>
+        *@
+        <!-- Top Active Users -->
+        <div class="col-md-12 mt-4">
+            <h5>Top Active Users</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Total Questions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.TopActiveUsers)
+                    {
+                        <tr>
+                            <td>@user.UserId</td>
+                            <td>@user.TotalQuestions</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div> 
+    </div>
+</div>
