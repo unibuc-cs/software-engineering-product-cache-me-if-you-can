@@ -11,6 +11,7 @@ namespace Developer_Toolbox.Controllers
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
+
         public DashboardController(ApplicationDbContext context)
         {
             _context = context;
@@ -25,8 +26,18 @@ namespace Developer_Toolbox.Controllers
                 UnansweredQuestions = await GetUnansweredQuestions(),
                 TopActiveUsers = await GetTopActiveUsers(),
                 UnansweredQuestionsList = await GetQuestionsWithNoAnswers(),
-                TotalExerciseCategories = await GetTotalExerciseCategories()
+                TotalExerciseCategories = await GetTotalExerciseCategories(),
+                EngagedUsers = await GetEngagedUsers(),
+                TotalQuestions = await GetTotalQuestions(),
+                AnsweredQuestions = await GetAnsweredQuestions()
             };
+
+            // Calculate non-engaged users (Total - Engaged)
+            dashboardStats.NonEngagedUsers = dashboardStats.TotalUsers - dashboardStats.EngagedUsers;
+
+            // Calculate proportions for the donut chart
+            dashboardStats.NonEngagedProportion = (double)dashboardStats.NonEngagedUsers / dashboardStats.TotalUsers;
+            dashboardStats.EngagedProportion = 1 - dashboardStats.NonEngagedProportion;
 
             return View(dashboardStats);
         }
@@ -91,6 +102,27 @@ namespace Developer_Toolbox.Controllers
             return await _context.Categories.CountAsync();
         }
 
+        private async Task<int> GetEngagedUsers()
+        {
+            // Count users who have answered at least one question
+            return await _context.ApplicationUsers
+                .Where(user => _context.Answers.Any(a => a.UserId == user.Id))
+                .CountAsync();
+        }
+
+        // Fetch the total number of questions
+        private async Task<int> GetTotalQuestions()
+        {
+            return await _context.Questions.CountAsync();
+        }
+
+        // Fetch the total number of answered questions
+        private async Task<int> GetAnsweredQuestions()
+        {
+            return await _context.Questions
+                .Where(q => _context.Answers.Any(a => a.QuestionId == q.Id))
+                .CountAsync();
+        }
     }
 
     // Model for dashboard statistics
@@ -101,6 +133,17 @@ namespace Developer_Toolbox.Controllers
         public List<UserStats> TopActiveUsers { get; set; } = new();
         public List<Question> UnansweredQuestionsList { get; set; } = new(); // Add this property
         public int TotalExerciseCategories { get; set; }
+
+        // Removed NonEngagedUsers from the constructor since it's calculated directly
+        public int EngagedUsers { get; set; }
+        public int NonEngagedUsers { get; set; }
+
+        public double NonEngagedProportion { get; set; }
+        public double EngagedProportion { get; set; }
+
+        public int TotalQuestions { get; set; }
+
+        public int AnsweredQuestions { get; set; }
     }
 
     // Model for user statistics
