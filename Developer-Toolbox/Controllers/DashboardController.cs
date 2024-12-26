@@ -1,6 +1,8 @@
 ﻿using Developer_Toolbox.Data;
+using Developer_Toolbox.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,8 +11,6 @@ namespace Developer_Toolbox.Controllers
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        // Inject ApplicationDbContext into the controller
         public DashboardController(ApplicationDbContext context)
         {
             _context = context;
@@ -23,10 +23,12 @@ namespace Developer_Toolbox.Controllers
             {
                 TotalUsers = await GetTotalUsers(),
                 UnansweredQuestions = await GetUnansweredQuestions(),
-                TopActiveUsers = await GetTopActiveUsers()
+                TopActiveUsers = await GetTopActiveUsers(),
+                UnansweredQuestionsList = await GetQuestionsWithNoAnswers(),
+                TotalExerciseCategories = await GetTotalExerciseCategories()
             };
 
-            return View(dashboardStats); // Pass statistics to the view
+            return View(dashboardStats);
         }
 
         private async Task<int> GetTotalUsers()
@@ -37,52 +39,57 @@ namespace Developer_Toolbox.Controllers
 
         private async Task<int> GetUnansweredQuestions()
         {
-            // Fetch all questions and answers from the database
-            var questions = await _context.Questions.ToListAsync();
-            var answers = await _context.Answers.ToListAsync();
-
-            // Find unanswered questions by checking if there is no corresponding answer
-            var unansweredQuestions = questions
-                .Where(q => !answers.Any(a => a.QuestionId == q.Id))
-                .Count();
-
-            return unansweredQuestions;
+            // Count unanswered questions
+            return await _context.Questions
+                .Where(q => !_context.Answers.Any(a => a.QuestionId == q.Id))
+                .CountAsync();
         }
 
-
+        private async Task<List<Question>> GetQuestionsWithNoAnswers()
+        {
+            // Fetch all questions with no answers
+            return await _context.Questions
+                .Where(q => !_context.Answers.Any(a => a.QuestionId == q.Id))
+                .ToListAsync();
+        }
 
         private async Task<List<UserStats>> GetTopActiveUsers()
         {
-            // Group the questions by UserId and count the number of questions for each user
-            var userQuestionCounts = await _context.Questions
-                .GroupBy(q => q.UserId)
+            // Group the answers by UserId and count the number of answers for each user
+            var userAnswerCounts = await _context.Answers
+                .GroupBy(a => a.UserId)
                 .Select(g => new
                 {
                     UserId = g.Key,
-                    TotalQuestions = g.Count()
+                    TotalAnswers = g.Count()
                 })
-                .OrderByDescending(g => g.TotalQuestions)
-                .Take(5)
+                .OrderByDescending(g => g.TotalAnswers)
+                .Take(5) // Get top 5 users
                 .ToListAsync();
 
             // Join the result with the ApplicationUser table to get FirstName and LastName
-            var topUsers = userQuestionCounts
+            var topUsers = userAnswerCounts
                 .Join(
-                    _context.ApplicationUsers,  // Join with ApplicationUser table
-                    userStats => userStats.UserId, // Join on UserId
-                    user => user.Id,             // UserId in ApplicationUser
+                    _context.ApplicationUsers,
+                    userStats => userStats.UserId,
+                    user => user.Id,
                     (userStats, user) => new UserStats
                     {
                         UserId = userStats.UserId,
-                        TotalQuestions = userStats.TotalQuestions,
-                        FirstName = user.FirstName ?? "N/A", // Add FirstName
-                        LastName = user.LastName ?? "N/A"    // Add LastName
+                        TotalAnswers = userStats.TotalAnswers, // Renaming for display purposes
+                        FirstName = user.FirstName ?? "N/A",
+                        LastName = user.LastName ?? "N/A"
                     })
                 .ToList();
 
             return topUsers;
         }
 
+        private async Task<int> GetTotalExerciseCategories()
+        {
+            // Count the total number of exercise categories
+            return await _context.Categories.CountAsync();
+        }
 
     }
 
@@ -92,15 +99,16 @@ namespace Developer_Toolbox.Controllers
         public int TotalUsers { get; set; }
         public int UnansweredQuestions { get; set; }
         public List<UserStats> TopActiveUsers { get; set; } = new();
+        public List<Question> UnansweredQuestionsList { get; set; } = new(); // Add this property
+        public int TotalExerciseCategories { get; set; }
     }
 
     // Model for user statistics
     public class UserStats
     {
         public string UserId { get; set; }
-        public int TotalQuestions { get; set; }
-        public string FirstName { get; set; } // Add FirstName
-        public string LastName { get; set; } // Add LastName
+        public int TotalAnswers { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
-    
 }

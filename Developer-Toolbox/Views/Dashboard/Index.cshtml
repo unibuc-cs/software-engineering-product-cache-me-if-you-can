@@ -1,37 +1,71 @@
-﻿@model Developer_Toolbox.Controllers.DashboardStats
-
-<div class="container mt-5">
-    <h2>Dashboard</h2>
+﻿<div class="container pt-5 px-5 d-flex align-items-center flex-column">
+    <h2 class="text-primary mb-4 text-center">Dashboard</h2>
 
     <div class="row">
         <!-- Total Users -->
         <div class="col-md-4">
-            <div class="card">
+            <div class="card border-primary shadow-sm  bg-light">
                 <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <p class="card-text">@Model.TotalUsers</p>
+                    <h5 class="card-title text-primary">Total Users</h5>
+                    <p class="card-text fs-4">
+                        <span class="badge bg-primary">@Model.TotalUsers</span>
+                    </p>
                 </div>
             </div>
         </div>
 
-       <!-- Unanswered Questions -->
+        <!-- Unanswered Questions -->
         <div class="col-md-4">
-            <div class="card">
+            <div class="card border-warning shadow-sm  bg-light">
                 <div class="card-body">
-                    <h5 class="card-title">Unanswered Questions</h5>
-                    <p class="card-text">@Model.UnansweredQuestions</p>
+                    <h5 class="card-title text-warning">Unanswered Questions</h5>
+                    <p class="card-text fs-4">
+                        <span class="badge bg-warning text-dark">@Model.UnansweredQuestions</span>
+                    </p>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Total tags -->
+        <div class="col-md-4">
+            <div class="card border-success shadow-sm  bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-success">Learning topics</h5>
+                    <p class="card-text fs-4">
+                        <span class="badge bg-success text-white">@Model.TotalExerciseCategories</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unanswered Questions List -->
+        <div class="col-md-12 mt-4">
+            <h3 class="text-primary text-center">Unanswered Questions</h3>
+            <ul class="list-group">
+                @foreach (var question in Model.UnansweredQuestionsList)
+                {
+                    <li class="list-group-item d-flex hover-gray justify-content-between align-items-center">
+                        <a asp-controller="Questions" asp-action="Show" asp-route-id="@question.Id" class="text-decoration-none text-black">
+
+                            <strong class="text-black"><i class="bi bi-patch-question text-danger"></i> @question.Title</strong>
+                        </a>
+                        <span class="text-muted">
+                            <i class="bi bi-person text-muted"></i>
+                            @question.User.FirstName @question.User.LastName
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+
         <!-- Top Active Users -->
         <div class="col-md-12 mt-4">
-            <h5>Top Active Users</h5>
-            <table class="table">
-                <thead>
+            <h3 class="text-primary text-center">Top Active Users on Forum</h3>
+            <table class="table table-hover table-bordered">
+                <thead class="table-primary">
                     <tr>
                         <th>User</th>
-                        <th>Total Questions</th>
+                        <th>Total Answers</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,14 +73,16 @@
                     {
                         <tr>
                             <td>
-                                <i class="bi bi-person"></i>
+                                <a asp-controller="ApplicationUsers" asp-action="Show" asp-route-id="@user.UserId" class="text-decoration-none text-black">
+                                <i class="bi bi-person text-primary"></i>
                                 @user.FirstName @user.LastName
+                                </a>
                             </td>
-                            <td>@user.TotalQuestions</td>
+                            <td>@user.TotalAnswers</td>
                         </tr>
                     }
                 </tbody>
             </table>
-        </div> 
+        </div>
     </div>
 </div>
