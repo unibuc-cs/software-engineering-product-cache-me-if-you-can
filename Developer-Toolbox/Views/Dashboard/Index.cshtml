@@ -1,4 +1,6 @@
-﻿<div class="container pt-3 px-5 d-flex align-items-center flex-column">
+﻿@using System.Text.Json;
+
+<div class="container pt-3 px-5 d-flex align-items-center flex-column">
     <h2 class="text-primary text-center text-bold pb-2">DASHBOARD</h2>
     <div class="row">
         <!-- Total Users -->
@@ -115,9 +117,12 @@
 
         </div>
 
+        <div class="col-md-12 mt-4">
+            <h5 class="text-primary text-center">Trending Learning Topics</h5>
+            <canvas id="trendingBarChart" style="width: 100%; max-height: 300px;"></canvas>
+        </div>
     </div>
 </div>
-
 
 <script>
     // Initialize the first donut chart (Engaged vs Non-Engaged Users)
@@ -182,7 +187,66 @@
             cutout: '60%'
         }
     });
+
+    // Prepare data for the bar chart by creating an anonymous object
+    var trendingData = @Html.Raw(ViewData["TrendingData"]);
+    // Extract category names and user counts
+    var categoryNames = trendingData.map(function (item) { return item.CategoryName; });
+    var userCounts = trendingData.map(function (item) { return item.UserCount; });
+
+    // Initialize the bar chart
+    var ctxBar = document.getElementById('trendingBarChart').getContext('2d');
+    var trendingBarChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: categoryNames,
+            datasets: [{
+                label: 'Number of Users',
+                data: userCounts,
+                backgroundColor: '#ffac4d',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return tooltipItem.raw + ' users';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Categories'  // X-axis label
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Users'  // Y-axis label
+                    },
+                    ticks: {
+                        stepSize: 1,  // This will ensure only full numbers (integers) are shown
+                        callback: function (value) {
+                            return value % 1 === 0 ? value : '';  // Only show whole numbers
+                        }
+                    }
+                }
+            }
+        }
+    });
+
 </script>
+
 
 <style>
     .custom-card-border {

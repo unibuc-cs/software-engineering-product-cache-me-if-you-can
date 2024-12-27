@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+using System.Text.Json;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -19,7 +22,6 @@ namespace Developer_Toolbox.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Fetch dashboard statistics
             var dashboardStats = new DashboardStats
             {
                 TotalUsers = await GetTotalUsers(),
@@ -29,7 +31,8 @@ namespace Developer_Toolbox.Controllers
                 TotalExerciseCategories = await GetTotalExerciseCategories(),
                 EngagedUsers = await GetEngagedUsers(),
                 TotalQuestions = await GetTotalQuestions(),
-                AnsweredQuestions = await GetAnsweredQuestions()
+                AnsweredQuestions = await GetAnsweredQuestions(),
+                TrendingCategories = await GetTrendingCategories()
             };
 
             // Calculate non-engaged users (Total - Engaged)
@@ -39,6 +42,10 @@ namespace Developer_Toolbox.Controllers
             dashboardStats.NonEngagedProportion = (double)dashboardStats.NonEngagedUsers / dashboardStats.TotalUsers;
             dashboardStats.EngagedProportion = 1 - dashboardStats.NonEngagedProportion;
 
+            // Serialize TrendingCategories to JSON
+            ViewData["TrendingData"] = JsonSerializer.Serialize(
+                dashboardStats.TrendingCategories.Select(c => new { c.CategoryName, c.UserCount })
+            );
             return View(dashboardStats);
         }
 
@@ -123,6 +130,27 @@ namespace Developer_Toolbox.Controllers
                 .Where(q => _context.Answers.Any(a => a.QuestionId == q.Id))
                 .CountAsync();
         }
+
+        public async Task<List<CategoryStats>> GetTrendingCategories()
+        {
+            // Fetch the top 5 categories with the most unique users submitting solutions
+            var trendingCategories = await _context.Categories
+                .Select(category => new CategoryStats
+                {
+                    CategoryName = category.CategoryName,
+                    UserCount = category.Exercises
+                        .SelectMany(exercise => exercise.Solutions)
+                        .Select(solution => solution.UserId)
+                        .Distinct()
+                        .Count() // Count unique users per category
+                })
+                .OrderByDescending(stat => stat.UserCount)
+                .Take(5)
+                .ToListAsync();
+
+            return trendingCategories;
+        }
+
     }
 
     // Model for dashboard statistics
@@ -144,6 +172,8 @@ namespace Developer_Toolbox.Controllers
         public int TotalQuestions { get; set; }
 
         public int AnsweredQuestions { get; set; }
+
+        public List<CategoryStats> TrendingCategories { get; set; } = new();
     }
 
     // Model for user statistics
@@ -153,5 +183,12 @@ namespace Developer_Toolbox.Controllers
         public int TotalAnswers { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+    }
+
+    // for popular learning topics
+    public class CategoryStats
+    {
+        public string CategoryName { get; set; }
+        public int UserCount { get; set; }
     }
 }
