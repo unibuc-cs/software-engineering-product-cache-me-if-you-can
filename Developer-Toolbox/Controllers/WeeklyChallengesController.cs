@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Hangfire;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -197,6 +198,10 @@ namespace Developer_Toolbox.Controllers
                 // Salvăm noul WeeklyChallenge
                 db.WeeklyChallenges.Add(weeklyChallenge);
                 db.SaveChanges();
+
+                // Adăugăm job-ul Hangfire pentru notificarea utilizatorilor
+                // Hangfire: notifică utilizatorii (pentru exemplu, trimiterea unui e-mail)
+                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));
 
                 TempData["message"] = "The weekly challenge has been successfully added.";
                 TempData["messageType"] = "alert-success";
@@ -424,6 +429,24 @@ namespace Developer_Toolbox.Controllers
             return RedirectToAction("Index");
         }
 
+        public void SendNotificationToUsers(int challengeId)
+        {
+            // Căutăm utilizatorii care trebuie notificați 
+            var users = db.ApplicationUsers.ToList();
+
+            foreach (var user in users)
+            {
+                SendEmailNotification(user.Email, challengeId);
+            }
+        }
+
+        private void SendEmailNotification(string userEmail, int challengeId)
+        {
+            // Logică pentru trimiterea unui e-mail (sau altă metodă de notificare)
+            var subject = "New Weekly Challenge Posted!";
+            var body = $"A new weekly challenge has been posted. Challenge ID: {challengeId}";
+            // Folosește serviciile tale de email pentru a trimite mesajul
+        }
 
 
     }
