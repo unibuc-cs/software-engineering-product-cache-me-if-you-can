@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Developer_Toolbox.Data.Migrations
+namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240517110035_Added SolutionCode to Solution Model")]
-    partial class AddedSolutionCodetoSolutionModel
+    [Migration("20241212130742_SetUp2")]
+    partial class SetUp2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,29 @@ namespace Developer_Toolbox.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("Developer_Toolbox.Models.Activity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ReputationPoints")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("isPracticeRelated")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Activities");
+                });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Answer", b =>
                 {
@@ -143,6 +166,71 @@ namespace Developer_Toolbox.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Developer_Toolbox.Models.Badge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AuthorId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TargetActivityId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TargetLevel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TargetNoOfTimes")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("TargetActivityId");
+
+                    b.HasIndex("TargetCategoryId");
+
+                    b.ToTable("Badges");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.BadgeTag", b =>
+                {
+                    b.Property<int?>("BadgeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BadgeId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("BadgeTags");
+                });
+
             modelBuilder.Entity("Developer_Toolbox.Models.Bookmark", b =>
                 {
                     b.Property<int>("Id")
@@ -219,6 +307,10 @@ namespace Developer_Toolbox.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TestCases")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -365,6 +457,24 @@ namespace Developer_Toolbox.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.UserBadge", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("BadgeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReceivedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("UserId", "BadgeId");
+
+                    b.HasIndex("BadgeId");
+
+                    b.ToTable("UserBadges");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -519,6 +629,48 @@ namespace Developer_Toolbox.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Developer_Toolbox.Models.Badge", b =>
+                {
+                    b.HasOne("Developer_Toolbox.Models.ApplicationUser", "Author")
+                        .WithMany("CreatedBadges")
+                        .HasForeignKey("AuthorId");
+
+                    b.HasOne("Developer_Toolbox.Models.Activity", "TargetActivity")
+                        .WithMany("RelatedBadges")
+                        .HasForeignKey("TargetActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Developer_Toolbox.Models.Category", "TargetCategory")
+                        .WithMany("RelatedBadges")
+                        .HasForeignKey("TargetCategoryId");
+
+                    b.Navigation("Author");
+
+                    b.Navigation("TargetActivity");
+
+                    b.Navigation("TargetCategory");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.BadgeTag", b =>
+                {
+                    b.HasOne("Developer_Toolbox.Models.Badge", "Badge")
+                        .WithMany("BadgeTags")
+                        .HasForeignKey("BadgeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Developer_Toolbox.Models.Tag", "Tag")
+                        .WithMany("BadgeTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Badge");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("Developer_Toolbox.Models.Bookmark", b =>
                 {
                     b.HasOne("Developer_Toolbox.Models.Question", "Question")
@@ -617,6 +769,25 @@ namespace Developer_Toolbox.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Developer_Toolbox.Models.UserBadge", b =>
+                {
+                    b.HasOne("Developer_Toolbox.Models.Badge", "Badge")
+                        .WithMany("UserBadges")
+                        .HasForeignKey("BadgeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
+                        .WithMany("UserBadges")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Badge");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -668,11 +839,18 @@ namespace Developer_Toolbox.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Developer_Toolbox.Models.Activity", b =>
+                {
+                    b.Navigation("RelatedBadges");
+                });
+
             modelBuilder.Entity("Developer_Toolbox.Models.ApplicationUser", b =>
                 {
                     b.Navigation("Answers");
 
                     b.Navigation("Bookmarks");
+
+                    b.Navigation("CreatedBadges");
 
                     b.Navigation("Exercises");
 
@@ -681,11 +859,22 @@ namespace Developer_Toolbox.Data.Migrations
                     b.Navigation("Reactions");
 
                     b.Navigation("Solutions");
+
+                    b.Navigation("UserBadges");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.Badge", b =>
+                {
+                    b.Navigation("BadgeTags");
+
+                    b.Navigation("UserBadges");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Category", b =>
                 {
                     b.Navigation("Exercises");
+
+                    b.Navigation("RelatedBadges");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Exercise", b =>
@@ -706,6 +895,8 @@ namespace Developer_Toolbox.Data.Migrations
 
             modelBuilder.Entity("Developer_Toolbox.Models.Tag", b =>
                 {
+                    b.Navigation("BadgeTags");
+
                     b.Navigation("QuestionTags");
                 });
 #pragma warning restore 612, 618
