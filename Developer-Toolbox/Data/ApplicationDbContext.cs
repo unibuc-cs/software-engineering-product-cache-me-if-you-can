@@ -28,6 +28,7 @@ namespace Developer_Toolbox.Data
         public DbSet<BadgeTag> BadgeTags { get; set; }
         public DbSet<WeeklyChallengeExercise> WeeklyChallengeExercises { get; set; }
         public DbSet<WeeklyChallenge> WeeklyChallenges { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
