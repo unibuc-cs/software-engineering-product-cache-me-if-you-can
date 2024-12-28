@@ -468,6 +468,25 @@ namespace Developer_Toolbox.Controllers
 
         }
 
+        [NonAction]
+        private async Task RewardBadgeForCompletingChallenge()
+        {
+            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.COMPLETE_CHALLENGE).ToList();
+            if (badges == null) { return; }
+
+            foreach (var badge in badges)
+            {
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                _IRewardBadge.RewardAddChallengeBadge(badge, _userManager.GetUserId(User));
+
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+                string userEmail = await _userManager.GetEmailAsync(user);
+                string userName = await _userManager.GetUserNameAsync(user);
+                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+            }
         public void SendNotificationToUsers(int challengeId)
         {
             // Căutăm utilizatorii care trebuie notificați 
@@ -487,6 +506,7 @@ namespace Developer_Toolbox.Controllers
             // Folosește serviciile tale de email pentru a trimite mesajul
         }
 
+        }
 
         // Noua metodă GetAllWeeklyChallenges
         public IActionResult GetAllWeeklyChallenges()

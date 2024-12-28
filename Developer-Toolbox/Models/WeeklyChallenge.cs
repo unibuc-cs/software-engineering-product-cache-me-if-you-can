@@ -34,6 +34,8 @@ namespace Developer_Toolbox.Models
         [MinimumCount(1, ErrorMessage = "At least one exercise is required.")]
         public virtual ICollection<WeeklyChallengeExercise>? WeeklyChallengeExercises { get; set; }
 
+        public virtual ICollection<BadgeChallenge>? BadgeChallenges { get; set; }
+
         // Custom validation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
