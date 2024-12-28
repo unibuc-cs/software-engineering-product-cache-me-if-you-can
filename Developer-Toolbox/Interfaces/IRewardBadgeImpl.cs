@@ -1,6 +1,7 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Developer_Toolbox.Interfaces
@@ -236,30 +237,22 @@ namespace Developer_Toolbox.Interfaces
 
         public void RewardCompleteChallengeBadge(Badge badge, string userId)
         {
-            int noExercisesSolved = 0;
+            // take all exercises ids of the challenges targetted in the badge
+            var exercisesToBeSolved = from bc in db.BadgeChallenges
+                                      join ce in db.WeeklyChallengeExercises on bc.WeeklyChallengeId equals ce.WeeklyChallengeId
+                                      where bc.BadgeId == badge.Id
+                                      select ce.ExerciseId;
 
-            var exercisesSolved = db.Solutions.Include("Exercise").Where(s => s.UserId == userId && s.Score == 100).Select(s => s.Exercise).Distinct().ToList();
+            // take all 100 scored usere's submissions of the exercises
+            var submissions = from s in db.Solutions
+                              join e in exercisesToBeSolved on s.ExerciseId equals e
+                              where s.UserId == userId && s.Score == 100
+                              group s by e into g
+                              select g.Count();
 
-            if (badge.TargetLevel != null && badge.TargetCategory != null)
-            {
-                // check if the user solved more than TargetNoOfTimes exercises having both category = TargetCategory and level = TargetLevel
-                noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory) && ex.Difficulty.Equals(badge.TargetLevel));
-            }
-            else if (badge.TargetLevel != null)
-            {
-                noExercisesSolved = exercisesSolved.Count(ex => ex.Difficulty.Equals(badge.TargetLevel));
-            }
-            else if (badge.TargetCategory != null)
-            {
-                noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory));
-            }
-            else
-            {
-                noExercisesSolved = exercisesSolved.Count();
-            }
+            // if there is at least one 100 scored submission of every exercise, than the user has completed the challenge
+            if (submissions.Count(g => g >= 1) == exercisesToBeSolved.Count()) {
 
-            if (noExercisesSolved >= badge.TargetNoOfTimes)
-            {
                 // assign badge
                 db.UserBadges.Add(new UserBadge
                 {
@@ -267,7 +260,6 @@ namespace Developer_Toolbox.Interfaces
                     BadgeId = badge.Id,
                     ReceivedAt = DateTime.Now
                 });
-
             }
 
             db.SaveChanges();
