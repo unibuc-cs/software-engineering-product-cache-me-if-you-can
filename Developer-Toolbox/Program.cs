@@ -46,6 +46,7 @@ builder.Services.AddScoped<IWeeklyChallengeRepository, WeeklyChallengeRepository
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IBadgeRepository, BadgeRepository>();
+builder.Services.AddScoped<IRewardActivity, IRewardActivityImpl>();
 
 // Hangfire configuration
 builder.Services.AddHangfire(config => config

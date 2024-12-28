@@ -18,13 +18,15 @@ namespace Developer_Toolbox.Controllers
         private readonly IAnswerRepository _answerRepository;
         private readonly IRewardBadge _IRewardBadge;
         private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public AnswersController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IAnswerRepository answerRepository,
             IRewardBadge iRewardBadge,
-            IEmailService iEmailService)
+            IEmailService iEmailService,
+            IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
@@ -32,6 +34,7 @@ namespace Developer_Toolbox.Controllers
             _answerRepository = answerRepository;
             _IRewardBadge = iRewardBadge;
             _IEmailService = iEmailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
@@ -66,7 +69,7 @@ namespace Developer_Toolbox.Controllers
                 db.Answers.Add(answ);
                 db.SaveChanges();
 
-                RewardActivity((int)ActivitiesEnum.POST_ANSWER);
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.POST_ANSWER, _userManager.GetUserId(User));
                 RewardBadge().Wait();
 
 
@@ -186,20 +189,6 @@ namespace Developer_Toolbox.Controllers
             return View(answer);
         }
 
-        [NonAction]
-        private void RewardActivity(int activityId)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            user.ReputationPoints += reward;
-
-            db.SaveChanges();
-
-        }
 
         [NonAction]
         private async Task RewardBadge()
@@ -216,9 +205,7 @@ namespace Developer_Toolbox.Controllers
                 _IRewardBadge.RewardPostAnswerBadge(badge, _userManager.GetUserId(User));
 
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                string userEmail = await _userManager.GetEmailAsync(user);
-                string userName = await _userManager.GetUserNameAsync(user);
-                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
                 
             }
 
@@ -230,9 +217,7 @@ namespace Developer_Toolbox.Controllers
             Question question = db.Questions.Find(questionId);
             ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
             if (user == null) { return; }
-            string userEmail = await _userManager.GetEmailAsync(user);
-            string userName = await _userManager.GetUserNameAsync(user);
-            await _IEmailService.SendAnsweredReceivedEmailAsync(userEmail, userName, question);
+            await _IEmailService.SendAnsweredReceivedEmailAsync(user.Email, user.UserName, question);
 
         }
 
@@ -241,9 +226,7 @@ namespace Developer_Toolbox.Controllers
         {
             ApplicationUser user = db.ApplicationUsers.Find(answer.UserId);
             if (user == null) { return; }
-            string userEmail = await _userManager.GetEmailAsync(user);
-            string userName = await _userManager.GetUserNameAsync(user);
-            await _IEmailService.SendContentDeletedByAdminEmailAsync(userEmail, userName, answer.Content);
+            await _IEmailService.SendContentDeletedByAdminEmailAsync(user.Email, user.UserName, answer.Content);
 
         }
 

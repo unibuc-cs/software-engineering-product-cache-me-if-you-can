@@ -18,13 +18,15 @@ namespace Developer_Toolbox.Controllers
         private readonly IReactionRepository _reactionRepository;
         private readonly IRewardBadge _IRewardBadge;
         private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public ReactionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IReactionRepository reactionRepository,
             IRewardBadge iRewardBadge,
-            IEmailService emailService)
+            IEmailService emailService,
+            IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
@@ -32,6 +34,7 @@ namespace Developer_Toolbox.Controllers
             _reactionRepository = reactionRepository;
             _IRewardBadge = iRewardBadge;
             _IEmailService = emailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
@@ -66,7 +69,7 @@ namespace Developer_Toolbox.Controllers
                         reaction.Liked = true;
                         // Incrementam numărului de like-uri
                         question.LikesNr++;
-                        RewardActivity((int)ActivitiesEnum.BE_UPVOTED);
+                        _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId);
                     }
                     
                    
@@ -79,7 +82,7 @@ namespace Developer_Toolbox.Controllers
                     // Incrementam numărului de like-uri
                     question.LikesNr++;
                     db.Reactions.Add(reaction);
-                    RewardActivity((int)ActivitiesEnum.BE_UPVOTED);
+                    _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId);
                 }
 
                 
@@ -111,7 +114,7 @@ namespace Developer_Toolbox.Controllers
                         {
                             reaction.Liked = false;
                             question.LikesNr--;
-                            RewardActivity((int)ActivitiesEnum.BE_UPVOTED, true);
+                            _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId, true);
                         }
                         reaction.Disliked = true;
                         // Incrementam numărului de dislike-uri
@@ -151,7 +154,7 @@ namespace Developer_Toolbox.Controllers
                     reaction.Liked = false;
                     // Decrementam numărului de like-uri
                     question.LikesNr--;
-                    RewardActivity((int)ActivitiesEnum.BE_UPVOTED, true);
+                    _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId, true);
                 }
 
 
@@ -211,25 +214,6 @@ namespace Developer_Toolbox.Controllers
         }
 
 
-        [NonAction]
-        private void RewardActivity(int activityId, bool cancel = false)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            if (cancel == true)
-            {
-                user.ReputationPoints -= reward;
-            } else
-            {
-                user.ReputationPoints += reward;
-            }
-            db.SaveChanges();
-
-        }
 
         [NonAction]
         private async void RewardBadge(string questionAuthorId)
@@ -246,9 +230,7 @@ namespace Developer_Toolbox.Controllers
                 _IRewardBadge.RewardBeUpvotedBadge(badge, questionAuthorId);
 
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                string userEmail = await _userManager.GetEmailAsync(user);
-                string userName = await _userManager.GetUserNameAsync(user);
-                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
 
         }
