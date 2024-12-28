@@ -233,5 +233,44 @@ namespace Developer_Toolbox.Interfaces
 
             db.SaveChanges();
         }
+
+        public void RewardCompleteChallengeBadge(Badge badge, string userId)
+        {
+            int noExercisesSolved = 0;
+
+            var exercisesSolved = db.Solutions.Include("Exercise").Where(s => s.UserId == userId && s.Score == 100).Select(s => s.Exercise).Distinct().ToList();
+
+            if (badge.TargetLevel != null && badge.TargetCategory != null)
+            {
+                // check if the user solved more than TargetNoOfTimes exercises having both category = TargetCategory and level = TargetLevel
+                noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory) && ex.Difficulty.Equals(badge.TargetLevel));
+            }
+            else if (badge.TargetLevel != null)
+            {
+                noExercisesSolved = exercisesSolved.Count(ex => ex.Difficulty.Equals(badge.TargetLevel));
+            }
+            else if (badge.TargetCategory != null)
+            {
+                noExercisesSolved = exercisesSolved.Count(ex => ex.Category.Equals(badge.TargetCategory));
+            }
+            else
+            {
+                noExercisesSolved = exercisesSolved.Count();
+            }
+
+            if (noExercisesSolved >= badge.TargetNoOfTimes)
+            {
+                // assign badge
+                db.UserBadges.Add(new UserBadge
+                {
+                    UserId = userId,
+                    BadgeId = badge.Id,
+                    ReceivedAt = DateTime.Now
+                });
+
+            }
+
+            db.SaveChanges();
+        }
     }
 }

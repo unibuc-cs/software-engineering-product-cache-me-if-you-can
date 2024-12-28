@@ -40,7 +40,7 @@
 
                     @Html.ValidationMessageFor(m => m.TargetActivityId, null, new { @class = "text-danger" })
                 </div>
-                <div>
+                <div class="noOfTimes">
                     @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed")
                     @Html.Editor("TargetNoOfTimes", new { htmlAttributes = new { @class = "form-control" } })
                     @Html.ValidationMessageFor(m => m.TargetNoOfTimes, null, new { @class = "text-danger" })
@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="optionalFields practiceRelated">
-                    @Html.Label("Targeted level of difficulty (optional)")
+                    @Html.Label("Select targeted level of difficulty (optional)")
                     @Html.DropDownListFor(
                     (badge => badge.TargetLevel),
                     (IEnumerable<SelectListItem>)ViewBag.LevelOfDifficulty,
@@ -67,6 +67,13 @@
                     <label>Select targeted tags (optional)</label>
                     @Html.ListBoxFor(m => m.SelectedTagsIds,
                     new SelectList(Model.TargetTagsItems, "Value", "Text"),
+                    new { @class = "form-control" })
+                </div>
+
+                <div class="optionalFields challengesRelated">
+                    <label>Select targeted weekly challenges (optional)</label>
+                    @Html.ListBoxFor(m => m.SelectedChallengesIds,
+                    new SelectList(Model.WeeklyChallengesItems, "Value", "Text"),
                     new { @class = "form-control" })
                 </div>
 
@@ -91,21 +98,34 @@
 
                 if (selectedActivity.isPracticeRelated == null) {
                     $('.optionalFields').hide();
+                    $('.noOfTimes').show();
                 } else {
                     if (selectedActivity.isPracticeRelated) {
-                        $('.practiceRelated').show();
+                        if (selectedActivity.id == 5) {
+                            $('.challengesRelated').show();
+                            $('.practiceRelated').hide();
+                            $('.noOfTimes').hide();
+                        } else {
+                            $('.practiceRelated').show();
+                            $('.noOfTimes').show();
+                            $('.challengesRelated').hide();
+                        }
                         $('.questionRelated').hide();
                     } else {
                         $('.practiceRelated').hide();
+                        $('.challengesRelated').hide();
                         $('.questionRelated').show();
+                        $('.noOfTimes').show();
                     }
                 }
             } else {
                 $('.optionalFields').hide();
+                $('.noOfTimes').show();
             }
         });
 
         // Initially hide the additional fields
         $('.optionalFields').hide();
+        $('.noOfTimes').show();
     });
 </script>

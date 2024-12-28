@@ -4,6 +4,7 @@ using Developer_Toolbox.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241227202901_AddedManyToManyRelationshipBadgeChallenges")]
+    partial class AddedManyToManyRelationshipBadgeChallenges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -344,40 +346,6 @@ namespace Developer_Toolbox.Migrations
                     b.ToTable("Exercises");
                 });
 
-            modelBuilder.Entity("Developer_Toolbox.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Link")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Notifications");
-                });
-
             modelBuilder.Entity("Developer_Toolbox.Models.Question", b =>
                 {
                     b.Property<int>("Id")
@@ -517,15 +485,10 @@ namespace Developer_Toolbox.Migrations
                     b.Property<int?>("BadgeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime?>("ReceivedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("UserId", "BadgeId");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("BadgeId");
 
@@ -837,15 +800,6 @@ namespace Developer_Toolbox.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Developer_Toolbox.Models.Notification", b =>
-                {
-                    b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Developer_Toolbox.Models.Question", b =>
                 {
                     b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
@@ -910,10 +864,6 @@ namespace Developer_Toolbox.Migrations
 
             modelBuilder.Entity("Developer_Toolbox.Models.UserBadge", b =>
                 {
-                    b.HasOne("Developer_Toolbox.Models.ApplicationUser", null)
-                        .WithMany("Notifications")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("Developer_Toolbox.Models.Badge", "Badge")
                         .WithMany("UserBadges")
                         .HasForeignKey("BadgeId")
@@ -1015,8 +965,6 @@ namespace Developer_Toolbox.Migrations
                     b.Navigation("CreatedBadges");
 
                     b.Navigation("Exercises");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("Questions");
 

@@ -4,6 +4,7 @@ using Developer_Toolbox.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241227104034_AddedRelatedBadgesToWeeklyChallenges")]
+    partial class AddedRelatedBadgesToWeeklyChallenges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +23,21 @@ namespace Developer_Toolbox.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("BadgeWeeklyChallenge", b =>
+                {
+                    b.Property<int>("RelatedBadgesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetWeeklyChallengesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RelatedBadgesId", "TargetWeeklyChallengesId");
+
+                    b.HasIndex("TargetWeeklyChallengesId");
+
+                    b.ToTable("BadgeWeeklyChallenge");
+                });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Activity", b =>
                 {
@@ -214,21 +231,6 @@ namespace Developer_Toolbox.Migrations
                     b.ToTable("Badges");
                 });
 
-            modelBuilder.Entity("Developer_Toolbox.Models.BadgeChallenge", b =>
-                {
-                    b.Property<int?>("BadgeId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("WeeklyChallengeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("BadgeId", "WeeklyChallengeId");
-
-                    b.HasIndex("WeeklyChallengeId");
-
-                    b.ToTable("BadgeChallenges");
-                });
-
             modelBuilder.Entity("Developer_Toolbox.Models.BadgeTag", b =>
                 {
                     b.Property<int?>("BadgeId")
@@ -342,40 +344,6 @@ namespace Developer_Toolbox.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Exercises");
-                });
-
-            modelBuilder.Entity("Developer_Toolbox.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Link")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Question", b =>
@@ -517,15 +485,10 @@ namespace Developer_Toolbox.Migrations
                     b.Property<int?>("BadgeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime?>("ReceivedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("UserId", "BadgeId");
-
-                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("BadgeId");
 
@@ -725,6 +688,21 @@ namespace Developer_Toolbox.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BadgeWeeklyChallenge", b =>
+                {
+                    b.HasOne("Developer_Toolbox.Models.Badge", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedBadgesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Developer_Toolbox.Models.WeeklyChallenge", null)
+                        .WithMany()
+                        .HasForeignKey("TargetWeeklyChallengesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Developer_Toolbox.Models.Answer", b =>
                 {
                     b.HasOne("Developer_Toolbox.Models.Question", "Question")
@@ -761,25 +739,6 @@ namespace Developer_Toolbox.Migrations
                     b.Navigation("TargetActivity");
 
                     b.Navigation("TargetCategory");
-                });
-
-            modelBuilder.Entity("Developer_Toolbox.Models.BadgeChallenge", b =>
-                {
-                    b.HasOne("Developer_Toolbox.Models.Badge", "Badge")
-                        .WithMany("BadgeChallenges")
-                        .HasForeignKey("BadgeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Developer_Toolbox.Models.WeeklyChallenge", "WeeklyChallenge")
-                        .WithMany("BadgeChallenges")
-                        .HasForeignKey("WeeklyChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Badge");
-
-                    b.Navigation("WeeklyChallenge");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.BadgeTag", b =>
@@ -833,15 +792,6 @@ namespace Developer_Toolbox.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("Category");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Developer_Toolbox.Models.Notification", b =>
-                {
-                    b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -910,10 +860,6 @@ namespace Developer_Toolbox.Migrations
 
             modelBuilder.Entity("Developer_Toolbox.Models.UserBadge", b =>
                 {
-                    b.HasOne("Developer_Toolbox.Models.ApplicationUser", null)
-                        .WithMany("Notifications")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("Developer_Toolbox.Models.Badge", "Badge")
                         .WithMany("UserBadges")
                         .HasForeignKey("BadgeId")
@@ -1016,8 +962,6 @@ namespace Developer_Toolbox.Migrations
 
                     b.Navigation("Exercises");
 
-                    b.Navigation("Notifications");
-
                     b.Navigation("Questions");
 
                     b.Navigation("Reactions");
@@ -1029,8 +973,6 @@ namespace Developer_Toolbox.Migrations
 
             modelBuilder.Entity("Developer_Toolbox.Models.Badge", b =>
                 {
-                    b.Navigation("BadgeChallenges");
-
                     b.Navigation("BadgeTags");
 
                     b.Navigation("UserBadges");
@@ -1070,8 +1012,6 @@ namespace Developer_Toolbox.Migrations
 
             modelBuilder.Entity("Developer_Toolbox.Models.WeeklyChallenge", b =>
                 {
-                    b.Navigation("BadgeChallenges");
-
                     b.Navigation("WeeklyChallengeExercises");
                 });
 #pragma warning restore 612, 618

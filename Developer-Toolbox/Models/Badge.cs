@@ -50,5 +50,11 @@ namespace Developer_Toolbox.Models
 
         public virtual ICollection<UserBadge>? UserBadges { get; set; }
 
+        public virtual ICollection<BadgeChallenge>? BadgeChallenges { get; set; }
+        [NotMapped]
+        public IEnumerable<SelectListItem>? WeeklyChallengesItems { get; set; }
+        [NotMapped]
+        public virtual ICollection<int>? SelectedChallengesIds { get; set; }
+
     }
 }
