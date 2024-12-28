@@ -14,5 +14,8 @@ namespace Developer_Toolbox.Models
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
 
+        // Adăugăm un câmp pentru data creării soluției
+        public DateTime? CreatedAt { get; set; } = DateTime.Now; // Se setează automat la data curentă
+
     }
 }

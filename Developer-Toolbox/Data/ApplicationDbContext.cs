@@ -22,6 +22,13 @@ namespace Developer_Toolbox.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Bookmark> Bookmarks { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<Badge> Badges { get; set; }
+        public DbSet<UserBadge> UserBadges { get; set; }
+        public DbSet<BadgeTag> BadgeTags { get; set; }
+        public DbSet<WeeklyChallengeExercise> WeeklyChallengeExercises { get; set; }
+        public DbSet<WeeklyChallenge> WeeklyChallenges { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -86,6 +93,47 @@ namespace Developer_Toolbox.Data
             .HasOne(c => c.User)
             .WithMany(c => c.Reactions)
             .HasForeignKey(c => c.UserId);
+
+            // definire primary key compus
+            modelBuilder.Entity<UserBadge>()
+            .HasKey(ub => new { ub.UserId, ub.BadgeId });
+            // definire relatii cu modelele ApplicationUser si Badge (FK)
+            modelBuilder.Entity<UserBadge>()
+            .HasOne(ub => ub.User)
+            .WithMany(ub => ub.UserBadges)
+            .HasForeignKey(ub => ub.UserId);
+            modelBuilder.Entity<UserBadge>()
+            .HasOne(ub => ub.Badge)
+            .WithMany(ub => ub.UserBadges)
+            .HasForeignKey(ub => ub.BadgeId);
+
+            // definire primary key compus
+            modelBuilder.Entity<BadgeTag>()
+            .HasKey(bt => new { bt.BadgeId, bt.TagId });
+            // definire relatii cu modelele Badge si Tag (FK)
+            modelBuilder.Entity<BadgeTag>()
+            .HasOne(bt => bt.Tag)
+            .WithMany(bt => bt.BadgeTags)
+            .HasForeignKey(bt => bt.TagId);
+            modelBuilder.Entity<BadgeTag>()
+            .HasOne(bt => bt.Badge)
+            .WithMany(bt => bt.BadgeTags)
+            .HasForeignKey(bt => bt.BadgeId);
+
+
+            // Configurarea relației Many-to-Many
+            modelBuilder.Entity<WeeklyChallengeExercise>()
+                .HasKey(wce => new { wce.WeeklyChallengeId, wce.ExerciseId });
+
+            modelBuilder.Entity<WeeklyChallengeExercise>()
+                .HasOne(wce => wce.WeeklyChallenge)
+                .WithMany(wce => wce.WeeklyChallengeExercises)
+                .HasForeignKey(wce => wce.WeeklyChallengeId);
+
+            modelBuilder.Entity<WeeklyChallengeExercise>()
+                .HasOne(wce => wce.Exercise)
+                .WithMany(wce => wce.WeeklyChallengeExercises)
+                .HasForeignKey(wce => wce.ExerciseId);
         }
     }
 }

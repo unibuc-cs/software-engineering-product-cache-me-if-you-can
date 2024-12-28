@@ -1,0 +1,79 @@
+﻿@model Developer_Toolbox.Models.WeeklyChallenge
+
+<div class="container py-5">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@TempData["message"]</h4>
+    }
+    <h2 class="text-center">Create New Weekly Challenge</h2>
+
+    <div class="row">
+        <div class="col-6 offset-3">
+            <form class="d-flex flex-column gap-3 overflow-auto" method="post" asp-action="New" asp-controller="WeeklyChallenges">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <!-- Title -->
+                <div>
+                    @Html.LabelFor(m => m.Title, "Challenge Title")
+                    @Html.TextAreaFor(m => m.Title, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                </div>
+
+                <!-- Description -->
+                <div>
+                    @Html.LabelFor(m => m.Description, "Challenge Description")
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+                </div>
+
+                <!-- Difficulty -->
+                <div class="d-flex gap-1 justify-content-start mt-2">
+                    @Html.Label("Level of difficulty")
+                    @Html.DropDownListFor(
+                             (m => m.Difficulty),
+                             (IEnumerable<SelectListItem>)ViewBag.OptionsSelectList,
+                             "Select",
+                             new { @class = "form-control" }
+                             )
+                </div>
+
+                <!-- Reward Points -->
+                <div>
+                    @Html.LabelFor(m => m.RewardPoints, "Reward Points")
+                    <input type="number" class="form-control" asp-for="RewardPoints" min="1" max="1000" />
+                    @Html.ValidationMessageFor(m => m.RewardPoints, "", new { @class = "text-danger" })
+                </div>
+
+                <!-- Start Date -->
+                <div>
+                    @Html.LabelFor(m => m.StartDate, "Start Date")
+                    <input type="date" class="form-control" asp-for="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                    @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger" })
+                </div>
+
+                <!-- End Date -->
+                <div>
+                    @Html.LabelFor(m => m.EndDate, "End Date")
+                    <input type="date" class="form-control" asp-for="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                    @Html.ValidationMessageFor(m => m.EndDate, "", new { @class = "text-danger" })
+                </div>
+
+                <!-- Select Exercises -->
+                <div>
+                    <label>Select Exercises</label>
+                    @foreach (var exercise in ViewBag.Exercises)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" name="ExerciseIds" value="@exercise.Id" class="form-check-input" id="exercise-@exercise.Id" />
+                            <label for="exercise-@exercise.Id" class="form-check-label">@exercise.Title</label>
+                        </div>
+                    }
+                    @Html.ValidationMessageFor(m => m.WeeklyChallengeExercises, "", new { @class = "text-danger" })
+                </div>
+
+                <!-- Submit Button -->
+                <button class="btn btn-primary px-3 rounded-pill mb-3 mt-4 mr-auto" type="submit">Create Challenge</button>
+            </form>
+        </div>
+    </div>
+</div>
