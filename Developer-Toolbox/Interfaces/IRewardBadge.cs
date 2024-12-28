@@ -15,5 +15,7 @@ namespace Developer_Toolbox.Interfaces
         void RewardAddExerciseBadge(Badge badge, string userId);
 
         void RewardAddChallengeBadge(Badge badge, string userId);
+
+        void RewardCompleteChallengeBadge(Badge badge, string userId);
     }
 }

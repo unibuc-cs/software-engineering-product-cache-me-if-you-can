@@ -24,6 +24,7 @@ namespace Developer_Toolbox.Controllers
         private readonly IExerciseRepository _exerciseRepository;
         private readonly IRewardBadge _IRewardBadge;
         private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         // This is for code execution:  <summary>
         private readonly HttpClient _httpClient;
@@ -32,7 +33,7 @@ namespace Developer_Toolbox.Controllers
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager, HttpClient httpClient, 
             IExerciseRepository exerciseRepository,
-            IRewardBadge iRewardBadge, IEmailService emailService)
+            IRewardBadge iRewardBadge, IEmailService emailService, IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
@@ -41,6 +42,7 @@ namespace Developer_Toolbox.Controllers
             _exerciseRepository = exerciseRepository;
             _IRewardBadge = iRewardBadge;
             _IEmailService = emailService;
+            _IRewardActivity = iRewardActivity;
         }
 
 
@@ -303,7 +305,7 @@ namespace Developer_Toolbox.Controllers
 
                 db.SaveChanges();
 
-                RewardActivity((int)ActivitiesEnum.ADD_EXERCISE);
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.ADD_EXERCISE, _userManager.GetUserId(User));
 
                 RewardBadgeForAddingExercise();
 
@@ -517,7 +519,7 @@ namespace Developer_Toolbox.Controllers
                                 var alreadySolved = solutions.Count() > 1;
                                 if (!alreadySolved)
                                 {
-                                    RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE);
+                                    _IRewardActivity.RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE, _userManager.GetUserId(User));
                                     RewardBadgeForSolvingExercise(id);
                                 }
                             }
@@ -613,20 +615,6 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardActivity(int activityId)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            user.ReputationPoints += reward;
-            db.SaveChanges();
-
-        }
-
-        [NonAction]
         private async void RewardBadgeForAddingExercise()
         {
             var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_EXERCISE).ToList();
@@ -641,9 +629,7 @@ namespace Developer_Toolbox.Controllers
                 _IRewardBadge.RewardAddExerciseBadge(badge, _userManager.GetUserId(User));
 
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                string userEmail = await _userManager.GetEmailAsync(user);
-                string userName = await _userManager.GetUserNameAsync(user);
-                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
 
         }
@@ -664,9 +650,7 @@ namespace Developer_Toolbox.Controllers
                 _IRewardBadge.RewardSolveExerciseBadge(badge, _userManager.GetUserId(User));
 
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                string userEmail = await _userManager.GetEmailAsync(user);
-                string userName = await _userManager.GetUserNameAsync(user);
-                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
 
         }

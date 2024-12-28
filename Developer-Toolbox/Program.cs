@@ -39,6 +39,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 builder.Services.AddScoped<ISolutionRepository, SolutionRepository>();
 builder.Services.AddScoped<IRewardBadge, IRewardBadgeImpl>();
+builder.Services.AddScoped<IRewardActivity, IRewardActivityImpl>();
+
 
 // Hangfire configuration
 builder.Services.AddHangfire(config => config

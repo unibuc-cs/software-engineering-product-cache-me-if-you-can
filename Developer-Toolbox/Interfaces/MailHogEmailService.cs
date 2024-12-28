@@ -59,20 +59,47 @@ namespace Developer_Toolbox.Interfaces
             await SendEmailAsync(userEmail, subject, htmlBody);
         }
 
-/*        public async Task SendChallengeStartedEmailAsync(string userEmail, string userName, string challengeName, DateTime endDate)
+        public async Task SendNewChallengeEmailAsync(string userEmail, string userName, WeeklyChallenge challenge)
         {
-            var subject = $"New Coding Challenge: {challengeName} Has Started!";
+            var subject = $"New Coding Challenge: {challenge.Title} Has Started!";
             var htmlBody = $@"
             <h2>Hello {userName}!</h2>
-            <p>A new coding challenge has just started: <strong>{challengeName}</strong></p>
-            <p>The challenge will end on: {endDate:dddd, MMMM dd, yyyy at HH:mm}</p>
+            <p>A new coding challenge has just started: <strong>{challenge.Title}</strong></p>
+            <p>The challenge will end on: {challenge.EndDate:dddd, MMMM dd, yyyy at HH:mm}</p>
             <p>Login now to participate and test your skills!</p>
             <br>
             <p>Good luck!</p>
-            <p>Your Coding Platform Team</p>";
+            <p>Developer Toolbox Team</p>";
 
             await SendEmailAsync(userEmail, subject, htmlBody);
-        }*/
+        }
+
+        public async Task SendAlmostEndedChallengeEmailAsync(string userEmail, string userName, WeeklyChallenge challenge)
+        {
+            var subject = $"Ending Soon Challenge: {challenge.Title}";
+            var htmlBody = $@"
+            <h2>Hello {userName}!</h2>
+            <p>A challenge is soon ending: <strong>{challenge.Title}</strong></p>
+            <p>The challenge will end on: {challenge.EndDate:dddd, MMMM dd, yyyy at HH:mm}</p>
+            <p>Login now to participate and test your skills!</p>
+            <br>
+            <p>Good luck!</p>
+            <p>Developer Toolbox Team</p>";
+
+            await SendEmailAsync(userEmail, subject, htmlBody);
+        }
+
+        public async Task SendEndedChallengeEmailAsync(string userEmail, string userName, WeeklyChallenge challenge)
+        {
+            var subject = $"Ended Challenge: {challenge.Title}";
+            var htmlBody = $@"
+            <h2>Hello {userName}!</h2>
+            <p>A challenge has just ended: <strong>{challenge.Title}</strong></p>
+            <br>
+            <p>Developer Toolbox Team</p>";
+
+            await SendEmailAsync(userEmail, subject, htmlBody);
+        }
 
         public async Task SendAnsweredReceivedEmailAsync(string userEmail, string userName, Question question)
         {

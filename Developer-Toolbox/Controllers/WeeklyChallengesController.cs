@@ -19,18 +19,20 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRewardBadge _IRewardBadge;
         private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public WeeklyChallengesController(
             ApplicationDbContext context, 
             UserManager<ApplicationUser> userManager,
             IRewardBadge IRewardBadge,
-            IEmailService IEmailService
-            )
+            IEmailService IEmailService,
+            IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
             _IRewardBadge = IRewardBadge;
             _IEmailService = IEmailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
@@ -211,9 +213,10 @@ namespace Developer_Toolbox.Controllers
                 db.SaveChanges();
 
                 // Adăugăm job-ul Hangfire pentru notificarea utilizatorilor
-                // Hangfire: notifică utilizatorii (pentru exemplu, trimiterea unui e-mail)
-                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));
+                // Hangfire: notifică utilizatorii
+/*                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));*/
 
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.ADD_CHALLENGE, _userManager.GetUserId(User));
                 RewardBadgeForAddingChallenge().Wait();
 
                 TempData["message"] = "The weekly challenge has been successfully added.";
@@ -457,9 +460,7 @@ namespace Developer_Toolbox.Controllers
                 _IRewardBadge.RewardAddChallengeBadge(badge, _userManager.GetUserId(User));
 
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                string userEmail = await _userManager.GetEmailAsync(user);
-                string userName = await _userManager.GetUserNameAsync(user);
-                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
 
         }
@@ -479,10 +480,10 @@ namespace Developer_Toolbox.Controllers
                 _IRewardBadge.RewardAddChallengeBadge(badge, _userManager.GetUserId(User));
 
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                string userEmail = await _userManager.GetEmailAsync(user);
-                string userName = await _userManager.GetUserNameAsync(user);
-                await _IEmailService.SendBadgeAwardedEmailAsync(userEmail, userName, badge);
+                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
+        }
+/*
         public void SendNotificationToUsers(int challengeId)
         {
             // Căutăm utilizatorii care trebuie notificați 
@@ -500,9 +501,7 @@ namespace Developer_Toolbox.Controllers
             var subject = "New Weekly Challenge Posted!";
             var body = $"A new weekly challenge has been posted. Challenge ID: {challengeId}";
             // Folosește serviciile tale de email pentru a trimite mesajul
-        }
-
-        }
+        }*/
 
     }
 }
