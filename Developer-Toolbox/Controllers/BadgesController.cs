@@ -159,6 +159,15 @@ namespace Developer_Toolbox.Controllers
                     db.SaveChanges();
                 }
 
+                if (badge.SelectedChallengesIds != null)
+                {
+                    foreach (var chId in badge.SelectedChallengesIds)
+                    {
+                        db.BadgeChallenges.Add(new BadgeChallenge(badge.Id, chId));
+                    }
+                    db.SaveChanges();
+                }
+
                 RewardBadge(badge);
 
                 TempData["message"] = "The badge has been added";
@@ -199,8 +208,21 @@ namespace Developer_Toolbox.Controllers
             // preluam badge ul cautat
             Badge badge = db.Badges.Find(id);
             badge = initBadge(badge);
-
-            if (!(bool)badge.TargetActivity.isPracticeRelated)
+            
+            if (badge.TargetActivityId == (int)ActivitiesEnum.COMPLETE_CHALLENGE)
+            {
+                var challenges = from bc in db.BadgeChallenges
+                                 join ch in db.WeeklyChallenges on bc.WeeklyChallengeId equals ch.Id
+                                 where bc.BadgeId == badge.Id
+                                 select new SelectListItem
+                                 {
+                                     Value = ch.Id.ToString(),
+                                     Text = ch.Title,
+                                 };
+                ViewBag.SelectedChallenges = challenges.ToList();
+                
+            }
+            else if (badge.TargetActivity.isPracticeRelated != null && !(bool)badge.TargetActivity.isPracticeRelated)
             {
                 var tags = from bt in db.BadgeTags
                            join t in db.Tags on bt.TagId equals t.Id
@@ -214,6 +236,7 @@ namespace Developer_Toolbox.Controllers
             } else
             {
                 ViewBag.SelectedTags = new List<SelectListItem>();
+                ViewBag.SelectedChallenges = new List<SelectListItem>();
             }
 
             //restrictionam permisiunile
@@ -292,8 +315,21 @@ namespace Developer_Toolbox.Controllers
                 badge = initBadge(badge);
                 badge.Title = requestBadge.Title;
                 badge.Description = requestBadge.Description;
+                
+                if (badge.TargetActivityId == (int)ActivitiesEnum.COMPLETE_CHALLENGE)
+                {
+                    var challenges = from bc in db.BadgeChallenges
+                               join ch in db.WeeklyChallenges on bc.WeeklyChallengeId equals ch.Id
+                               where bc.BadgeId == badge.Id
+                               select new SelectListItem
+                               {
+                                   Value = ch.Id.ToString(),
+                                   Text = ch.Title,
+                               };
+                    ViewBag.SelectedChallenges = challenges.ToList();
 
-                if (!(bool)badge.TargetActivity.isPracticeRelated)
+                }
+                else if (!(bool)badge.TargetActivity.isPracticeRelated)
                 {
                     var tags = from bt in db.BadgeTags
                                join t in db.Tags on bt.TagId equals t.Id
@@ -308,6 +344,7 @@ namespace Developer_Toolbox.Controllers
                 else
                 {
                     ViewBag.SelectedTags = new List<SelectListItem>();
+                    ViewBag.SelectedChallenges = new List<SelectListItem>();
                 }
                 return View(badge);
             }
@@ -440,6 +477,26 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
+        public IEnumerable<SelectListItem> GetAllWeeklyChallenges()
+        {
+            var selectList = new List<SelectListItem>();
+
+            var challenges = from challenge in db.WeeklyChallenges
+                       select challenge;
+
+            foreach (var challenge in challenges)
+            {
+                selectList.Add(new SelectListItem
+                {
+                    Value = challenge.Id.ToString(),
+                    Text = challenge.Title
+                });
+            }
+
+            return selectList;
+        }
+
+        [NonAction]
         private async Task<string?> SaveImage(IFormFile file)
         {
             if (file == null)
@@ -497,6 +554,9 @@ namespace Developer_Toolbox.Controllers
 
             // preluam tagurile posibile pentru dropdown
             badge.TargetTagsItems = GetAllTags();
+
+            // preluam challenge-urile disponibile pentru selectie
+            badge.WeeklyChallengesItems = GetAllWeeklyChallenges();
 
             return badge;
         }
