@@ -1,0 +1,270 @@
+﻿@using System.Text.Json;
+
+<div class="container pt-3 px-5 d-flex align-items-center flex-column">
+    <h2 class="text-primary text-center text-bold pb-2">DASHBOARD</h2>
+    <div class="row">
+        <!-- Total Users -->
+        <div class="col-md-4">
+            <div class="card shadow-sm  bg-light custom-card-border" style="border:3px solid #93C572;">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5 class="" style="color:#93C572;">Total Users</h5> <h5 class="position-absolute end-0 top-0"><i class="bi bi-pin-angle-fill text-danger"></i></h5>
+                    </div>
+                    <p class="card-text fs-4">
+                        <span class="badge text-dark" style="background-color:#93C572">@Model.TotalUsers</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unanswered Questions -->
+        <div class="col-md-4">
+            <div class="card text-coral shadow-sm  bg-light custom-card-border">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5 class="">Answered questions</h5> <h5 class="position-absolute end-0 top-0"><i class="bi bi-pin-angle-fill text-danger"></i></h5>
+                    </div>
+                    <p class="card-text fs-4">
+                        <span class="badge text-dark" style="background: #ff8b94">@Model.AnsweredQuestions</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total tags -->
+        <div class="col-md-4">
+            <div class="card shadow-sm  bg-light custom-card-border" style="border:3px solid #ffac4d;">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5 class="" style="color:#ffac4d;">Learning topics</h5> <h5 class="position-absolute end-0 top-0"><i class="bi bi-pin-angle-fill text-danger"></i></h5>
+                    </div>
+                    <p class="card-text fs-4">
+                        <span class="badge text-dark" style="background-color:#ffac4d;">@Model.TotalExerciseCategories</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 mt-4">
+        <div class="row">
+            <!-- Donut Chart -->
+            <div class="col-md-6 mt-4 text-start">
+                <canvas id="myDonutChart" style="width: 100%; max-height: 300px;"></canvas> <!-- Set height for the donut chart -->
+            </div>
+
+            <!-- Top Active Users  -->
+            <div class="col-md-6 mt-4" style="max-height: 300px; overflow-y: auto;">
+                <h5 class="text-primary text-right">TOP CONTRIBUTORS ON FORUM</h5>
+                <table class="table table-hover table-bordered">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>User</th>
+                            <th>Total Answers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.TopActiveUsers)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="ApplicationUsers" asp-action="Show" asp-route-id="@user.UserId" class="text-decoration-none text-black">
+                                        <i class="bi bi-person text-success"></i>
+                                        @user.FirstName @user.LastName
+                                    </a>
+                                </td>
+                                <td>@user.TotalAnswers</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+
+
+
+        <div class="row">
+            <!-- Unanswered Questions List -->
+            <div class="col-md-6 mt-4" style="max-height: 300px; overflow-y: auto;">
+                <h5 class="text-primary text-left">QUESTIONS WAITING FOR ANSWER</h5>
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Question Title</th>
+                            <th>Asked By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var question in Model.UnansweredQuestionsList)
+                        {
+                            <tr class="hover-gray" style="cursor: pointer;">
+                                <td>
+                                    <a asp-controller="Questions" asp-action="Show" asp-route-id="@question.Id" class="text-decoration-none text-black">
+                                        <i class="bi bi-patch-question text-danger"></i> <strong>@question.Title</strong>
+                                    </a>
+                                </td>
+                                <td>
+                                    <i class="bi bi-person text-muted"></i> @question.User.FirstName @question.User.LastName
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6 mt-4 text-end">
+                <canvas id="questionDonutChart" style="width: 100%; max-height: 300px;"></canvas>
+            </div>
+
+        </div>
+
+        <div class="col-md-12 mt-4">
+            <h5 class="text-primary text-center">Trending Learning Topics</h5>
+            <canvas id="trendingBarChart" style="width: 100%; max-height: 300px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize the first donut chart (Engaged vs Non-Engaged Users)
+    var ctx = document.getElementById('myDonutChart').getContext('2d');
+    var engagedUsers = @Model.EngagedUsers;
+    var nonEngagedUsers = @Model.NonEngagedUsers;
+
+    var myDonutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Engaged Users', 'Non-Engaged Users'],
+            datasets: [{
+                data: [engagedUsers, nonEngagedUsers],
+                backgroundColor: ['#84b067', '#bcbcbc'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' users';
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Initialize the second donut chart (Answered vs Total Questions)
+    var questionCtx = document.getElementById('questionDonutChart').getContext('2d');
+    var answeredQuestions = @Model.AnsweredQuestions;
+    var totalQuestions = @Model.TotalQuestions;
+    var unansweredQuestions = totalQuestions - answeredQuestions;
+
+    var questionDonutChart = new Chart(questionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Answered Questions', 'Unanswered Questions'],
+            datasets: [{
+                data: [answeredQuestions, unansweredQuestions],
+                backgroundColor: ['#ff8b94', '#bcbcbc'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' questions';
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Prepare data for the bar chart by creating an anonymous object
+    var trendingData = @Html.Raw(ViewData["TrendingData"]);
+    // Extract category names and user counts
+    var categoryNames = trendingData.map(function (item) { return item.CategoryName; });
+    var userCounts = trendingData.map(function (item) { return item.UserCount; });
+
+    // Initialize the bar chart
+    var ctxBar = document.getElementById('trendingBarChart').getContext('2d');
+    var trendingBarChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: categoryNames,
+            datasets: [{
+                label: 'Number of Users',
+                data: userCounts,
+                backgroundColor: '#ffac4d',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return tooltipItem.raw + ' users';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Categories'  // X-axis label
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Users'  // Y-axis label
+                    },
+                    ticks: {
+                        stepSize: 1,  // This will ensure only full numbers (integers) are shown
+                        callback: function (value) {
+                            return value % 1 === 0 ? value : '';  // Only show whole numbers
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+</script>
+
+
+<style>
+    .custom-card-border {
+    border-width: 3px;
+    border-radius: 20px;
+    }
+    /* Hover effect for table rows */
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa; /* Light gray background on hover */
+    }
+
+    /* Apply a pointer cursor on hover */
+    .table-hover tbody tr {
+        cursor: pointer;
+    }
+
+    .text-coral {
+        color: #ff8b94;
+        border: 3px solid #ff8b94;
+    }
+</style>

@@ -419,6 +419,9 @@ namespace Developer_Toolbox.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("ExerciseId")
                         .HasColumnType("int");
 
@@ -473,6 +476,59 @@ namespace Developer_Toolbox.Migrations
                     b.HasIndex("BadgeId");
 
                     b.ToTable("UserBadges");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.WeeklyChallenge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RewardPoints")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeeklyChallenges");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.WeeklyChallengeExercise", b =>
+                {
+                    b.Property<int?>("WeeklyChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExerciseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("WeeklyChallengeId", "ExerciseId");
+
+                    b.HasIndex("ExerciseId");
+
+                    b.ToTable("WeeklyChallengeExercises");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -786,6 +842,25 @@ namespace Developer_Toolbox.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Developer_Toolbox.Models.WeeklyChallengeExercise", b =>
+                {
+                    b.HasOne("Developer_Toolbox.Models.Exercise", "Exercise")
+                        .WithMany("WeeklyChallengeExercises")
+                        .HasForeignKey("ExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Developer_Toolbox.Models.WeeklyChallenge", "WeeklyChallenge")
+                        .WithMany("WeeklyChallengeExercises")
+                        .HasForeignKey("WeeklyChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Exercise");
+
+                    b.Navigation("WeeklyChallenge");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -878,6 +953,8 @@ namespace Developer_Toolbox.Migrations
             modelBuilder.Entity("Developer_Toolbox.Models.Exercise", b =>
                 {
                     b.Navigation("Solutions");
+
+                    b.Navigation("WeeklyChallengeExercises");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Question", b =>
@@ -896,6 +973,11 @@ namespace Developer_Toolbox.Migrations
                     b.Navigation("BadgeTags");
 
                     b.Navigation("QuestionTags");
+                });
+
+            modelBuilder.Entity("Developer_Toolbox.Models.WeeklyChallenge", b =>
+                {
+                    b.Navigation("WeeklyChallengeExercises");
                 });
 #pragma warning restore 612, 618
         }

@@ -116,24 +116,29 @@
 
         var data = editor.getValue();
         try {
-            const res = await $.post("/Exercises/ExecuteCode", { id: @Model.Id, solution: data, language: pr });
+            // Wrap $.post in a Promise
+            const res = await new Promise((resolve, reject) => {
+                $.post("/Exercises/ExecuteCode", { id: @Model.Id, solution: data, language: pr }, resolve).fail(reject);
+            });
+
             if (res.status === 200 && res.test_results) {
                 let { test_results } = JSON.parse(JSON.parse(res.test_results).result);
                 console.log(test_results);
                 console.log("Parsed result:", test_results);
                 displayTestResults(test_results);
 
-                showSuccess(test_results)
+                showSuccess(test_results);
             } else {
-                console.log("fail")
+                console.log("fail");
             }
-            console.log(res.status)
+            console.log(res.status);
         } catch (err) {
-            console.log(err)
+            console.log(err);
         }
 
-        console.log('not awaited')
+        console.log('not awaited');
     }
+
     function displayTestResults(result) {
         Object.keys(result).forEach(key => {
             console.log(`Test case ${key} - Success:`, result[key].success);

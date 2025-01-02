@@ -1,0 +1,87 @@
+﻿<div class="py-3 px-5 d-flex flex-column gap-3">
+    <div class="d-flex justify-content-between">
+        <h1 class="gray-dark" style="color:#595959">Weekly Challenges:</h1>
+
+        @if (ViewBag.EsteAdmin)
+        {
+            <!-- Butonul New Challenge în colțul din dreapta sus -->
+            <a href="/WeeklyChallenges/New" class="btn btn-primary rounded-pill float-end" style="width: auto;">New Challenge</a>
+        }    
+    </div>
+
+    @if (TempData["message"] != null)
+    {
+        <div class="alert p-3 rounded-3 text-center mb-5 @ViewBag.Alert">
+            @ViewBag.Message
+        </div>
+    }
+
+    <div class="container custom-container">
+        <!-- Motorul de căutare -->
+        <form method="GET" class="row d-flex justify-content-center align-items-center w-100 mb-4">
+            <div class="input-group mb-3 w-75">
+                <!-- Am schimbat w-100 în w-75 pentru a se potrivi cu lățimea cardurilor -->
+                <input type="text" class="form-control" placeholder="Search challenges..." name="search" value="@ViewBag.SearchString">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </div>
+        </form>
+
+        <!-- Afișare paginată a challenge-urilor -->
+        @foreach (var challenge in ViewBag.WeeklyChallenges)
+        {
+            <div class="row justify-content-center align-items-center mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title alert-primary py-3 px-3 rounded-2">@challenge.Title</h3>
+                            <p class="card-text">@challenge.Description</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="alert-secondary">@challenge.StartDate.ToString("yyyy-MM-dd") - @challenge.EndDate.ToString("yyyy-MM-dd")</small>
+
+                                <!-- Grup de butoane pentru Delete, Edit și View -->
+                                <div class="d-flex gap-2">
+                                    @if (ViewBag.EsteAdmin)
+                                    {
+                                        <!-- Butonul pentru Delete -->
+                                        <form method="post" asp-action="DeleteConfirmed" asp-controller="WeeklyChallenges" asp-route-id="@challenge.Id" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger px-3 rounded-pill">Delete</button>
+                                        </form>
+
+                                        <!-- Butonul pentru Edit -->
+                                        <a class="btn btn-outline-secondary px-3 rounded-pill" href="/WeeklyChallenges/Edit/@challenge.Id">Edit</a>
+                                    }
+                                    <!-- Butonul pentru View Challenge -->
+                                    <a class="btn btn-outline-primary px-3 rounded-pill" href="/WeeklyChallenges/Show/@challenge.Id">View Challenge</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Paginare -->
+        <div class="row justify-content-center align-items-center">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" href="@ViewBag.PaginationBaseUrl=1" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= ViewBag.lastPage; i++)
+                    {
+                        <li class="page-item"> <a class="page-link" href="@ViewBag.PaginationBaseUrl=@i">@(i)</a> </li>
+                    }
+
+                    <li class="page-item">
+                        <a class="page-link" href="@ViewBag.PaginationBaseUrl=@(ViewBag.lastPage)" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
