@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Developer_Toolbox.Repositories;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -15,11 +16,15 @@ namespace Developer_Toolbox.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWeeklyChallengeRepository _weeklyChallengeRepository;
 
-        public WeeklyChallengesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public WeeklyChallengesController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            IWeeklyChallengeRepository weeklyChallengeRepository)
         {
             db = context;
             _userManager = userManager;
+            _weeklyChallengeRepository = weeklyChallengeRepository;
         }
 
         private void SetAccessRights()
@@ -424,7 +429,29 @@ namespace Developer_Toolbox.Controllers
             return RedirectToAction("Index");
         }
 
+        // Noua metodă GetAllWeeklyChallenges
+        public IActionResult GetAllWeeklyChallenges()
+        {
+            var weeklyChallenges = _weeklyChallengeRepository.GetAllWeeklyChallenges();
+            return View(weeklyChallenges);
+        }
 
+        // Noua metodă GetWeeklyChallengeById
+        public IActionResult GetWeeklyChallengeById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var weeklyChallenge = _weeklyChallengeRepository.GetWeeklyChallengeById(id);
+            if (weeklyChallenge == null)
+            {
+                return NotFound();
+            }
+
+            return View(weeklyChallenge);
+        }
 
     }
 }
