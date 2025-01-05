@@ -1,6 +1,7 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
+using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,18 +17,21 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private IWebHostEnvironment _env;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IBadgeRepository _badgeRepository;
 
         public BadgesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IWebHostEnvironment environment,
-            IRewardBadge iRewardBadge)
+            IRewardBadge iRewardBadge,
+            IBadgeRepository badgeRepository)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _env = environment;
             _IRewardBadge = iRewardBadge;
+            _badgeRepository = badgeRepository;
         }
 
         //Conditii de afisare a butoanelor de editare si stergere
@@ -566,6 +570,30 @@ namespace Developer_Toolbox.Controllers
                 }
             }
 
+        }
+
+        // Noua metodă GetAllBadges
+        public IActionResult GetAllBadges()
+        {
+            var badges = _badgeRepository.GetAllBadges();
+            return View(badges);
+        }
+
+        // Noua metodă GetBadgeById
+        public IActionResult GetBadgeById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var badge = _badgeRepository.GetBadgeById(id);
+            if (badge == null)
+            {
+                return NotFound();
+            }
+
+            return View(badge);
         }
 
     }

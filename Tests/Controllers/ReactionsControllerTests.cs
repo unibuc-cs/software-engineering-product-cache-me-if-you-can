@@ -15,7 +15,7 @@ public class ReactionsControllerTests
         var mockRepo = new Mock<IReactionRepository>();
         mockRepo.Setup(repo => repo.GetAllReactions())
             .Returns(GetTestReactions());
-        var controller = new ReactionsController(null, null, null, mockRepo.Object);
+        var controller = new ReactionsController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetAllReactions();
@@ -33,7 +33,7 @@ public class ReactionsControllerTests
         var mockRepo = new Mock<IReactionRepository>();
         mockRepo.Setup(repo => repo.GetReactionById(1))
             .Returns(GetTestReaction());
-        var controller = new ReactionsController(null, null, null, mockRepo.Object);
+        var controller = new ReactionsController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetReactionById(1);
@@ -49,7 +49,7 @@ public class ReactionsControllerTests
     {
         // Arrange
         var mockRepo = new Mock<IReactionRepository>();
-        var controller = new ReactionsController(null, null, null, mockRepo.Object);
+        var controller = new ReactionsController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetReactionById(null);
@@ -65,7 +65,7 @@ public class ReactionsControllerTests
         var mockRepo = new Mock<IReactionRepository>();
         mockRepo.Setup(repo => repo.GetReactionById(1))
             .Returns((Reaction)null);
-        var controller = new ReactionsController(null, null, null, mockRepo.Object);
+        var controller = new ReactionsController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetReactionById(1);

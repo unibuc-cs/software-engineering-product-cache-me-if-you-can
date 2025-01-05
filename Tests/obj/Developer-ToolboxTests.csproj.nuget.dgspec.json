@@ -1,111 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Miru\\Desktop\\MDS\\Developer-ToolboxTests\\Developer-ToolboxTests.csproj": {}
+    "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Miru\\Desktop\\MDS\\Developer-ToolboxTests\\Developer-ToolboxTests.csproj": {
+    "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-ToolboxTests\\Developer-ToolboxTests.csproj",
-        "projectName": "Developer-ToolboxTests",
-        "projectPath": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-ToolboxTests\\Developer-ToolboxTests.csproj",
-        "packagesPath": "C:\\Users\\Miru\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-ToolboxTests\\obj\\",
-        "projectStyle": "PackageReference",
-        "configFilePaths": [
-          "C:\\Users\\Miru\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net6.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net6.0": {
-            "targetAlias": "net6.0",
-            "projectReferences": {
-              "C:\\Users\\Miru\\Desktop\\MDS\\Developer-Toolbox\\Developer-Toolbox.csproj": {
-                "projectPath": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-Toolbox\\Developer-Toolbox.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        }
-      },
-      "frameworks": {
-        "net6.0": {
-          "targetAlias": "net6.0",
-          "dependencies": {
-            "Microsoft.AspNet.Identity.EntityFramework": {
-              "target": "Package",
-              "version": "[2.2.4, )"
-            },
-            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[6.0.29, )"
-            },
-            "Microsoft.NET.Test.Sdk": {
-              "target": "Package",
-              "version": "[17.5.0, )"
-            },
-            "coverlet.collector": {
-              "target": "Package",
-              "version": "[3.2.0, )"
-            },
-            "xunit": {
-              "target": "Package",
-              "version": "[2.8.0, )"
-            },
-            "xunit.extensibility.core": {
-              "target": "Package",
-              "version": "[2.8.0, )"
-            },
-            "xunit.runner.visualstudio": {
-              "target": "Package",
-              "version": "[2.4.5, )"
-            }
-          },
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204\\RuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\Miru\\Desktop\\MDS\\Developer-Toolbox\\Developer-Toolbox.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-Toolbox\\Developer-Toolbox.csproj",
+        "projectUniqueName": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj",
         "projectName": "Developer-Toolbox",
-        "projectPath": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-Toolbox\\Developer-Toolbox.csproj",
+        "projectPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj",
         "packagesPath": "C:\\Users\\Miru\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Miru\\Desktop\\MDS\\Developer-Toolbox\\obj\\",
+        "outputPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Miru\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -139,6 +45,18 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Hangfire.AspNetCore": {
+              "target": "Package",
+              "version": "[1.8.17, )"
+            },
+            "Hangfire.Core": {
+              "target": "Package",
+              "version": "[1.8.17, )"
+            },
+            "Hangfire.SqlServer": {
+              "target": "Package",
+              "version": "[1.8.17, )"
+            },
             "HtmlSanitizer": {
               "target": "Package",
               "version": "[8.0.865, )"
@@ -201,6 +119,104 @@
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
             },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj",
+        "projectName": "Developer-ToolboxTests",
+        "projectPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj",
+        "packagesPath": "C:\\Users\\Miru\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Miru\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj": {
+                "projectPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.AspNet.Identity.EntityFramework": {
+              "target": "Package",
+              "version": "[2.2.4, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.29, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.5.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.72, )"
+            },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[3.2.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.8.0, )"
+            },
+            "xunit.extensibility.core": {
+              "target": "Package",
+              "version": "[2.8.0, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.4.5, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
