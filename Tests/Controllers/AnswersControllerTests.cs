@@ -15,7 +15,7 @@ public class AnswersControllerTests
         var mockRepo = new Mock<IAnswerRepository>();
         mockRepo.Setup(repo => repo.GetAllAnswers())
             .Returns(GetTestAnswers());
-        var controller = new AnswersController(null, null, null, mockRepo.Object);
+        var controller = new AnswersController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetAllAnswers();
@@ -33,7 +33,7 @@ public class AnswersControllerTests
         var mockRepo = new Mock<IAnswerRepository>();
         mockRepo.Setup(repo => repo.GetAnswerById(1))
             .Returns(GetTestAnswer());
-        var controller = new AnswersController(null, null, null, mockRepo.Object);
+        var controller = new AnswersController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetAnswerById(1);
@@ -49,7 +49,7 @@ public class AnswersControllerTests
     {
         // Arrange
         var mockRepo = new Mock<IAnswerRepository>();
-        var controller = new AnswersController(null, null, null, mockRepo.Object);
+        var controller = new AnswersController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetAnswerById(null);
@@ -65,7 +65,7 @@ public class AnswersControllerTests
         var mockRepo = new Mock<IAnswerRepository>();
         mockRepo.Setup(repo => repo.GetAnswerById(1))
             .Returns((Answer)null);
-        var controller = new AnswersController(null, null, null, mockRepo.Object);
+        var controller = new AnswersController(null, null, null, mockRepo.Object, null);
 
         // Act
         var result = controller.GetAnswerById(1);

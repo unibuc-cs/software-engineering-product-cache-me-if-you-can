@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Hangfire;
+using Developer_Toolbox.Repositories;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -16,11 +17,16 @@ namespace Developer_Toolbox.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWeeklyChallengeRepository _weeklyChallengeRepository;
 
-        public WeeklyChallengesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public WeeklyChallengesController(ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            IWeeklyChallengeRepository weeklyChallengeRepository
+            )
         {
             db = context;
             _userManager = userManager;
+            _weeklyChallengeRepository = weeklyChallengeRepository;
         }
 
         private void SetAccessRights()
@@ -446,6 +452,31 @@ namespace Developer_Toolbox.Controllers
             var subject = "New Weekly Challenge Posted!";
             var body = $"A new weekly challenge has been posted. Challenge ID: {challengeId}";
             // Folosește serviciile tale de email pentru a trimite mesajul
+        }
+
+
+        // Noua metodă GetAllWeeklyChallenges
+        public IActionResult GetAllWeeklyChallenges()
+        {
+            var weeklyChallenges = _weeklyChallengeRepository.GetAllWeeklyChallenges();
+            return View(weeklyChallenges);
+        }
+
+        // Noua metodă GetWeeklyChallengeById
+        public IActionResult GetWeeklyChallengeById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var weeklyChallenge = _weeklyChallengeRepository.GetWeeklyChallengeById(id);
+            if (weeklyChallenge == null)
+            {
+                return NotFound();
+            }
+
+            return View(weeklyChallenge);
         }
 
 
