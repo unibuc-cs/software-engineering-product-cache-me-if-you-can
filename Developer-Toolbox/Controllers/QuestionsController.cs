@@ -33,10 +33,8 @@ namespace Developer_Toolbox.Controllers
         private void SetAccessRights()
         {
             ViewBag.AfisareButoane = false;
-
-
             ViewBag.EsteAdmin = User.IsInRole("Admin");
-
+            ViewBag.EsteModerator = User.IsInRole("Moderator");
             ViewBag.UserCurent = _userManager.GetUserId(User);
         }
 
