@@ -1,5 +1,6 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
+using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +11,15 @@ namespace Developer_Toolbox.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IActivityRepository _activityRepository;
 
-        public ActivitiesController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+        public ActivitiesController(ApplicationDbContext db, 
+            UserManager<ApplicationUser> userManager,
+            IActivityRepository activityRepository)
         {
             this.db = db;
             _userManager = userManager;
+            _activityRepository = activityRepository;
         }
 
         private void SetAccessRights()
@@ -106,6 +111,31 @@ namespace Developer_Toolbox.Controllers
                 return View(activities.ToList<Activity>());
             }
         }
+
+        // Noua metodă GetAllActivities
+        public IActionResult GetAllActivities()
+        {
+            var activities = _activityRepository.GetAllActivities();
+            return View(activities);
+        }
+
+        // Noua metodă GetActivityById
+        public IActionResult GetActivityById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var activity = _activityRepository.GetActivityById(id);
+            if (activity == null)
+            {
+                return NotFound();
+            }
+
+            return View(activity);
+        }
+
 
     }
 }

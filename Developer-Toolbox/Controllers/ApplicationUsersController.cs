@@ -64,6 +64,28 @@ namespace Developer_Toolbox.Controllers
             return View();
         }
 
+        //LEADERBOARD
+        public IActionResult Leaderboard(string search)
+        {
+            SetAccessRights();
+            var users = db.ApplicationUsers.Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName)); // Convertim DbSet în interogare
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                // Cautăm după nume sau prenume
+                users = users.Where(a => a.FirstName.Contains(search) || a.LastName.Contains(search));
+            }
+
+            ViewBag.Users = users.OrderByDescending(user => user.ReputationPoints).ToList(); // Obținem lista completă de utilizatori ordonata dupa punctaj
+            ViewBag.SearchString = search;
+            if (TempData.ContainsKey("message"))
+            {
+                ViewBag.Message = TempData["message"];
+                ViewBag.Alert = TempData["messageType"];
+            }
+            return View();
+        }
+
 
 
         //afisarea unui singur profil in functie de id-ul sau
