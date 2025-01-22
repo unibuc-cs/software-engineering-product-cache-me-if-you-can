@@ -83,49 +83,50 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $('#targetActivity').change(function () {
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#targetActivity').change(function () {
 
-            var selectedActivityId = $(this).val();
+          
+                var selectedActivityId = $(this).val();
 
-            if (selectedActivityId !== '') {
+                if (selectedActivityId !== '') {
            
-                var allActivities = @Html.Raw(Json.Serialize(Model.AllTargetActivities)); 
-                console.log("all ", allActivities)
-                var selectedActivity = allActivities.find(act => act.id == selectedActivityId);
-                console.log("selected ", selectedActivity)
+                    var allActivities = @Html.Raw(Json.Serialize(Model.AllTargetActivities)); 
+                    var selectedActivity = allActivities.find(act => act.id == selectedActivityId);
 
-                if (selectedActivity.isPracticeRelated == null) {
+                    if (selectedActivity.isPracticeRelated == null) {
+                        $('.optionalFields').hide();
+                        $('.noOfTimes').show();
+                    } else {
+                        if (selectedActivity.isPracticeRelated) {
+                            if (selectedActivity.id == 5) {
+                                $('.challengesRelated').show();
+                                $('.practiceRelated').hide();
+                                $('.noOfTimes').hide();
+                            } else {
+                                $('.practiceRelated').show();
+                                $('.noOfTimes').show();
+                                $('.challengesRelated').hide();
+                            }
+                            $('.questionRelated').hide();
+                        } else {
+                            $('.practiceRelated').hide();
+                            $('.challengesRelated').hide();
+                            $('.questionRelated').show();
+                            $('.noOfTimes').show();
+                        }
+                    }
+                } else {
                     $('.optionalFields').hide();
                     $('.noOfTimes').show();
-                } else {
-                    if (selectedActivity.isPracticeRelated) {
-                        if (selectedActivity.id == 5) {
-                            $('.challengesRelated').show();
-                            $('.practiceRelated').hide();
-                            $('.noOfTimes').hide();
-                        } else {
-                            $('.practiceRelated').show();
-                            $('.noOfTimes').show();
-                            $('.challengesRelated').hide();
-                        }
-                        $('.questionRelated').hide();
-                    } else {
-                        $('.practiceRelated').hide();
-                        $('.challengesRelated').hide();
-                        $('.questionRelated').show();
-                        $('.noOfTimes').show();
-                    }
                 }
-            } else {
-                $('.optionalFields').hide();
-                $('.noOfTimes').show();
-            }
-        });
+            });
 
-        // Initially hide the additional fields
-        $('.optionalFields').hide();
-        $('.noOfTimes').show();
-    });
-</script>
+            // Initially hide the additional fields
+            $('.optionalFields').hide();
+            $('.noOfTimes').show();
+        });
+    </script>
+}
