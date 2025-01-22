@@ -635,10 +635,9 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardAddExerciseBadge(badge, _userManager.GetUserId(User));
-
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
+                _IRewardBadge.RewardAddExerciseBadge(badge, user);
             }
 
         }
@@ -656,10 +655,9 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardSolveExerciseBadge(badge, _userManager.GetUserId(User));
-
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
+                _IRewardBadge.RewardSolveExerciseBadge(badge, user);
             }
 
         }

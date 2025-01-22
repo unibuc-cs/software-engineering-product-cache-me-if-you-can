@@ -461,15 +461,14 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardAddChallengeBadge(badge, _userManager.GetUserId(User));
-
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
+                _IRewardBadge.RewardAddChallengeBadge(badge, user);
             }
 
         }
 
-        [NonAction]
+       /* [NonAction]
         private async Task RewardBadgeForCompletingChallenge()
         {
             var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.COMPLETE_CHALLENGE).ToList();
@@ -486,7 +485,7 @@ namespace Developer_Toolbox.Controllers
                 ApplicationUser user = await _userManager.GetUserAsync(User);
                 await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
-        }
+        }*/
 /*
         public void SendNotificationToUsers(int challengeId)
         {
