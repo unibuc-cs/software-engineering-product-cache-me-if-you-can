@@ -227,10 +227,10 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == questionAuthorId);
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardBeUpvotedBadge(badge, questionAuthorId);
-
                 ApplicationUser user = await _userManager.GetUserAsync(User);
-                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
+                _IRewardBadge.RewardBeUpvotedBadge(badge, user);
+
             }
 
         }

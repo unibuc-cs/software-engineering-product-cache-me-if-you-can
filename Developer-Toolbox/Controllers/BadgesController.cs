@@ -564,26 +564,32 @@ namespace Developer_Toolbox.Controllers
         [NonAction]
         private void RewardBadge(Badge badge)
         {
-            var userIds = db.ApplicationUsers.Select(u => u.Id).ToList();
+            var users = db.ApplicationUsers.ToList();
 
-            foreach (var userId in userIds) 
+            foreach (var user in users) 
             {
                 switch (badge.TargetActivityId)
                 {
                     case (int)ActivitiesEnum.POST_QUESTION:
-                        _IRewardBadge.RewardPostQuestionBadge(badge, userId);
+                        _IRewardBadge.RewardPostQuestionBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.POST_ANSWER:
-                        _IRewardBadge.RewardPostAnswerBadge(badge, userId);
+                        _IRewardBadge.RewardPostAnswerBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.BE_UPVOTED:
-                        _IRewardBadge.RewardBeUpvotedBadge(badge, userId);
+                        _IRewardBadge.RewardBeUpvotedBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.SOLVE_EXERCISE:
-                        _IRewardBadge.RewardSolveExerciseBadge(badge, userId);
+                        _IRewardBadge.RewardSolveExerciseBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.ADD_EXERCISE:
-                        _IRewardBadge.RewardAddExerciseBadge(badge, userId);
+                        _IRewardBadge.RewardAddExerciseBadge(badge, user);
+                        break;
+                    case (int)ActivitiesEnum.ADD_CHALLENGE:
+                        _IRewardBadge.RewardAddChallengeBadge(badge, user);
+                        break;
+                    case (int)ActivitiesEnum.COMPLETE_CHALLENGE:
+                        _IRewardBadge.RewardCompleteChallengeBadge(badge, user);
                         break;
                 }
             }
@@ -593,8 +599,10 @@ namespace Developer_Toolbox.Controllers
         [NonAction]
         private bool isDuplicate(Badge badge)
         {
-            var badgesForTheSameActivityAndNoOfTimes = db.Badges.Include("BadgeTags").Include("TargetCategory").Where(b => b.TargetActivityId == badge.TargetActivityId && b.TargetNoOfTimes == badge.TargetNoOfTimes).ToList();
+            var badgesForTheSameActivityAndNoOfTimes = db.Badges.Include("TargetCategory").Where(b => b.TargetActivityId == badge.TargetActivityId && b.TargetNoOfTimes == badge.TargetNoOfTimes).ToList();
+
             var activity = db.Activities.Where(a => a.Id == badge.TargetActivityId).FirstOrDefault();
+
             if (activity.isPracticeRelated == null || activity.isPracticeRelated == true)
             {
                 if (badge.TargetCategoryId != null && badge.TargetLevel != null)
@@ -609,6 +617,20 @@ namespace Developer_Toolbox.Controllers
                 {
                     return badgesForTheSameActivityAndNoOfTimes.Any(b => b.TargetLevel.Equals(badge.TargetLevel));
                 }
+                else if (badge.SelectedChallengesIds != null && badge.SelectedChallengesIds.Any())
+                {
+                    var badgeChallenges = from b in badgesForTheSameActivityAndNoOfTimes
+                                          join bc in db.BadgeChallenges on b.Id equals bc.BadgeId
+                                          group bc by bc.BadgeId into g
+                                          select new
+                                          {
+                                              BadgeId = g.Key,
+                                              ChallengesIds = g.Select(b => b.WeeklyChallengeId).ToList(),
+                                          };
+                    badgeChallenges = badgeChallenges.ToList();
+
+                    return badgeChallenges.Any(bc => bc.ChallengesIds.Any() && bc.ChallengesIds.Count == badge.SelectedChallengesIds.Count && badge.SelectedChallengesIds.All(item => bc.ChallengesIds.Contains(item)));
+                }
                 else
                 {
                     return badgesForTheSameActivityAndNoOfTimes.Any();
@@ -620,9 +642,19 @@ namespace Developer_Toolbox.Controllers
             }
             else
             {
-                if (badge.BadgeTags != null && badge.BadgeTags.Any())
+                if (badge.SelectedTagsIds != null && badge.SelectedTagsIds.Any())
                 {
-                    return badgesForTheSameActivityAndNoOfTimes.Any(b => b.BadgeTags != null && b.BadgeTags.Equals(badge.BadgeTags));
+                    var badgeTags = from b in badgesForTheSameActivityAndNoOfTimes
+                                          join bt in db.BadgeTags on b.Id equals bt.BadgeId
+                                          group bt by bt.BadgeId into g
+                                          select new
+                                          {
+                                              BadgeId = g.Key,
+                                              TagsIds = g.Select(b => b.TagId).ToList(),
+                                          };
+                    badgeTags = badgeTags.ToList();
+
+                    return badgeTags.Any(bt => bt.TagsIds.Any() && bt.TagsIds.Count == badge.SelectedTagsIds.Count && badge.SelectedTagsIds.All(item => bt.TagsIds.Contains(item)));
                 }
                 else
                 {

@@ -4,18 +4,18 @@ namespace Developer_Toolbox.Interfaces
 {
     public interface IRewardBadge
     {
-        void RewardPostQuestionBadge(Badge badge, string userId);
+        void RewardPostQuestionBadge(Badge badge, ApplicationUser user);
 
-        void RewardPostAnswerBadge(Badge badge, string userId);
+        void RewardPostAnswerBadge(Badge badge, ApplicationUser user);
 
-        void RewardBeUpvotedBadge(Badge badge, string userId);
+        void RewardBeUpvotedBadge(Badge badge, ApplicationUser user);
 
-        void RewardSolveExerciseBadge(Badge badge, string userId);
+        void RewardSolveExerciseBadge(Badge badge, ApplicationUser user);
 
-        void RewardAddExerciseBadge(Badge badge, string userId);
+        void RewardAddExerciseBadge(Badge badge, ApplicationUser user);
 
-        void RewardAddChallengeBadge(Badge badge, string userId);
+        void RewardAddChallengeBadge(Badge badge, ApplicationUser user);
 
-        void RewardCompleteChallengeBadge(Badge badge, string userId);
+        void RewardCompleteChallengeBadge(Badge badge, ApplicationUser user);
     }
 }

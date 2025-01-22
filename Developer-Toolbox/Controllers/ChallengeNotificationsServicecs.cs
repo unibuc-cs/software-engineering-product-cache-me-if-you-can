@@ -98,34 +98,39 @@ namespace Developer_Toolbox.Controllers
                             IsRead = false
                         };
 
-                        _context.Notifications.Add(endNotification);
-                        _emailService.SendEndedChallengeEmailAsync(user.Email, user.UserName, challenge);
+                        await _emailService.SendEndedChallengeEmailAsync(user.Email, user.UserName, challenge);
+                        RewardAfterChallengeEnded(challenge, user);
 
-                        RewardAfterChallengeEnded(challenge);
+                        _context.Notifications.Add(endNotification);
                     }
+
+                    _context.SaveChanges();
                 }
+
+                
             }
 
-            _context.SaveChanges();
+            
         }
 
-        private void RewardAfterChallengeEnded(WeeklyChallenge challenge)
+        private void RewardAfterChallengeEnded(WeeklyChallenge challenge, ApplicationUser user)
         {
             // gasim toate badge urile care sunt asociate acestui challenge
-            var badges = from bc in _context.BadgeChallenges
+            var badgesQuery = from bc in _context.BadgeChallenges
                          join b in _context.Badges on bc.BadgeId equals b.Id
                          where bc.WeeklyChallengeId == challenge.Id
                          select b;
+            var badges = badgesQuery.ToList();
 
-            var users = _context.ApplicationUsers.ToList();
+            _rewardActivity.RewardCompleteChallenge(challenge, user.Id);
 
-            foreach (var user in users)
+            foreach (var badge in badges)
             {
-                foreach (var badge in badges)
-                {
-                    _rewardBadge.RewardCompleteChallengeBadge(badge, user.Id);
-                    _rewardActivity.RewardCompleteChallenge(challenge, user.Id);
-                }
+                // if user has already the badge, skip
+                var usersBadges = _context.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == user.Id);
+                if (usersBadges) continue;
+
+                _rewardBadge.RewardCompleteChallengeBadge(badge, user);
             }
         }
 
