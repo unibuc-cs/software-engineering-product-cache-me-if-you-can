@@ -77,7 +77,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         // Stergerea unui răspuns asociat unei întrebări din baza de date
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public IActionResult Delete(int id)
         {
@@ -90,7 +90,7 @@ namespace Developer_Toolbox.Controllers
         }
 
 
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         public IActionResult Edit(int id)
         {
             SetAccessRights();
@@ -99,7 +99,7 @@ namespace Developer_Toolbox.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public IActionResult Edit(int id, Answer requestAnswer)
         {

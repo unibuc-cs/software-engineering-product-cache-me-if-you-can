@@ -310,7 +310,7 @@ namespace Developer_Toolbox.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         public IActionResult Edit(int id)
         {
             Question question = db.Questions.Find(id);
@@ -320,7 +320,7 @@ namespace Developer_Toolbox.Controllers
             return View(question);
         }
 
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public ActionResult Edit(int id, Question requestQuestion)
         {
@@ -346,7 +346,7 @@ namespace Developer_Toolbox.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         public ActionResult Delete(int id)
         {
             Question question = db.Questions.Find(id);
