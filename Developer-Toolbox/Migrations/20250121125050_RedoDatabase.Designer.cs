@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241228085729_migcheckchallenges")]
-    partial class migcheckchallenges
+    [Migration("20250121125050_RedoDatabase")]
+    partial class RedoDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

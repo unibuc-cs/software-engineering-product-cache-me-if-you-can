@@ -79,6 +79,93 @@ namespace Developer_Toolbox.Controllers
 
             ViewBag.CategoryId = id;
 
+            //pt ex blocate
+
+            ViewBag.DifficultEx = db.Exercises.Where(e => e.Difficulty == "Difficult");
+            ViewBag.IntermediateEx = db.Exercises.Where(e => e.Difficulty == "Intermediate");
+            ViewBag.EasyEx = db.Exercises.Where(e => e.Difficulty == "Easy");
+
+            var DifficultEx = db.Exercises.Where(e => e.Difficulty == "Difficult").ToList();
+            var IntermediateEx = db.Exercises.Where(e => e.Difficulty == "Intermediate").ToList();
+            var EasyEx = db.Exercises.Where(e => e.Difficulty == "Easy").ToList();
+
+            var user = db.ApplicationUsers.FirstOrDefault(u => u.Id == _userManager.GetUserId(User));
+            //ViewBag.Test = 0;
+
+            var userSol = db.Solutions.Where(s => s.UserId == _userManager.GetUserId(User));
+
+            if (userSol!=null)
+            {
+                //ViewBag.Test = 2;
+                // id urile exercitiilor rezolvate de user
+
+                var userSolvedEx = db.Solutions.Where(s => s.UserId == _userManager.GetUserId(User))
+                        .Where(s => s.Score == 100)
+                        .Select(s => s.ExerciseId)
+                        .ToList();
+
+
+                var allExercises = db.Exercises.ToList();
+
+                var lastEasy = 0;
+                var lastIntermediate = 0;
+                var lastDifficult = 0;
+                var ctEasy = 0;
+                var ctIntermediate = 0;
+                var ctDifficult = 0;
+
+                /*for (int i = 0; i < allExercises.Count; i++)
+                {
+                    if (userSolvedEx.Contains(allExercises[i].Id) == true)
+                    {
+                        if (allExercises[i].Difficulty == "Easy")
+                            lastEasy = i;
+                        if (allExercises[i].Difficulty == "Intermediate")
+                            lastIntermediate = i;
+                        if (allExercises[i].Difficulty == "Difficult")
+                            lastDifficult = i;
+
+                    }    
+
+                }
+            */
+
+                for (int i = 0; i < EasyEx.Count; i++)
+                {
+                    ctEasy++;
+                    if (userSolvedEx.Contains(EasyEx[i].Id) == true)
+                        lastEasy = ctEasy;
+
+                }
+
+                for (int i = 0; i < DifficultEx.Count; i++)
+                {
+                    ctDifficult++;
+                    if (userSolvedEx.Contains(DifficultEx[i].Id) == true)
+                        lastDifficult = ctDifficult;
+
+                }
+
+                for (int i = 0; i < IntermediateEx.Count; i++)
+                {
+                    ctIntermediate++;
+                    if (userSolvedEx.Contains(IntermediateEx[i].Id) == true)
+                        lastIntermediate = ctIntermediate;
+
+                }
+
+                ViewBag.lastEasy = lastEasy;
+                ViewBag.lastIntermediate = lastIntermediate;
+                ViewBag.lastDifficult = lastDifficult;
+            }
+            else
+            {
+                ViewBag.lastEasy = 0;
+                ViewBag.lastIntermediate = 0;
+                ViewBag.lastDifficult = 0;
+            } 
+    
+           
 
 
             // pentru ordonare exercitii in functie de dificultate
