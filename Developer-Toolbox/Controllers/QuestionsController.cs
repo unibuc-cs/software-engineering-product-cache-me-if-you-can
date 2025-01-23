@@ -2,6 +2,7 @@
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -309,7 +310,7 @@ namespace Developer_Toolbox.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Edit(int id)
         {
             Question question = db.Questions.Find(id);
@@ -319,6 +320,7 @@ namespace Developer_Toolbox.Controllers
             return View(question);
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public ActionResult Edit(int id, Question requestQuestion)
         {
@@ -344,6 +346,7 @@ namespace Developer_Toolbox.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         public ActionResult Delete(int id)
         {
             Question question = db.Questions.Find(id);

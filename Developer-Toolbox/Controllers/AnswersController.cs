@@ -2,6 +2,7 @@
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +77,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         // Stergerea unui răspuns asociat unei întrebări din baza de date
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public IActionResult Delete(int id)
         {
@@ -88,7 +90,7 @@ namespace Developer_Toolbox.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin,Moderator")]
         public IActionResult Edit(int id)
         {
             SetAccessRights();
@@ -97,6 +99,7 @@ namespace Developer_Toolbox.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public IActionResult Edit(int id, Answer requestAnswer)
         {
