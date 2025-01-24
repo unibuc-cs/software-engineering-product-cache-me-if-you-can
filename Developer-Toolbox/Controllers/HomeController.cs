@@ -23,6 +23,12 @@ namespace Developer_Toolbox.Controllers
             return View();
         }
 
+        public IActionResult Community()
+        {
+            return View();
+        }
+
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
