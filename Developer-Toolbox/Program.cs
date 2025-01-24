@@ -38,6 +38,10 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 builder.Services.AddScoped<ISolutionRepository, SolutionRepository>();
 builder.Services.AddScoped<IRewardBadge, IRewardBadgeImpl>();
+builder.Services.AddScoped<IWeeklyChallengeRepository, WeeklyChallengeRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IBadgeRepository, BadgeRepository>();
 
 // Hangfire configuration
 builder.Services.AddHangfire(config => config
