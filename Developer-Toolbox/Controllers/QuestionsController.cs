@@ -2,6 +2,7 @@
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,10 +34,8 @@ namespace Developer_Toolbox.Controllers
         private void SetAccessRights()
         {
             ViewBag.AfisareButoane = false;
-
-
             ViewBag.EsteAdmin = User.IsInRole("Admin");
-
+            ViewBag.EsteModerator = User.IsInRole("Moderator");
             ViewBag.UserCurent = _userManager.GetUserId(User);
         }
 
@@ -311,62 +310,85 @@ namespace Developer_Toolbox.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin,Moderator,User")]
         public IActionResult Edit(int id)
         {
             Question question = db.Questions.Find(id);
 
             ViewBag.Question = question;
 
-            return View(question);
+            if (question?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                return View(question);
+            } else {
+
+                TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                return RedirectToAction("Index");
+            }
+
         }
 
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public ActionResult Edit(int id, Question requestQuestion)
         {
             Question question = db.Questions.Find(id);
 
-            if (ModelState.IsValid)
+            if (question?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
-                question.Title = requestQuestion.Title;
-                question.Description = requestQuestion.Description;
+                if (ModelState.IsValid)
+                {
+                    question.Title = requestQuestion.Title;
+                    question.Description = requestQuestion.Description;
 
-                db.SaveChanges();
-                TempData["message"] = "The question has been successfully edited.";
-                TempData["messageType"] = "alert-primary";
+                    db.SaveChanges();
+                    TempData["message"] = "The question has been successfully edited.";
+                    TempData["messageType"] = "alert-primary";
 
-                return Redirect("/Questions/Index");
-
-
-
+                    return Redirect("/Questions/Index");
+                }
+                else
+                {
+                    return View(question);
+                }
             }
             else
             {
-                return View(question);
-            }
+                TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                return RedirectToAction("Index");
+            }      
         }
 
+        [Authorize(Roles = "Admin,Moderator,User")]
         public ActionResult Delete(int id)
         {
             Question question = db.Questions.Find(id);
 
-            var answers = db.Answers.Where(c => c.QuestionId == id);
-            db.Answers.RemoveRange(answers);
+            if (question?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                var answers = db.Answers.Where(c => c.QuestionId == id);
+                db.Answers.RemoveRange(answers);
 
-            var bookmarks = db.Bookmarks.Where(b => b.QuestionId == id);
-            db.Bookmarks.RemoveRange(bookmarks);
+                var bookmarks = db.Bookmarks.Where(b => b.QuestionId == id);
+                db.Bookmarks.RemoveRange(bookmarks);
 
-            // Remove associated tags (assuming QuestionTag relationship)
-            var questionTags = db.QuestionTags.Where(qt => qt.QuestionId == id);
-            db.QuestionTags.RemoveRange(questionTags);
+                // Remove associated tags (assuming QuestionTag relationship)
+                var questionTags = db.QuestionTags.Where(qt => qt.QuestionId == id);
+                db.QuestionTags.RemoveRange(questionTags);
 
-            db.Questions.Remove(question);
-            TempData["message"] = "The question has been successfully deleted.";
-            TempData["messageType"] = "alert-primary";
+                db.Questions.Remove(question);
+                TempData["message"] = "The question has been successfully deleted.";
+                TempData["messageType"] = "alert-primary";
 
-            db.SaveChanges();
+                db.SaveChanges();
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            } 
+            else
+            {
+                TempData["message"] = "You are not allowed to delete a question that you didn't post!";
+                return RedirectToAction("Index");
+            }
         }
 
         // Noua metodă GetAllQuestions

@@ -1,0 +1,166 @@
+﻿@{
+    ViewData["Title"] = "FAQ";
+}
+
+<div class="faq-container">
+    <h1 class="faq-title">Frequently Asked Questions</h1>
+    
+    <!-- General Questions -->
+    <div class="faq-section">
+        <h2>General Platform Questions</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                How do I get started with coding exercises?
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                Select a domain from our categories and start with beginner-level exercises. Your progress is automatically saved and you'll earn reputation points as you complete challenges.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How does the reputation system work?
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                You earn reputation points by:
+                • Solving exercises
+                • Providing helpful answers
+                • Participating in weekly challenges
+                Higher reputation unlocks special exercises and badges.
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercises & Challenges -->
+    <div class="faq-section">
+        <h2>Exercises and Challenges</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                Can I switch programming languages while solving an exercise?
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                At the moment, we provide exercise solving with Python.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How do weekly coding challenges work?
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                Weekly challenges are special exercises with deadlines. Subscribe to our newsletter to receive notifications. Completing challenges earns you extra reputation points and special badges.
+            </div>
+        </div>
+    </div>
+
+    <!-- Community & Support -->
+    <div class="faq-section">
+        <h2>Community Features</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                How can I ask technical questions?
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                Click the "Ask" button, select relevant tags, and provide details about your problem. Other users can answer, and you'll be notified when you receive responses.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                How do bookmarks work?
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="faq-answer">
+                You can bookmark any question to save it for later. You'll receive notifications when bookmarked questions receive new answers. 
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .faq-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .faq-title {
+        color: #1e40af;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2.5rem;
+    }
+
+    .faq-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .faq-section h2 {
+        color: #2563eb;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .faq-item {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .faq-question {
+        background: #2563eb;
+        color: white;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .faq-question:hover {
+        background: #1d4ed8;
+    }
+
+    .faq-answer {
+        padding: 1.5rem;
+        color: #374151;
+        line-height: 1.6;
+        display: none;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    .toggle-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+</style>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+}

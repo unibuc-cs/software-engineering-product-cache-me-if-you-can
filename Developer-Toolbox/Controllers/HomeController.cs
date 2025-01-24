@@ -28,5 +28,10 @@ namespace Developer_Toolbox.Controllers
         {
             return base.View(new ErrorViewModel { RequestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult FAQ()
+        {
+            return View();
+        }
     }
 }

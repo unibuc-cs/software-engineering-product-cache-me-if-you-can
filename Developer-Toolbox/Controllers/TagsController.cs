@@ -26,8 +26,22 @@ namespace Developer_Toolbox.Controllers
             _roleManager = roleManager;
             _tagRepository = tagRepository;
         }
+
+        // Conditiile de afisare a butoanelor de editare si stergere
+        private void SetAccessRights()
+        {
+            ViewBag.AfisareButoane = false;
+
+            ViewBag.EsteAdmin = User.IsInRole("Admin");
+
+            ViewBag.EsteModerator = User.IsInRole("Moderator");
+
+            ViewBag.UserCurent = _userManager.GetUserId(User);
+        }
+
         public IActionResult Index()
         {
+            SetAccessRights();
             // get tags from database
             var tags = from tag in db.Tags
                        orderby tag.Name
