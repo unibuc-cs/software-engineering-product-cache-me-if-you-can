@@ -119,7 +119,6 @@ namespace Developer_Toolbox.Controllers
             ViewBag.Answers = answers;
             ViewBag.AnswerCount = answerCount;
             ViewBag.QuestionCount = questionCount;
-            /*            ViewBag.Scor = answerCount * 10 + questionCount * 5;*/
             ViewBag.Scor = user.ReputationPoints;
 
 
@@ -148,32 +147,12 @@ namespace Developer_Toolbox.Controllers
         {
 
             user.Id = _userManager.GetUserId(User);
+            user.ReputationPoints = 0;
 
-            // if (ModelState.IsValid)
-            // {
-                user.ReputationPoints = 0;
+            db.ApplicationUsers.Add(user);
 
-                db.ApplicationUsers.Add(user);
-
-                //TempData["message"] = "Profilul a fost creat cu succes";
-                //["messageType"] = "alert-success";
-                db.SaveChanges();
+            db.SaveChanges();
             return View(user);
-               // return RedirectToAction("Show");
-           // }
-
-          /*  else
-            {
-                foreach (var modelState in ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        Console.WriteLine(error.ErrorMessage);
-                    }
-                }
-                return View(profile);
-            }
-          */
 
         }
 
@@ -200,9 +179,6 @@ namespace Developer_Toolbox.Controllers
         {
             ApplicationUser user = db.Users.Find(id);
 
-            // if (ModelState.IsValid)
-            // {
-
             user.FirstName = requestProfile.FirstName;
             user.LastName = requestProfile.LastName;
             user.Description = requestProfile.Description;
@@ -213,15 +189,7 @@ namespace Developer_Toolbox.Controllers
             db.SaveChanges();
             
             return RedirectToAction("Index");
-            //}
-            //else
-            //{
-              //  return View(requestProfile);
-            //}
         }
-        /*
-
-        [Authorize(Roles = "User,Admin")]*/
         public async Task<ActionResult> Delete(string id)
         {
             ApplicationUser user = db.ApplicationUsers
