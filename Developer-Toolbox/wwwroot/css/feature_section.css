@@ -50,6 +50,7 @@
     line-height: 24px;
     color: var(--dark-3);
     margin-top: 24px;
+    height: 60px;
 }
 
 .features-style-one {
@@ -124,6 +125,7 @@
 .features-style-one .text {
     color: var(--dark-3);
     margin-top: 16px;
+    height: 70px;
 }
 
 .features-style-one .features-btn {
