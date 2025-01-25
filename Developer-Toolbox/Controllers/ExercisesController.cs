@@ -12,6 +12,7 @@ using System.Web;
 using System.Text.RegularExpressions;
 using Developer_Toolbox.Repositories;
 using Developer_Toolbox.Interfaces;
+using System.Net;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -465,6 +466,9 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public async Task<IActionResult> ExecuteCode(int id, string solution, string language)
         {
+            // Access environment variables
+            string apiKey = Environment.GetEnvironmentVariable("API_KEY");
+
             Solution solution1 = new Solution
             {
                 ExerciseId = id,
@@ -480,13 +484,14 @@ namespace Developer_Toolbox.Controllers
                 lang = language,
                 test_cases = testCases
             };
+            _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
             var jsonRequest = JsonConvert.SerializeObject(request);
             var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
             try
             {
-                var response = await _httpClient.PostAsync("http://localhost:8000/execute", httpContent);
+                var response = await _httpClient.PostAsync(Environment.GetEnvironmentVariable("EXECUTE_API"), httpContent);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -523,6 +528,10 @@ namespace Developer_Toolbox.Controllers
                             return Json(new { status = 200, test_results = jsonResponse, score = score });
                         }
                     }
+                }
+                else if (response.StatusCode == HttpStatusCode.TooManyRequests) // Handle rate limiting
+                {
+                    return StatusCode(429, new { error = "Too many requests. Please try again later." });
                 }
                 else
                 {

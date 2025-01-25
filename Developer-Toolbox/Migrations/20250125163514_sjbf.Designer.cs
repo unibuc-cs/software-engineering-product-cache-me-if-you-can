@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250125095318_Update-SeedData")]
-    partial class UpdateSeedData
+    [Migration("20250125163514_sjbf")]
+    partial class sjbf
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
