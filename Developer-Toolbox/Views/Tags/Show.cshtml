@@ -1,6 +1,7 @@
 ﻿@model Developer_Toolbox.Models.Tag
 
 <link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/questions.css" asp-append-version="true" />
 
 <section class="features-area features-one">
     <div class="container">
@@ -26,7 +27,7 @@
                 @foreach (var questionTag in Model.QuestionTags)
                 {
                     <div class="col" style="max-width: fit-content">
-                        <div class="card category-card border-0 rounded-4 shadow-sm">
+                        <div class="card question-card border-0 rounded-4 shadow-sm">
                             <div class="card-body p-4 d-flex flex-column justify-content-around">
                                 <h5 class="card-title mb-3 fw-bold text-center">@questionTag?.Question?.Title</h5>
                                 <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold"

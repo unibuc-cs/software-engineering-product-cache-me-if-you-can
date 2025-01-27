@@ -55,8 +55,7 @@ namespace Developer_Toolbox.Controllers
                                         .Select(qst => new
                                         {
                                             Question = qst,
-                                            AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).FirstName,
-                                            AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).LastName,
+                                            AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
                                             AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).Id,
                                             Tags = db.QuestionTags.Where(qt => qt.QuestionId == qst.Id).Select(qt => qt.Tag).ToList()
                                         })
@@ -83,9 +82,7 @@ namespace Developer_Toolbox.Controllers
                                 .Select(qst => new
                                 {
                                     Question = qst,
-                                    AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).FirstName,
-                                    AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).LastName,
-                                    //AutorUserName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
+                                    AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
                                     AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).Id,
                                     //Adaugare tags pt views
                                     Tags = db.QuestionTags.Where(qt => qt.QuestionId == qst.Id).Select(qt => qt.Tag).ToList()
@@ -162,7 +159,7 @@ namespace Developer_Toolbox.Controllers
             if (_userManager.GetUserId(User) != null)
             {
                 userConectat = true;
-                if (db.ApplicationUsers.FirstOrDefault(user => user.Id == _userManager.GetUserId(User)).FirstName != null)
+                if (db.ApplicationUsers.FirstOrDefault(user => user.Id == _userManager.GetUserId(User)).UserName != null)
                     userProfilComplet = true;
             }
 
@@ -193,8 +190,7 @@ namespace Developer_Toolbox.Controllers
                                         .Select(answ => new
                                         {
                                             Answer = answ,
-                                            AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).FirstName,
-                                            AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).LastName,
+                                            AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).UserName,
                                             AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).Id
                                         })
                                         .ToList();

@@ -1,41 +1,39 @@
 ﻿@{
     ViewBag.Title = "Show";
 }
-<section class="p-3 " style="color:#595959">
-    <h1 class="gray-dark" style="">Bookmarks:</h1>
-    <br />
 
-    @if (TempData["message"] != null)
-    {
-        <div class="alert p-3 rounded-3 text-center mb-5 @ViewBag.Alert">
-            @ViewBag.Message
-        </div>
-    }
+<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/questions.css" asp-append-version="true" />
 
-    @foreach (var item in ViewBag.Questions)
-    {
-        <div class="card ">
-
-            <div class="card-body">
-
-                <div class="card-title"><h3>@item.Title</h3></div>
-                <br />
-
-                <div class="d-flex justify-content-between align-items-start flex-row mt-3">
-                    <small class="alert-secondary">@item.CreatedDate</small>
-
-                    <div class="d-flex flex-row justify-content-end">
-                        <a class="btn btn-outline-primary px-3 rounded-pill mb-3" href="/Questions/Show/@item.Id">See question</a>
-                    </div>
+<section class="features-area features-one" style="min-height: 100vh">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Bookmarks</h3> 
                 </div>
-
+                <!-- row -->
             </div>
-
         </div>
-
-        <br />
-        <br />
-
-    }
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row g-5 d-flex justify-content-start">
+                @foreach (var item in ViewBag.Questions)
+                {
+                    <div class="col" style="max-width: fit-content">
+                        <div class="card question-card border-0 rounded-4 shadow-sm">
+                            <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                <h5 class="card-title mb-3 fw-bold text-center">@item.Title</h5>
+                                <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold"
+                                   asp-controller="Questions" asp-action="Show" asp-route-id="@item?.Id">
+                                    Show
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <!-- container -->
 </section>
-

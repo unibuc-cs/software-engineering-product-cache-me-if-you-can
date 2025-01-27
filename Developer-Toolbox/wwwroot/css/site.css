@@ -180,3 +180,11 @@ body {
         .form-control.dropdown option:hover {
             background-color: var(--primary-light);
         }
+
+.nav-icon {
+    color: var(--white);
+}
+
+.nav-icon:hover {
+    color: var(--white);
+}
