@@ -9,9 +9,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.Configuration;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load environment variables from .env
+Env.Load();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

@@ -279,3 +279,37 @@ Cristi, age 27, is a 5-year experienced full-stack developer at a multinational 
 - **Email Notifications**
   - Set up email notification templates for answered questions
   - Implement logic to trigger email notifications when an answer is received
+
+
+---
+# Security Analysis
+According to the OWASP Top 10, the following security tactics are implemented:
+
+1. Access Control (A01:2021)
+  - Strong implementation of role-based access control with Admin and Moderator roles
+  - Proper authorization checks using [Authorize] attributes
+  - SetAccessRights() method enforcing access validation
+
+2. Protection Against Injection (A03:2021)
+  - HTML Sanitizer implementation for content cleaning
+  - Entity Framework Core usage providing SQL injection protection
+  - LINQ for safe database queries
+
+3. Secure Architecture (A04:2021)
+  - MVC architecture implementation
+  - Repository pattern for controlled data access
+  - Dependency injection for better databse access control
+
+4. Authentication (A07:2021)
+  - ASP.NET Core Identity implementation
+  - User role management system
+  - Token-based authentication between backend server and client
+
+5. Rate Limiting
+  - IP-based request limiting (2 per minute)
+  - Protection against DDoS attacks
+
+6. Data Access
+  - Controlled data access through repository pattern
+  - Proper data validation using model attributes
+  - Input sanitization before database operations

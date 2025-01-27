@@ -40,31 +40,31 @@ namespace Developer_Toolbox.Models
                     new ApplicationUser
                     {
                         Id = "8e445865-a24d-4543-a6c6-9443d048cdb0", // primary key
-                        UserName = "admin@test.com",
+                        UserName = "admin",
                         EmailConfirmed = true,
                         NormalizedEmail = "ADMIN@TEST.COM",
                         Email = "admin@test.com",
-                        NormalizedUserName = "ADMIN@TEST.COM",
+                        NormalizedUserName = "ADMIN",
                         PasswordHash = hasher.HashPassword(null, "Admin1!")
                     },
                     new ApplicationUser
                     {
                         Id = "8e445865-a24d-4543-a6c6-9443d048cdb1", // primary key
-                        UserName = "moderator@test.com",
+                        UserName = "moderator",
                         EmailConfirmed = true,
                         NormalizedEmail = "MODERATOR@TEST.COM",
                         Email = "moderator@test.com",
-                        NormalizedUserName = "MODERATOR@TEST.COM",
+                        NormalizedUserName = "MODERATOR",
                         PasswordHash = hasher.HashPassword(null, "Moderator1!")
                     },
                     new ApplicationUser
                     {
                         Id = "8e445865-a24d-4543-a6c6-9443d048cdb2", // primary key
-                        UserName = "user@test.com",
+                        UserName = "user",
                         EmailConfirmed = true,
                         NormalizedEmail = "USER@TEST.COM",
                         Email = "user@test.com",
-                        NormalizedUserName = "USER@TEST.COM",
+                        NormalizedUserName = "USER",
                         PasswordHash = hasher.HashPassword(null, "User1!")
                     }
                 );

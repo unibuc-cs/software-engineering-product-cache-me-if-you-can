@@ -42,7 +42,7 @@
                     </div>
                     
                     <div >
-                        @if (@ViewBag.Question.UserId == ViewBag.UserCurent || ViewBag.EsteAdmin)
+                        @if (@ViewBag.Question.UserId == ViewBag.UserCurent || ViewBag.EsteAdmin || ViewBag.EsteModerator)
                         {
                             <br />
                             <div style="display:flex; justify-content: space-between;">
@@ -136,7 +136,7 @@
 
                                 <small class="alert-secondary text-center" style="margin-bottom:0">@comm.Answer.Date</small>
                                 
-                                @if (@comm.Answer.UserId == ViewBag.UserCurent || ViewBag.EsteAdmin)
+                                @if (@comm.Answer.UserId == ViewBag.UserCurent || ViewBag.EsteModerator || ViewBag.EsteAdmin)
                                 {
                                     <div style="display:flex; justify-content: space-between;">
                                         <a asp-action="Edit" asp-controller="Answers" asp-route-id="@comm.Answer.Id">

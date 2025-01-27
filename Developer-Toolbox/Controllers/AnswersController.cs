@@ -2,6 +2,7 @@
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -76,45 +77,73 @@ namespace Developer_Toolbox.Controllers
         }
 
         // Stergerea unui răspuns asociat unei întrebări din baza de date
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public IActionResult Delete(int id)
         {
             SetAccessRights();
             Answer answ = db.Answers.Find(id);
-            db.Answers.Remove(answ);
-            db.SaveChanges();
+
+            if (answ?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                db.Answers.Remove(answ);
+                db.SaveChanges();
+
+            }
+            else
+            {
+                TempData["message"] = "You are not allowed to delete an answer that you didn't post!";
+            }
 
             return Redirect("/Questions/Show/" + answ.QuestionId);
         }
 
 
-
+        [Authorize(Roles = "Admin,Moderator,User")]
         public IActionResult Edit(int id)
         {
             SetAccessRights();
             Answer answ = db.Answers.Find(id);
-            ViewBag.Answer = answ;
-            return View();
+
+            if (answ?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                ViewBag.Answer = answ;
+                return View();
+            }
+            else
+            {
+                TempData["message"] = "You are not allowed to delete an answer that you didn't post!";
+                 return Redirect("/Questions/Show/" + answ.QuestionId);
+            }              
         }
 
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public IActionResult Edit(int id, Answer requestAnswer)
         {
             Answer answ = db.Answers.Find(id);
-            try
+
+            if (answ?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
+                try
+                {
 
-                answ.Content = requestAnswer.Content;
+                    answ.Content = requestAnswer.Content;
 
-                db.SaveChanges();
+                    db.SaveChanges();
 
-                return Redirect("/Questions/Show/" + answ.QuestionId);
+                    return Redirect("/Questions/Show/" + answ.QuestionId);
+                }
+                catch (Exception e)
+                {
+                    return Redirect("/Questions/Show/" + answ.QuestionId);
+                }
             }
-            catch (Exception e)
+            else
             {
+                TempData["message"] = "You are not allowed to edit an answer that you didn't post!";
                 return Redirect("/Questions/Show/" + answ.QuestionId);
-            }
-
+            }       
         }
 
         // Noua metodă GetAllAnswers
