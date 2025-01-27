@@ -29,7 +29,7 @@ namespace Developer_Toolbox.Controllers
 
         public ExercisesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, HttpClient httpClient, 
+            RoleManager<IdentityRole> roleManager, HttpClient httpClient,
             IExerciseRepository exerciseRepository,
             IRewardBadge iRewardBadge)
         {
@@ -79,93 +79,6 @@ namespace Developer_Toolbox.Controllers
 
             ViewBag.CategoryId = id;
 
-            //pt ex blocate
-
-            ViewBag.DifficultEx = db.Exercises.Where(e => e.Difficulty == "Difficult");
-            ViewBag.IntermediateEx = db.Exercises.Where(e => e.Difficulty == "Intermediate");
-            ViewBag.EasyEx = db.Exercises.Where(e => e.Difficulty == "Easy");
-
-            var DifficultEx = db.Exercises.Where(e => e.Difficulty == "Difficult").ToList();
-            var IntermediateEx = db.Exercises.Where(e => e.Difficulty == "Intermediate").ToList();
-            var EasyEx = db.Exercises.Where(e => e.Difficulty == "Easy").ToList();
-
-            var user = db.ApplicationUsers.FirstOrDefault(u => u.Id == _userManager.GetUserId(User));
-            //ViewBag.Test = 0;
-
-            var userSol = db.Solutions.Where(s => s.UserId == _userManager.GetUserId(User));
-
-            if (userSol!=null)
-            {
-                //ViewBag.Test = 2;
-                // id urile exercitiilor rezolvate de user
-
-                var userSolvedEx = db.Solutions.Where(s => s.UserId == _userManager.GetUserId(User))
-                        .Where(s => s.Score == 100)
-                        .Select(s => s.ExerciseId)
-                        .ToList();
-
-
-                var allExercises = db.Exercises.ToList();
-
-                var lastEasy = 0;
-                var lastIntermediate = 0;
-                var lastDifficult = 0;
-                var ctEasy = 0;
-                var ctIntermediate = 0;
-                var ctDifficult = 0;
-
-                /*for (int i = 0; i < allExercises.Count; i++)
-                {
-                    if (userSolvedEx.Contains(allExercises[i].Id) == true)
-                    {
-                        if (allExercises[i].Difficulty == "Easy")
-                            lastEasy = i;
-                        if (allExercises[i].Difficulty == "Intermediate")
-                            lastIntermediate = i;
-                        if (allExercises[i].Difficulty == "Difficult")
-                            lastDifficult = i;
-
-                    }    
-
-                }
-            */
-
-                for (int i = 0; i < EasyEx.Count; i++)
-                {
-                    ctEasy++;
-                    if (userSolvedEx.Contains(EasyEx[i].Id) == true)
-                        lastEasy = ctEasy;
-
-                }
-
-                for (int i = 0; i < DifficultEx.Count; i++)
-                {
-                    ctDifficult++;
-                    if (userSolvedEx.Contains(DifficultEx[i].Id) == true)
-                        lastDifficult = ctDifficult;
-
-                }
-
-                for (int i = 0; i < IntermediateEx.Count; i++)
-                {
-                    ctIntermediate++;
-                    if (userSolvedEx.Contains(IntermediateEx[i].Id) == true)
-                        lastIntermediate = ctIntermediate;
-
-                }
-
-                ViewBag.lastEasy = lastEasy;
-                ViewBag.lastIntermediate = lastIntermediate;
-                ViewBag.lastDifficult = lastDifficult;
-            }
-            else
-            {
-                ViewBag.lastEasy = 0;
-                ViewBag.lastIntermediate = 0;
-                ViewBag.lastDifficult = 0;
-            } 
-    
-           
 
 
             // pentru ordonare exercitii in functie de dificultate
@@ -403,10 +316,10 @@ namespace Developer_Toolbox.Controllers
                 // pentru dropdown
                 ex.Categories = GetAllCategories();
 
-                List<string> optionsList = new List<string> { 
-                    DifficultyLevelsEnum.Easy.ToString(), 
-                    DifficultyLevelsEnum.Intermediate.ToString(), 
-                    DifficultyLevelsEnum.Difficult.ToString() 
+                List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
                 };
 
                 // convertim List<string> in List<SelectListItem>
@@ -747,28 +660,28 @@ namespace Developer_Toolbox.Controllers
         }
     }
 
-    }
+}
 
 
 
 // comparator custom pentru ordonare in functie de dificultate
 public class DifficultyComp : IComparer<string?>
+{
+    // pentru o ordonare usoara, transformam gradele de dificultate din string in int
+    private int TranslateDifficulty(string? difficulty)
     {
-        // pentru o ordonare usoara, transformam gradele de dificultate din string in int
-        private int TranslateDifficulty(string? difficulty)
-        {
-            if (difficulty.Equals(DifficultyLevelsEnum.Easy.ToString())) return 1;
-            if (difficulty.Equals(DifficultyLevelsEnum.Intermediate.ToString())) return 2;
-            if (difficulty.Equals(DifficultyLevelsEnum.Difficult.ToString())) return 3;
-            return 0;
-        }
-
-        //abia apoi le comparam
-        public int Compare(string? x, string? y)
-        {
-            int xint = TranslateDifficulty(x);
-            int yint = TranslateDifficulty(y);
-
-            return xint.CompareTo(yint);
-        }
+        if (difficulty.Equals(DifficultyLevelsEnum.Easy.ToString())) return 1;
+        if (difficulty.Equals(DifficultyLevelsEnum.Intermediate.ToString())) return 2;
+        if (difficulty.Equals(DifficultyLevelsEnum.Difficult.ToString())) return 3;
+        return 0;
     }
+
+    //abia apoi le comparam
+    public int Compare(string? x, string? y)
+    {
+        int xint = TranslateDifficulty(x);
+        int yint = TranslateDifficulty(y);
+
+        return xint.CompareTo(yint);
+    }
+}

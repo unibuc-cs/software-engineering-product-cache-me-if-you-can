@@ -4,6 +4,7 @@ using Developer_Toolbox.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250127123155_CreateLockedSolution")]
+    partial class CreateLockedSolution
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -952,9 +954,8 @@ namespace Developer_Toolbox.Migrations
             modelBuilder.Entity("Developer_Toolbox.Models.LockedSolution", b =>
                 {
                     b.HasOne("Developer_Toolbox.Models.LockedExercise", "LockedExercise")
-                        .WithMany("LockedSolutions")
-                        .HasForeignKey("LockedExerciseId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("LockedExerciseId");
 
                     b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
                         .WithMany()
@@ -1187,8 +1188,6 @@ namespace Developer_Toolbox.Migrations
 
             modelBuilder.Entity("Developer_Toolbox.Models.LockedExercise", b =>
                 {
-                    b.Navigation("LockedSolutions");
-
                     b.Navigation("Solutions");
                 });
 

@@ -1,0 +1,146 @@
+﻿@model Developer_Toolbox.Models.LearningPath
+
+@{
+    ViewData["Title"] = "Show Learning Path";
+}
+<br />
+
+@if (TempData.ContainsKey("message"))
+{
+    <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+}
+
+<div style="position: relative; height: 50px;">
+    <a href="/LearningPaths/Index"
+       style="background-color: #3B82F6; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold; transition: background-color 0.3s; position: absolute; left: 20px;"
+       onmouseover="this.style.backgroundColor='#2563EB';"
+       onmouseout="this.style.backgroundColor='#3B82F6';">
+        Back to All Paths
+    </a>
+
+    @if (ViewBag.IsModerator || ViewBag.IsAdmin)
+    {
+        <a href="/LockedExercises/New"
+           style="background-color: #3B82F6; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold; transition: background-color 0.3s; position: absolute; right: 30px;"
+           onmouseover="this.style.backgroundColor='#2563EB';"
+           onmouseout="this.style.backgroundColor='#3B82F6';">
+            Add Exercise
+        </a>
+    }
+</div>
+
+<br />
+<br />
+
+    @if (ViewBag.Ex != null)
+    {
+      var counter = 0;
+    <div class="difficulty-section mb-4">
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                @foreach (var exercise in ViewBag.Ex)
+               {
+                counter++;
+                @if ((ViewBag.LastEx == null && counter == 1) || (ViewBag.LastEx != null && exercise.Id <= ViewBag.LastEx.Id+1))
+                       { <div class="col">
+                        <div class="card" style="transition: all 0.3s ease; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onmouseover="this.style.boxShadow='0 8px 16px rgba(13, 110, 253, 0.2)'" onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'">
+                                <a asp-action="Show" asp-controller="LockedExercises" asp-route-id="@exercise.Id" style="text-decoration: none; outline: none;">
+                                    <div class="card-header d-flex" style="justify-content: space-between; align-items: center">
+                                        <h3 style="color:black;">@exercise.Title</h3>
+                                        <span class="badge badge-primary" style="background-color:#0d6efd">@exercise.Difficulty</span>
+                                    </div>
+                                </a>
+
+                                <div class="card-body">
+                                    <h5 class="card-title">@exercise.Summary</h5>
+                                    @if (exercise.UserId == ViewBag.CurrentUser || ViewBag.IsAdmin)
+                                    {
+                                        <div style="display:flex; justify-content: space-between;">
+                                            <a asp-action="Edit" asp-controller="LockedExercises" asp-route-id="@exercise.Id">
+                                                <svg style="width:20px; height:20px;" fill="none" stroke="#FF0000" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
+                                                </svg>
+                                            </a>
+                                            <form method="post" asp-action="Delete" asp-controller="LockedExercises" asp-route-id="@exercise.Id">
+                                                <button type="submit" class="btn btn-no-outline">
+                                                    <svg style="width:20px; height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#FF0000">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                    </div>
+
+                }
+                else
+                {
+                    <div class="col">
+                        <div class="card" style="opacity: 0.7; position: relative;">
+                            <!-- overlay pentru hover message -->
+                            <div style="display: none; position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px; height: 100px;
+            background: rgba(0,0,0,0.7);
+            color: white; z-index: 10;
+            border-radius: 8px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;"
+                                 class="hover-message">
+                                Solve the previous exercise to unlock this one
+                            </div>
+
+                            <!-- Icon lacat în mijlocul cardului -->
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                    z-index: 5;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor"
+                                     class="bi bi-lock-fill" viewBox="0 0 16 16" style="color: #666;">
+                                    <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                </svg>
+                            </div>
+
+                            <!-- Continutul original al cardului cu opacity redus -->
+                            <a asp-action="Show" asp-controller="LockedExercises" asp-route-id="@exercise.Id"
+                               style="text-decoration: none; outline: none; pointer-events: none;">
+                                <div class="card-header d-flex" style="justify-content: space-between; align-items: center">
+                                    <h3 style="color:black;">@exercise.Title</h3>
+                                    <span class="badge badge-primary" style="background-color:#0d6efd">@exercise.Difficulty</span>
+                                </div>
+                            </a>
+                            <div class="card-body">
+                                <h5 class="card-title">@exercise.Summary</h5>
+                                @if (exercise.UserId == ViewBag.CurrentUser || ViewBag.IsAdmin)
+                                {
+                                    <div style="display:flex; justify-content: space-between;">
+                                        <a asp-action="Edit" asp-controller="LockedExercises" asp-route-id="@exercise.Id">
+                                            <svg style="width:20px; height:20px;" fill="none" stroke="#FF0000" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
+                                            </svg>
+                                        </a>
+                                        <form method="post" asp-action="Delete" asp-controller="LockedExercises" asp-route-id="@exercise.Id">
+                                            <button type="submit" class="btn btn-no-outline">
+                                                <svg style="width:20px; height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#FF0000">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .card:hover .hover-message {
+                            display: flex !important;
+                        }
+                    </style>
+                }
+                    }
+
+        </div>
+    </div>
+    }
