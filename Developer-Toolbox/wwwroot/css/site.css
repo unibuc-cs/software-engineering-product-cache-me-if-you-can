@@ -157,3 +157,26 @@ body {
     border-color: var(--gray-4);
     pointer-events: none;
 }
+
+
+.form-control.dropdown {
+    appearance: none;
+    background: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right center;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    font-weight: bold;
+}
+
+    .form-control.dropdown option {
+        background-color: var(--white);
+        color: var(--black);
+        font-weight: bold;
+        border: none;
+        padding: 0.5rem 2rem 0.5rem 1rem;
+    }
+
+        .form-control.dropdown option:hover {
+            background-color: var(--primary-light);
+        }

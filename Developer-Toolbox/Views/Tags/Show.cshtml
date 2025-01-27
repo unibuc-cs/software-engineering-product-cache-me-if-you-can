@@ -1,28 +1,44 @@
 ﻿@model Developer_Toolbox.Models.Tag
-<section class="p-3">
-<h1>Tags:</h1>
 
-<br/>
+<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
 
-<div class="card w-50">
-    <a asp-action="Show" asp-controller="Tags" asp-route-id="@Model.Id" style="text-decoration: none; outline: none;">
-        <div class="card-header">
-            <h3 style="color:black;">Tag: @Model.Name </h3>
+<section class="features-area features-one">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Tag: #@Model.Name</h3>
+                    <p class="text">
+                        Do you want to read question and answers or to share your knowledge on a specific topic? Check our tags!
+                    </p>
+                </div>
+                <!-- row -->
+            </div>
         </div>
-    </a>
-</div>
-<br/>
-<h3>Related Questions</h3>
-<br/>
-<ul>
-    @foreach (var questionTag in Model.QuestionTags)
-    {
-        <li>
-            <a href="/Questions/Show/@questionTag.Question.Id" style="text-decoration: none; outline: none;">
-                @questionTag.Question.Title
-            </a>
-        </li>
-    }
-</ul>
-
+        <div class="row justify-content-center">
+            <div class="col d-flex justify-content-end" style="margin-right: 2%">
+                <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/Questions/Index" role="button"> + Ask Question</a>
+            </div>
+        </div>
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row g-5 d-flex justify-content-start">
+                @foreach (var questionTag in Model.QuestionTags)
+                {
+                    <div class="col" style="max-width: fit-content">
+                        <div class="card category-card border-0 rounded-4 shadow-sm">
+                            <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                <h5 class="card-title mb-3 fw-bold text-center">@questionTag?.Question?.Title</h5>
+                                <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold"
+                                   asp-controller="Questions" asp-action="Show" asp-route-id="@questionTag?.Question?.Id">
+                                    Show
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <!-- container -->
 </section>

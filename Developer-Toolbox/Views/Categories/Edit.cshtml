@@ -1,33 +1,41 @@
 ﻿@model Developer_Toolbox.Models.Category
 
+<link rel="stylesheet" href="~/css/form.css" asp-append-version="true" />
 
-<div class="container py-5">
-    @if (TempData.ContainsKey("message"))
-    {
-        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
-    }
-    <h2 class="text-center">Edit Category</h2>
+@if (TempData.ContainsKey("message"))
+{
+    <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+}
 
-    <div class="row">
-        <div class="col-6 offset-3">
-            <form class="d-flex flex-column gap-3 overflow-auto" method="post" enctype="multipart/form-data" action="/Categories/Edit/@Model.Id">
-                <div>
-                    @Html.Label("CategoryName", "Category Name")
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12 col-sm-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Edit category</h3>
+                    <form method="post" enctype="multipart/form-data" action="/Categories/Edit/@Model.Id">
+                        <div class="mb-3">
+                            @Html.Label("CategoryName", "Category Name")
 
-                    @Html.TextBox("CategoryName", null, new { @class = "form-control" })
+                            @Html.TextBox("CategoryName", null, new { @class = "form-control" })
 
-                    @Html.ValidationMessageFor(m => m.CategoryName, null, new{@class = "text-danger"})
-
-                    <div>
-                        <label for="file">Upload Logo</label>
-                        <input type="file" id="file" name="file" style="margin:1em"/>
-                        <br/>
-                        @Html.ValidationMessage("Logo", null, new { @class = "text-danger" })
-                    </div>
-
+                            @Html.ValidationMessageFor(m => m.CategoryName, null, new{ @class = "text-danger"})
+                        </div>
+                        <div class="mb-3">
+                            <div>
+                                <label for="file" class="form-label">Upload Logo</label>
+                                <input type="file" class="form-control" id="file" name="file" />
+                                @Html.ValidationMessage("Logo", null, new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">Save changes</button>
+                            <div id="formFeedback" class="mt-3"></div>
+                        </div>
+                    </form>
                 </div>
-                <button class="btn btn-outline" style="background-color:#0d6efd; color:white;" type="submit">Save changes</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>

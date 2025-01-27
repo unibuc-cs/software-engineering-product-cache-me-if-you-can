@@ -1,4 +1,6 @@
-﻿@{
+﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+
+@{
     ViewData["Title"] = "Community";
 }
 
@@ -29,8 +31,8 @@
                         <p class="text">
                             Consult the latest statistics about the community engagement and trends
                         </p>
-                        <div class="features-btn rounded-buttons">
-                            <a class="btn primary-btn-outline rounded-full"
+                        <div>
+                            <a class="btn btn-outline-primary py-sm-2 px-sm-3 rounded-pill" style="font-weight: bold"
                                asp-controller="Dashboard" asp-action="Index">
                                 EXPLORE
                             </a>
@@ -49,8 +51,8 @@
                         <p class="text">
                             Check other users' profiles or search for your friends. Become motivated to strengthen your own profile
                         </p>
-                        <div class="features-btn rounded-buttons">
-                            <a class="btn primary-btn-outline rounded-full"
+                        <div>
+                            <a class="btn btn-outline-primary py-sm-2 px-sm-3 rounded-pill" style="font-weight: bold"
                                asp-controller="ApplicationUsers" asp-action="Index">
                                 EXPLORE
                             </a>
@@ -69,8 +71,8 @@
                         <p class="text">
                             Prepare to compete with other passionate users for the first place in the race for reputation points
                         </p>
-                        <div class="features-btn rounded-buttons">
-                            <a class="btn primary-btn-outline rounded-full"
+                        <div>
+                            <a class="btn btn-outline-primary py-sm-2 px-sm-3 rounded-pill" style="font-weight: bold"
                                asp-controller="ApplicationUsers" asp-action="Leaderboard">
                                 EXPLORE
                             </a>
