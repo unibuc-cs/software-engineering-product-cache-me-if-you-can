@@ -46,12 +46,12 @@ namespace Developer_Toolbox.Controllers
         public IActionResult Index(string search)
         {
             SetAccessRights();
-            var users = db.ApplicationUsers.Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName)); // Convertim DbSet în interogare
+            var users = db.ApplicationUsers.Where(u => !string.IsNullOrEmpty(u.UserName)); // Convertim DbSet în interogare
 
             if (!string.IsNullOrEmpty(search))
             {
                 // Cautăm după nume sau prenume
-                users = users.Where(a => a.FirstName.Contains(search) || a.LastName.Contains(search));
+                users = users.Where(a => a.UserName.Contains(search));
             }
 
             ViewBag.Users = users.ToList(); // Obținem lista completă de utilizatori după aplicarea filtrului
@@ -71,7 +71,7 @@ namespace Developer_Toolbox.Controllers
 
             // Obținem mai întâi lista completă ordonată
             var allUsers = db.ApplicationUsers
-                .Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName))
+                .Where(u => !string.IsNullOrEmpty(u.UserName))
                 .OrderByDescending(user => user.ReputationPoints)
                 .ToList();
 
@@ -195,8 +195,7 @@ namespace Developer_Toolbox.Controllers
         {
             ApplicationUser user = db.Users.Find(id);
 
-            user.FirstName = requestProfile.FirstName;
-            user.LastName = requestProfile.LastName;
+            user.UserName = requestProfile.UserName;
             user.Description = requestProfile.Description;
             user.Birthday= requestProfile.Birthday;
            
