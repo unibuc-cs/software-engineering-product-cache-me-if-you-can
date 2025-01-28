@@ -354,6 +354,8 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public async Task<IActionResult> ExecuteCode(int id, string solution, string language)
         {
+            string apiKey = Environment.GetEnvironmentVariable("API_KEY");
+
             LockedSolution solution1 = new LockedSolution
             {
                 LockedExerciseId = id,
@@ -370,6 +372,7 @@ namespace Developer_Toolbox.Controllers
                 test_cases = testCases
             };
 
+            _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
             var jsonRequest = JsonConvert.SerializeObject(request);
             var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 

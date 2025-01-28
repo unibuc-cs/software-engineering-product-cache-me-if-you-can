@@ -16,7 +16,7 @@ namespace Developer_Toolbox.Models
         [NotMapped]
         public IEnumerable<SelectListItem>? LearningPaths { get; set; }
 
-        public virtual ICollection<Solution>? Solutions { get; set; }
+        public virtual ICollection<LockedSolution>? LockedSolutions { get; set; }
 
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
@@ -41,10 +41,8 @@ namespace Developer_Toolbox.Models
 
         [Required(ErrorMessage = "Instructions required")]
         public string? Instructions { get; set; }
-
-        public virtual ICollection<LockedSolution>? LockedSolutions { get; set; }
     
 
 
-}
+    }
 }
