@@ -1,0 +1,20 @@
+﻿.badge-card {
+    overflow: hidden;
+    width: 350px;
+    height: 500px;
+}
+
+    .badge-card:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+.badge-image {
+    height: 250px;
+    object-fit: cover;
+    overflow: hidden;
+}
+
+.badge-card .card-text {
+    height: 100px;
+    overflow: hidden;
+}

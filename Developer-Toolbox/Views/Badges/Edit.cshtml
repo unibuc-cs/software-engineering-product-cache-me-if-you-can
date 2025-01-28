@@ -1,95 +1,90 @@
 ﻿@model Developer_Toolbox.Models.Badge
+<link rel="stylesheet" href="~/css/form.css" asp-append-version="true" />
 
+@if (TempData.ContainsKey("message"))
+{
+    <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+}
 
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12 col-sm-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Edit Badge</h3>
+                    <form method="post" enctype="multipart/form-data" action="/Badges/Edit/@Model.Id">
+                        <div class="mb-3">
+                            @Html.Label("Title", "Badge title", new { @class = "form-label" })
 
-<div class="container py-5">
-    @if (TempData.ContainsKey("message"))
-    {
-        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
-    }
-    <h2 class="text-center">Edit badge</h2>
+                            @Html.TextBox("Title", null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("Description", "Badge description", new { @class = "form-label" })
 
-    <div class="row">
-        <div class="col-6 offset-3">
-            <form class="d-flex flex-column gap-3 overflow-auto" method="post" enctype="multipart/form-data" action="/Badges/Edit/@Model.Id">
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            @Html.TextArea("Description", null, new { @class = "form-control"})
+                            @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Upload Image</label>
+                            <input type="file" id="file" name="file" class="form-control" />
+                            @Html.ValidationMessage("Image", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select activity</label>
+                            @Html.DropDownListFor(m => m.TargetActivityId,
+                            new SelectList(Model.TargetActivities, "Value", "Text"),
+                            "Selected activity", new { @id = "targetActivity", @class = "form-control", @disabled = "disabled", @required = "false"})
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed", new { @class = "form-label"})
 
-                <div>
-                    @Html.Label("Title", "Badge title")
+                            @Html.Editor("TargetNoOfTimes", null, new { htmlAttributes = new { @class="form-control", @disabled= "disabled", @required = "false" }})
+                        </div>
 
-                    @Html.TextBox("Title", null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
-                </div>
-                <div>
-                    @Html.Label("Description", "Badge description")
-
-                    @Html.TextArea("Description", null, new { @class = "form-control"})
-                    @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    <label for="file">Upload Image</label>
-                    <input type="file" id="file" name="file" style="margin:1em" />
-                    @Html.ValidationMessage("Image", null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    <label>Select activity</label>
-                    @Html.DropDownListFor(m => m.TargetActivityId,
-                    new SelectList(Model.TargetActivities, "Value", "Text"),
-                    "Selected activity", new { @id = "targetActivity", @class = "form-control", @disabled = "disabled", @required = "false"})
-                </div>
-
-                @if (Model.TargetActivityId == 5)
-                {
-                    <div>
-                        <label>Select targeted weekly challenges (optional)</label>
-                        @Html.ListBoxFor(m => m.SelectedChallengesIds,
-                    new SelectList(ViewBag.SelectedChallenges, "Value", "Text"),
-                    new { @class = "form-control", @disabled = "disabled" })
-                    </div>
-                }
-                else
-                {
-                    <div>
-                        @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed")
-
-                        @Html.Editor("TargetNoOfTimes", null, new { htmlAttributes = new { @class="form-control", @disabled= "disabled", @required = "false" }})
-                    </div>
-
-                    if (Model.TargetActivity.isPracticeRelated != null)
-                    {
-                        if ((bool)Model.TargetActivity.isPracticeRelated)
+                        @if ((bool)Model.TargetActivity.isPracticeRelated)
                         {
-                            <div>
-                                <label>Select targeted category</label>
-                                @Html.DropDownListFor(m => m.TargetCategoryId,
+                            <div class="mb-3">
+                                <div class="optionalFields practiceRelated">
+                                    <label class="form-label">Select targeted category</label>
+                                    @Html.DropDownListFor(m => m.TargetCategoryId,
                                 new SelectList(Model.TargetCategories, "Value", "Text"),
-                                "Selected category", new { @class = "form-control", @disabled = "disabled" })
+                                "Selected category", new { @id = "targetCategory", @class = "form-control", @disabled = "disabled", @required = "false"})
+                                </div>
                             </div>
-
-                            <div>
-                                @Html.Label("Targeted level of difficulty")
-                                @Html.DropDownListFor(
+                            <div class="mb-3">
+                                <div class="optionalFields practiceRelated">
+                                    @Html.Label("Targeted level of difficulty", null, new { @class = "form-label"})
+                                    @Html.DropDownListFor(
                                 (badge => badge.TargetLevel),
                                 (IEnumerable<SelectListItem>)ViewBag.LevelOfDifficulty,
                                 "Select",
-                                new { @class = "form-control", @disabled = "disabled" }
+                                new { @id = "targetDifficulty", @class = "form-control", @disabled = "disabled", @required = "false"}
                                 )
+                                </div>
                             </div>
-                        }
-                        else
-                        {
-                            <div>
-                                <label>Selected targeted tags</label>
-                                @Html.ListBoxFor(m => m.SelectedTagsIds,
-                                new SelectList(ViewBag.SelectedTags, "Value", "Text"),
-                                new { @class = "form-control", @disabled = "disabled" })
-                            </div>
-                        }
-                    }
-                }
 
-                <button class="btn btn-outline" style="background-color:#eee; color:black;" type="submit">Save changes</button>
-            </form>
+                        } else {
+                            <div class="mb-3">
+                                <div class="optionalFields questionRelated">
+                                    <label class="form-label">Selected targeted tags</label>
+                                    @Html.ListBoxFor(m => m.SelectedTagsIds,
+                                new SelectList(ViewBag.SelectedTags, "Value", "Text"),
+                                new { @id = "targetTags", @class = "form-control", @disabled = "disabled", @required = "false"})
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">Save changes</button>
+                            <div id="formFeedback" class="mt-3"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
