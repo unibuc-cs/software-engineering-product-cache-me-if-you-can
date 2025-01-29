@@ -30,6 +30,11 @@ namespace Developer_Toolbox.Data
         public DbSet<WeeklyChallenge> WeeklyChallenges { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
+        public DbSet<LockedExercise> LockedExercises { get; set; }
+        public DbSet<LearningPath> LearningPaths { get; set; }
+
+        public DbSet<LockedSolution> LockedSolutions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -134,6 +139,12 @@ namespace Developer_Toolbox.Data
                 .HasOne(wce => wce.Exercise)
                 .WithMany(wce => wce.WeeklyChallengeExercises)
                 .HasForeignKey(wce => wce.ExerciseId);
+
+        modelBuilder.Entity<LockedSolution>()
+        .HasOne(s => s.LockedExercise)
+        .WithMany(e => e.LockedSolutions)
+        .HasForeignKey(s => s.LockedExerciseId)
+        .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

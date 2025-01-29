@@ -1,0 +1,43 @@
+﻿@model Developer_Toolbox.Models.LearningPath
+
+
+<div class="container py-5">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
+    <h2 class="text-center">Edit Learning Path</h2>
+
+    <div class="row">
+        <div class="col-6 offset-3">
+            <form class="d-flex flex-column gap-3 overflow-auto" method="post"  action="/LearningPaths/Edit/@Model.Id">
+                <div>
+                    @Html.Label("Name", "Name")
+
+                    @Html.TextBox("Name", null, new { @class = "form-control" })
+
+                    @Html.ValidationMessageFor(m => m.Name, null, new { @class = "text-danger" })
+
+                </div>
+
+                <div>
+                    @Html.Label("Description", "Description")
+
+                    @Html.TextBox("Description", null, new { @class = "form-control" })
+
+                    @Html.ValidationMessageFor(m => m.Description, null, new { @class = "text-danger" })
+
+                </div>
+                <button class="btn btn-outline" style="background-color:#0d6efd; color:white;" type="submit">Save changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

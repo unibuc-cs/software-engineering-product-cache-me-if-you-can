@@ -68,16 +68,32 @@ namespace Developer_Toolbox.Controllers
         public IActionResult Leaderboard(string search)
         {
             SetAccessRights();
-            var users = db.ApplicationUsers.Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName)); // Convertim DbSet în interogare
 
+            // Obținem mai întâi lista completă ordonată
+            var allUsers = db.ApplicationUsers
+                .Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName))
+                .OrderByDescending(user => user.ReputationPoints)
+                .ToList();
+
+            ViewBag.AllUsersList = allUsers;
+
+            // Modificăm căutarea pentru a fi case-insensitive
             if (!string.IsNullOrEmpty(search))
             {
-                // Cautăm după nume sau prenume
-                users = users.Where(a => a.FirstName.Contains(search) || a.LastName.Contains(search));
+                ViewBag.Users = allUsers
+                    .Where(a =>
+                        a.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        a.LastName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        a.UserName.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+            else
+            {
+                ViewBag.Users = allUsers;
             }
 
-            ViewBag.Users = users.OrderByDescending(user => user.ReputationPoints).ToList(); // Obținem lista completă de utilizatori ordonata dupa punctaj
             ViewBag.SearchString = search;
+
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];

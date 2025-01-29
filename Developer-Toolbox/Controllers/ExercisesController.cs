@@ -30,7 +30,7 @@ namespace Developer_Toolbox.Controllers
 
         public ExercisesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, HttpClient httpClient, 
+            RoleManager<IdentityRole> roleManager, HttpClient httpClient,
             IExerciseRepository exerciseRepository,
             IRewardBadge iRewardBadge)
         {
@@ -317,10 +317,10 @@ namespace Developer_Toolbox.Controllers
                 // pentru dropdown
                 ex.Categories = GetAllCategories();
 
-                List<string> optionsList = new List<string> { 
-                    DifficultyLevelsEnum.Easy.ToString(), 
-                    DifficultyLevelsEnum.Intermediate.ToString(), 
-                    DifficultyLevelsEnum.Difficult.ToString() 
+                List<string> optionsList = new List<string> {
+                    DifficultyLevelsEnum.Easy.ToString(),
+                    DifficultyLevelsEnum.Intermediate.ToString(),
+                    DifficultyLevelsEnum.Difficult.ToString()
                 };
 
                 // convertim List<string> in List<SelectListItem>
@@ -669,28 +669,28 @@ namespace Developer_Toolbox.Controllers
         }
     }
 
-    }
+}
 
 
 
 // comparator custom pentru ordonare in functie de dificultate
 public class DifficultyComp : IComparer<string?>
+{
+    // pentru o ordonare usoara, transformam gradele de dificultate din string in int
+    private int TranslateDifficulty(string? difficulty)
     {
-        // pentru o ordonare usoara, transformam gradele de dificultate din string in int
-        private int TranslateDifficulty(string? difficulty)
-        {
-            if (difficulty.Equals(DifficultyLevelsEnum.Easy.ToString())) return 1;
-            if (difficulty.Equals(DifficultyLevelsEnum.Intermediate.ToString())) return 2;
-            if (difficulty.Equals(DifficultyLevelsEnum.Difficult.ToString())) return 3;
-            return 0;
-        }
-
-        //abia apoi le comparam
-        public int Compare(string? x, string? y)
-        {
-            int xint = TranslateDifficulty(x);
-            int yint = TranslateDifficulty(y);
-
-            return xint.CompareTo(yint);
-        }
+        if (difficulty.Equals(DifficultyLevelsEnum.Easy.ToString())) return 1;
+        if (difficulty.Equals(DifficultyLevelsEnum.Intermediate.ToString())) return 2;
+        if (difficulty.Equals(DifficultyLevelsEnum.Difficult.ToString())) return 3;
+        return 0;
     }
+
+    //abia apoi le comparam
+    public int Compare(string? x, string? y)
+    {
+        int xint = TranslateDifficulty(x);
+        int yint = TranslateDifficulty(y);
+
+        return xint.CompareTo(yint);
+    }
+}

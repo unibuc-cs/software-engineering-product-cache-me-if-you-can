@@ -8,7 +8,7 @@
 
     <div class="d-flex justify-content-between">
         <h1 class="">Exercises:</h1>
-        @if(ViewBag.IsModerator || ViewBag.IsAdmin)
+        @if (ViewBag.IsModerator || ViewBag.IsAdmin)
         {
             <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/Exercises/New" role="button"> + Add Exercise</a>
         }
@@ -28,11 +28,11 @@
             <div class="d-flex gap-1 justify-content-start mt-2">
                 <label>Sort by difficulty:</label>
                 @Html.DropDownList(
-                "SelectedDifficultyOption",
-                (IEnumerable<SelectListItem>)ViewBag.DifficultyOptionsSelectList,
-                "Select",
-                new { @class = "form-control" }
-                )
+                         "SelectedDifficultyOption",
+                         (IEnumerable<SelectListItem>)ViewBag.DifficultyOptionsSelectList,
+                         "Select",
+                         new { @class = "form-control" }
+                         )
             </div>
         </form>
     </div>
@@ -53,7 +53,7 @@
                         </a>
                         <div class="card-body">
                             <h5 class="card-title">@exercise.Summary</h5>
-                            @if(exercise.UserId == ViewBag.CurrentUser || ViewBag.IsAdmin)
+                            @if (exercise.UserId == ViewBag.CurrentUser || ViewBag.IsAdmin)
                             {
                                 <div style="display:flex; justify-content: space-between;">
                                     <a asp-action="Edit" asp-controller="Exercises" asp-route-id="@exercise.Id">
