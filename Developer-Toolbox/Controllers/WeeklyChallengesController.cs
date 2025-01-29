@@ -468,45 +468,6 @@ namespace Developer_Toolbox.Controllers
 
         }
 
-       /* [NonAction]
-        private async Task RewardBadgeForCompletingChallenge()
-        {
-            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.COMPLETE_CHALLENGE).ToList();
-            if (badges == null) { return; }
-
-            foreach (var badge in badges)
-            {
-                // if user has already the badge, skip
-                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
-                if (usersBadges) continue;
-
-                _IRewardBadge.RewardAddChallengeBadge(badge, _userManager.GetUserId(User));
-
-                ApplicationUser user = await _userManager.GetUserAsync(User);
-                await _IEmailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
-            }
-        }*/
-/*
-        public void SendNotificationToUsers(int challengeId)
-        {
-            // Căutăm utilizatorii care trebuie notificați 
-            var users = db.ApplicationUsers.ToList();
-
-            foreach (var user in users)
-            {
-                SendEmailNotification(user.Email, challengeId);
-            }
-        }
-
-        private void SendEmailNotification(string userEmail, int challengeId)
-        {
-            // Logică pentru trimiterea unui e-mail (sau altă metodă de notificare)
-            var subject = "New Weekly Challenge Posted!";
-            var body = $"A new weekly challenge has been posted. Challenge ID: {challengeId}";
-            // Folosește serviciile tale de email pentru a trimite mesajul
-        }
-
-        }
 
         // Noua metodă GetAllWeeklyChallenges
         public IActionResult GetAllWeeklyChallenges()

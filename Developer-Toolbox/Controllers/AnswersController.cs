@@ -139,10 +139,6 @@ namespace Developer_Toolbox.Controllers
 
             if (answ?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
-                TempData["message"] = "You're unable to delete an answer you didn't add!";
-                TempData["messageType"] = "alert-danger";
-                return Redirect("/Questions/Show/" + answ.QuestionId);
-            }
 
             try
             {
@@ -161,6 +157,7 @@ namespace Developer_Toolbox.Controllers
             else
             {
                 TempData["message"] = "You are not allowed to edit an answer that you didn't post!";
+                TempData["messageType"] = "alert-danger";
                 return Redirect("/Questions/Show/" + answ.QuestionId);
             }       
         }
