@@ -1,78 +1,96 @@
 ﻿@model Developer_Toolbox.Models.Exercise
 
+<link rel="stylesheet" href="~/css/form.css" asp-append-version="true" />
 
+@if (TempData.ContainsKey("message"))
+{
+    <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+}
 
-<div class="container py-5">
-    @if (TempData.ContainsKey("message"))
-    {
-        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
-    }
-    <h2 class="text-center">Add Exercise</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12 col-sm-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Add exercise</h3>
+                    <form method="post" enctype="multipart/form-data" action="/Exercises/New">
+                        <div class="mb-3">
+                            @Html.Label("Title", "Exercise Title")
 
-    <div class="row">
-        <div class="col-6 offset-3">
-            <form class="d-flex flex-column gap-3 overflow-auto" method="post" enctype="multipart/form-data" action="/Exercises/New">
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            @Html.TextBox("Title", null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Category</label>
+                            @Html.DropDownListFor(m => m.CategoryId,
+                            new SelectList(Model.Categories, "Value", "Text"),
+                            "Select Category", new { @class = "form-control" })
 
-                <div>
-                    @Html.Label("Title", "Exercise Title")
+                            @Html.ValidationMessageFor(m => m.CategoryId, null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("Description", "Exercise Description", new { @class = "form-label" })
 
-                    @Html.TextBox("Title", null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                            @Html.TextArea("Description", null, new { @class = "form-control"})
+                            @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("Summary", "Summary", new { @class = "form-label" })
+
+                            @Html.TextBox("Summary", null, new { @class = "form-control" })
+                            @Html.ValidationMessage("Summary", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("Restrictions", "Restrictions", new { @class = "form-label" })
+
+                            @Html.TextArea("Restrictions", null, new { @class = "form-control summernote" })
+                            @Html.ValidationMessage("Restrictions", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("Examples", "Examples", new { @class = "form-label" })
+
+                            @Html.TextArea("Examples", null, new { @class = "form-control summernote" })
+                            @Html.ValidationMessage("Examples", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex">
+                                @Html.Label("TestCases", "Test Cases", new { @class = "form-label" })
+                                <a href="#" data-bs-toggle="tooltip" data-html="true" data-title="<div>Please respect the following format for the test cases:<br /><br /><p>Test case #{test_case_number}:<br />Input<br />{input_values}<br />Output<br />{output_values}</p></div>"><i class="bi bi-info-circle" style="padding-left: 0.5rem"></i></a>
+                            </div>
+                            @Html.TextArea("TestCases", null, new { @class = "form-control test_cases"})
+                            @Html.ValidationMessage("TestCases", null, new { @class = "text-danger" })
+                        </div>
+                        <div class="mb-3">
+                            @Html.Label("Level of difficulty", "Level of difficulty", new { @class = "form-label" })
+                            @Html.DropDownListFor(
+                            (ex => ex.Difficulty),
+                            (IEnumerable<SelectListItem>)ViewBag.OptionsSelectList,
+                            "Select",
+                            new { @class = "form-control" }
+                            )
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                            <div id="formFeedback" class="mt-3"></div>
+                        </div>
+                    </form>
                 </div>
-                <div>
-                    <label>Select Category</label>
-                    @Html.DropDownListFor(m => m.CategoryId,
-                    new SelectList(Model.Categories, "Value", "Text"),
-                    "Select Category", new { @class = "form-control" })
-
-                    @Html.ValidationMessageFor(m => m.CategoryId, null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    @Html.Label("Summary", "Summary")
-
-                    @Html.TextBox("Summary", null, new { @class = "form-control" })
-                    @Html.ValidationMessage("Summary", null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    @Html.Label("Description", "Exercise Description")
-
-                    @Html.TextArea("Description", null, new { @class = "form-control"})
-                    @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    @Html.Label("Restrictions", "Restrictions")
-
-                    @Html.TextArea("Restrictions", null, new { @class = "summernote" })
-                    @Html.ValidationMessage("Restrictions", null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    @Html.Label("Examples")
-
-                    @Html.TextArea("Examples", null, new { @class = "summernote" })
-                    @Html.ValidationMessage("Examples", null, new { @class = "text-danger" })
-                </div>
-                <div>
-                    @Html.Label("Test Cases")
-
-                    @Html.TextArea("TestCases", null, new { @class = "form-control"})
-                    @Html.ValidationMessage("TestCases", null, new { @class = "text-danger" })
-                </div>
-                
-                <div class="d-flex gap-1 justify-content-start mt-2">
-                    @Html.Label("Level of difficulty")
-                    @Html.DropDownListFor(
-                    (ex => ex.Difficulty),
-                    (IEnumerable<SelectListItem>)ViewBag.OptionsSelectList,
-                    "Select",
-                    new { @class = "form-control" }
-                    )
-                </div>
-                
-                
-                <button class="btn btn-outline" style="background-color:#eee; color:black;" type="submit">Add Exercise</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                html: true
+            })
+        })
+    });
+</script>
 

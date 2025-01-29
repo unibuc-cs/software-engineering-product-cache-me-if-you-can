@@ -5,9 +5,6 @@
 }
 
 <link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/searchbar.css" asp-append-version="true" />
-
-
 
 <section class="features-area features-one">
     <div class="container">
@@ -22,7 +19,8 @@
 
         <div class="row justify-content-center">
             <div class="row justify-content-center">
-                <div class="col d-flex justify-content-end" style="margin-right: 2%">
+                <div class="col d-flex justify-content-between" style="margin-right: 2%">
+                    <a class="btn btn-outline-primary py-sm-3 px-sm-5 rounded-pill me-3 align-self-center" style="font-weight:bold;" href="/Solutions/Index"> My submissions</a>
                     @if (ViewBag.User.Id == ViewBag.UserCurent || ViewBag.EsteAdmin || ViewBag.EsteModerator)
                     {
                         <div class="d-flex flex-row justify-content-between m-2">
