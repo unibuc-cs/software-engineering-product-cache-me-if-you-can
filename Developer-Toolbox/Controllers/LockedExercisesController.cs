@@ -169,36 +169,63 @@ namespace Developer_Toolbox.Controllers
             }
         }
 
+        [Authorize]
         public IActionResult Show(int id)
         {
-            //transmitem mesajele primite in view
-            if (TempData.ContainsKey("message"))
-            {
-                ViewBag.Message = TempData["message"];
-                ViewBag.MessageType = TempData["messageType"];
-            }
-
             SetAccessRights();
 
-            // preluam exercitiul cerut
-            LockedExercise ex = db.LockedExercises.Include("User").Include("LearningPath")
-                                            .Where(ex => ex.Id == id)
-                                            .First();
+            // ex curent
+            var ex = db.LockedExercises
+                      .Include("User")
+                      .Include("LearningPath")
+                      .FirstOrDefault(ex => ex.Id == id);
 
-              @ViewBag.CurrentCode = "";
+            if (ex == null)
+            {
+                return NotFound();
+            }
 
-            // pentru dropdown limbaje de programare
+            var lastSolvedExercise = db.LockedSolutions
+                                      .Where(s => s.UserId == _userManager.GetUserId(User) &&
+                                                s.Score == 100)
+                                      .OrderByDescending(s => s.LockedExerciseId)
+                                      .FirstOrDefault();
+
+            
+            bool hasAccess = false;
+
+            if (ViewBag.IsAdmin)
+            {
+                hasAccess = true;
+            }
+            else if (lastSolvedExercise == null && id == db.LockedExercises
+                                                          .Where(e => e.LearningPathId == ex.LearningPathId)
+                                                          .Min(e => e.Id))
+            {
+               
+                hasAccess = true;
+            }
+            else if (lastSolvedExercise != null && id <= lastSolvedExercise.LockedExerciseId + 1)
+            {
+                
+                hasAccess = true;
+            }
+
+            if (!hasAccess)
+            {
+                TempData["message"] = "You need to complete the previous exercises first!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Show", "LearningPaths", new { id = ex.LearningPathId });
+            }
+
+            
+            ViewBag.CurrentCode = "";
             var cpp = new SelectListItem { Text = "C++", Value = "cpp" };
             var python = new SelectListItem { Text = "Python", Value = "python" };
             List<SelectListItem> programmingLanguagesList = new List<SelectListItem> { python, cpp };
-
-
             ViewBag.ProgrammingLanguagesList = programmingLanguagesList;
 
-
-
             return View(ex);
-
         }
 
         [Authorize(Roles = "Admin,Moderator")]
@@ -301,7 +328,7 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public IActionResult Delete(int id)
         {
-            LockedExercise exercise = db.LockedExercises.Include("Solutions")
+            LockedExercise exercise = db.LockedExercises.Include("LockedSolutions")
                                             .Where(exercise => exercise.Id == id)
                                             .First();
 

@@ -1,6 +1,7 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,6 +21,8 @@ namespace Developer_Toolbox.Controllers
             _roleManager = roleManager;
             db = context;
         }
+
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             // Get the current user's ID
@@ -73,7 +76,7 @@ namespace Developer_Toolbox.Controllers
             return View(solution);
         }
 
-
+        [Authorize]
         public IActionResult Show(int id)
         {
             LockedSolution solution = db.LockedSolutions.Include("LockedExercise")

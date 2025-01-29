@@ -90,7 +90,10 @@
                      new { @class = "form-control", @id = "langList" }
                      )
         </div>
-        <button formaction="/LockedExercises/Show" id="submit" class="btn btn-success" type="submit">Submit</button>
+        @if (ViewBag.CurrentUser != null)
+        {
+            <button formaction="/LockedExercises/Show" id="submit" class="btn btn-success" type="submit">Submit</button>
+        }
     </div>
 
     <br />

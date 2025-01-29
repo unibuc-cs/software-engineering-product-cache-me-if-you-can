@@ -577,9 +577,6 @@ namespace Developer_Toolbox.Migrations
                     b.Property<int?>("ExerciseId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LockedExerciseId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("Score")
                         .HasColumnType("int");
 
@@ -592,8 +589,6 @@ namespace Developer_Toolbox.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExerciseId");
-
-                    b.HasIndex("LockedExerciseId");
 
                     b.HasIndex("UserId");
 
@@ -1027,10 +1022,6 @@ namespace Developer_Toolbox.Migrations
                         .WithMany("Solutions")
                         .HasForeignKey("ExerciseId");
 
-                    b.HasOne("Developer_Toolbox.Models.LockedExercise", null)
-                        .WithMany("Solutions")
-                        .HasForeignKey("LockedExerciseId");
-
                     b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
                         .WithMany("Solutions")
                         .HasForeignKey("UserId");
@@ -1188,8 +1179,6 @@ namespace Developer_Toolbox.Migrations
             modelBuilder.Entity("Developer_Toolbox.Models.LockedExercise", b =>
                 {
                     b.Navigation("LockedSolutions");
-
-                    b.Navigation("Solutions");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Question", b =>

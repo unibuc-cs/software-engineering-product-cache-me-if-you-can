@@ -12,14 +12,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Developer_Toolbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250127155925_UpdateDBContext")]
-    partial class UpdateDBContext
+    [Migration("20250129181655_RebuildDB")]
+    partial class RebuildDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.29")
+                .HasAnnotation("ProductVersion", "6.0.35")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -579,9 +579,6 @@ namespace Developer_Toolbox.Migrations
                     b.Property<int?>("ExerciseId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LockedExerciseId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("Score")
                         .HasColumnType("int");
 
@@ -594,8 +591,6 @@ namespace Developer_Toolbox.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExerciseId");
-
-                    b.HasIndex("LockedExerciseId");
 
                     b.HasIndex("UserId");
 
@@ -1029,10 +1024,6 @@ namespace Developer_Toolbox.Migrations
                         .WithMany("Solutions")
                         .HasForeignKey("ExerciseId");
 
-                    b.HasOne("Developer_Toolbox.Models.LockedExercise", null)
-                        .WithMany("Solutions")
-                        .HasForeignKey("LockedExerciseId");
-
                     b.HasOne("Developer_Toolbox.Models.ApplicationUser", "User")
                         .WithMany("Solutions")
                         .HasForeignKey("UserId");
@@ -1190,8 +1181,6 @@ namespace Developer_Toolbox.Migrations
             modelBuilder.Entity("Developer_Toolbox.Models.LockedExercise", b =>
                 {
                     b.Navigation("LockedSolutions");
-
-                    b.Navigation("Solutions");
                 });
 
             modelBuilder.Entity("Developer_Toolbox.Models.Question", b =>

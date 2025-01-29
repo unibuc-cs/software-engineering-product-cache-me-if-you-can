@@ -5,11 +5,9 @@
             @ViewBag.Message
         </div>
     }
-
     <h2 class="text-center text-3xl font-bold mb-8">
         Leaderboard <i class="bi bi-trophy text-warning"></i>
     </h2>
-
     <div class="bg-light p-4 rounded-lg shadow-sm mb-8">
         <form method="GET" class="w-100">
             <div class="input-group">
@@ -22,28 +20,26 @@
             </div>
         </form>
     </div>
-
     <div class="d-flex flex-column gap-4">
-        @{
-            int counter = 1;
-        }
         @foreach (var user in ViewBag.Users)
         {
+            var position = ((List<ApplicationUser>)ViewBag.AllUsersList)
+            .FindIndex(u => u.Id == user.Id) + 1;
+
             <div class="card hover-shadow transition">
                 <div class="card-body d-flex justify-content-between align-items-center p-4">
                     <div class="d-flex align-items-center gap-4">
-                        @if (counter <= 3)
+                        @if (position <= 3)
                         {
-                            <span class="fs-1 fw-bold @(counter == 1 ? "text-warning" : counter == 2 ? "text-secondary" : "text-bronze")"
+                            <span class="fs-1 fw-bold @(position == 1 ? "text-warning" : position == 2 ? "text-secondary" : "text-bronze")"
                                   style="text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                                #@counter
+                                #@position
                             </span>
                         }
                         else
                         {
-                            <span class="fs-3 fw-bold text-muted">#@counter</span>
+                            <span class="fs-3 fw-bold text-muted">#@position</span>
                         }
-
                         <div class="d-flex align-items-center gap-3">
                             <div class="bg-light rounded-circle p-3">
                                 <i class="bi bi-person fs-4"></i>
@@ -54,7 +50,6 @@
                     <a class="btn btn-primary px-4" href="/ApplicationUsers/Show/@user.Id">View Profile</a>
                 </div>
             </div>
-            counter++;
         }
     </div>
 </section>
