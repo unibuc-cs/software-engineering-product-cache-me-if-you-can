@@ -1,11 +1,12 @@
 ﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/badges.css" asp-append-version="true" />
 
-@if (TempData.ContainsKey("message"))
-{
-    <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
-}
+
 <section class="features-area features-one">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6">

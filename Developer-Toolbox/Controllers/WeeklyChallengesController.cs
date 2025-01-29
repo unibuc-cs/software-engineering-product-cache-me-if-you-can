@@ -84,7 +84,8 @@ namespace Developer_Toolbox.Controllers
 
             if (TempData.ContainsKey("message"))
             {
-                ViewBag.message = TempData["message"].ToString();
+                ViewBag.Message = TempData["message"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
 
@@ -282,6 +283,10 @@ namespace Developer_Toolbox.Controllers
 
             // Transmitem WeeklyChallenge către view
             ViewBag.WeeklyChallenge = weeklyChallenge;
+
+            ViewBag.Message = TempData["message"];
+            ViewBag.MessageType = TempData["messageType"];
+
             return View();
         }
 

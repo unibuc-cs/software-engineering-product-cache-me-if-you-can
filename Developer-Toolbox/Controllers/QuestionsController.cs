@@ -104,7 +104,8 @@ namespace Developer_Toolbox.Controllers
 
             if (TempData.ContainsKey("message"))
             {
-                ViewBag.message = TempData["message"].ToString();
+                ViewBag.Message = TempData["message"].ToString();
+                ViewBag.MessageType = TempData["messageType"].ToString();
             }
 
 
@@ -169,7 +170,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
             ViewBag.Tags = db.Tags.ToList();
@@ -231,7 +232,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
             return View();
         }
@@ -291,7 +292,7 @@ namespace Developer_Toolbox.Controllers
                 RewardBadge();
 
                 TempData["message"] = "The question has been successfully added.";
-                TempData["messageType"] = "alert-primary";
+                TempData["messageType"] = "alert-success";
 
                 var refererUrl = Request.Headers["Referer"].ToString();
                 return Redirect(refererUrl);
@@ -306,6 +307,7 @@ namespace Developer_Toolbox.Controllers
                     TempData["message"] = "The title cannot exceed 100 characters";
                 if (question.Title.Length < 5)
                     TempData["message"] = "The title must be at least 5 characters long";
+                TempData["messageType"] = "alert-danger";
                 // Exception handling code
                 var refererUrl = Request.Headers["Referer"].ToString();
                 return Redirect(refererUrl);
@@ -325,6 +327,7 @@ namespace Developer_Toolbox.Controllers
             } else {
 
                 TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                TempData["messageType"] = "alert-danger";
                 return RedirectToAction("Index");
             }
 
@@ -345,7 +348,7 @@ namespace Developer_Toolbox.Controllers
 
                     db.SaveChanges();
                     TempData["message"] = "The question has been successfully edited.";
-                    TempData["messageType"] = "alert-primary";
+                    TempData["messageType"] = "alert-success";
 
                     return Redirect("/Questions/Index");
                 }
@@ -357,6 +360,7 @@ namespace Developer_Toolbox.Controllers
             else
             {
                 TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                TempData["messageType"] = "alert-success";
                 return RedirectToAction("Index");
             }      
         }
@@ -380,7 +384,7 @@ namespace Developer_Toolbox.Controllers
 
                 db.Questions.Remove(question);
                 TempData["message"] = "The question has been successfully deleted.";
-                TempData["messageType"] = "alert-primary";
+                TempData["messageType"] = "alert-success";
 
                 db.SaveChanges();
 
@@ -395,6 +399,7 @@ namespace Developer_Toolbox.Controllers
             else
             {
                 TempData["message"] = "You are not allowed to delete a question that you didn't post!";
+                TempData["messageType"] = "alert-danger";
                 return RedirectToAction("Index");
             }
             }

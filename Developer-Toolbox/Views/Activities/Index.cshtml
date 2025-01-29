@@ -1,6 +1,11 @@
 ﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
 
 <section class="features-area features-one">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
+    <br />
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6">
@@ -13,7 +18,7 @@
         <div class="row justify-content-center">
             <div class="col d-flex justify-content-end" style="margin-right: 2%">
 
-                @if (ViewBag.EsteAdmin || ViewBag.EsteModerator)
+                @if (ViewBag.EsteAdmin)
                 {
                     <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/Activities/Edit" role="button"> + Edit rewards</a>
                 }

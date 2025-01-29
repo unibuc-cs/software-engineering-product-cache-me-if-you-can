@@ -1,6 +1,11 @@
 ﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
 
-<section class="features-area features-one">
+<section class="features-area features-one" style="min-height: 100vh">
+
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6">

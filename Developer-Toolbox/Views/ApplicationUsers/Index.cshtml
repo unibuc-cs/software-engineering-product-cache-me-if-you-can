@@ -6,6 +6,11 @@
 <link rel="stylesheet" href="~/css/searchbar.css" asp-append-version="true" />
 
 <section class="features-area features-one">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
+    <br />
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6">

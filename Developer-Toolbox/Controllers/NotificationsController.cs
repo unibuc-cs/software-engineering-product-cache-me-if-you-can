@@ -38,6 +38,9 @@ namespace Developer_Toolbox.Controllers
                 .OrderByDescending(n => n.CreatedAt)
                 .ToList();
 
+            ViewBag.Message = TempData["message"];
+            ViewBag.MessageType = TempData["messageType"];
+
             return View(notifications);
         }
 

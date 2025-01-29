@@ -50,6 +50,9 @@ namespace Developer_Toolbox.Controllers
             // initialize a list of tags to be accessed from View
             ViewBag.Tags = tags;
 
+            ViewBag.Message = TempData["message"];
+            ViewBag.MessageType = TempData["messageType"];
+
             return View();
         }
 
@@ -63,6 +66,9 @@ namespace Developer_Toolbox.Controllers
                         .FirstOrDefault(tag => tag.Id == id);
 
             ViewBag.taggedQuestions = taggedQuestions;
+
+            ViewBag.Message = TempData["message"];
+            ViewBag.MessageType = TempData["messageType"];
 
             return View(taggedQuestions);
         }
@@ -86,6 +92,7 @@ namespace Developer_Toolbox.Controllers
                 db.Tags.Add(tag);
                 db.SaveChanges();
                 TempData["message"] = "The tag has been added";
+                TempData["messageType"] = "alert-success";
             }
             else
             {
@@ -119,6 +126,7 @@ namespace Developer_Toolbox.Controllers
                 db.SaveChanges();
 
                 TempData["message"] = "The tag has been edited";
+                TempData["messageType"] = "alert-success";
 
                 return RedirectToAction("Index");
             }
@@ -139,6 +147,7 @@ namespace Developer_Toolbox.Controllers
             db.SaveChanges();
 
             TempData["message"] = "The tag has been deleted";
+            TempData["messageType"] = "alert-danger";
             return RedirectToAction("Index");
         }
 
