@@ -207,6 +207,13 @@ namespace Developer_Toolbox.Controllers
         }
         public async Task<ActionResult> Delete(string id)
         {
+            var notifications = db.Notifications.Where(n => n.UserId == id).ToList();
+            foreach(Notification notification in notifications)
+            {
+                db.Notifications.Remove(notification);
+            }
+            db.SaveChanges();
+
             ApplicationUser user = db.ApplicationUsers
                                    .Where(user => user.Id == id).First();
 
