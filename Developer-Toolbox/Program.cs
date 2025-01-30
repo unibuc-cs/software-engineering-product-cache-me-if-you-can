@@ -53,6 +53,9 @@ builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IBadgeRepository, BadgeRepository>();
 builder.Services.AddScoped<IRewardActivity, IRewardActivityImpl>();
 
+builder.Services.AddScoped<ILockedExerciseRepository, LockedExerciseRepository>();
+builder.Services.AddScoped<ILockedSolutionRepository, LockedSolutionRepository>();
+
 // Hangfire configuration
 builder.Services.AddHangfire(config => config
     .UseSqlServerStorage(connectionString)); 

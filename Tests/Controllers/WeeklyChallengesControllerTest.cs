@@ -15,7 +15,7 @@ public class WeeklyChallengesControllerTest
         var mockRepo = new Mock<IWeeklyChallengeRepository>();
         mockRepo.Setup(repo => repo.GetAllWeeklyChallenges())
             .Returns(GetTestWeeklyChallenges());
-        var controller = new WeeklyChallengesController(null, null, mockRepo.Object);
+        var controller = new WeeklyChallengesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
         var result = controller.GetAllWeeklyChallenges();
@@ -33,7 +33,7 @@ public class WeeklyChallengesControllerTest
         var mockRepo = new Mock<IWeeklyChallengeRepository>();
         mockRepo.Setup(repo => repo.GetWeeklyChallengeById(1))
             .Returns(GetTestWeeklyChallenge());
-        var controller = new WeeklyChallengesController(null, null, mockRepo.Object);
+        var controller = new WeeklyChallengesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
         var result = controller.GetWeeklyChallengeById(1);
@@ -49,7 +49,7 @@ public class WeeklyChallengesControllerTest
     {
         // Arrange
         var mockRepo = new Mock<IWeeklyChallengeRepository>();
-        var controller = new WeeklyChallengesController(null, null, mockRepo.Object);
+        var controller = new WeeklyChallengesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
         var result = controller.GetWeeklyChallengeById(null);
@@ -65,7 +65,7 @@ public class WeeklyChallengesControllerTest
         var mockRepo = new Mock<IWeeklyChallengeRepository>();
         mockRepo.Setup(repo => repo.GetWeeklyChallengeById(1))
             .Returns((WeeklyChallenge)null);
-        var controller = new WeeklyChallengesController(null, null, mockRepo.Object);
+        var controller = new WeeklyChallengesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
         var result = controller.GetWeeklyChallengeById(1);
