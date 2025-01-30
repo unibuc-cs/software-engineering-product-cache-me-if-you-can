@@ -15,7 +15,7 @@ public class ExercisesControllerTests
         var mockRepo = new Mock<IExerciseRepository>();
         mockRepo.Setup(repo => repo.GetAllExercises())
             .Returns(GetTestExercises());
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null);
+        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
 
         // Act
         var result = controller.GetAllExercises();
@@ -33,7 +33,7 @@ public class ExercisesControllerTests
         var mockRepo = new Mock<IExerciseRepository>();
         mockRepo.Setup(repo => repo.GetExerciseById(1))
             .Returns(GetTestExercise());
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null);
+        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
 
         // Act
         var result = controller.GetExerciseById(1);
@@ -49,7 +49,7 @@ public class ExercisesControllerTests
     {
         // Arrange
         var mockRepo = new Mock<IExerciseRepository>();
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null);
+        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
 
         // Act
         var result = controller.GetExerciseById(null);
@@ -65,7 +65,7 @@ public class ExercisesControllerTests
         var mockRepo = new Mock<IExerciseRepository>();
         mockRepo.Setup(repo => repo.GetExerciseById(1))
             .Returns((Exercise)null);
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null);
+        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
 
         // Act
         var result = controller.GetExerciseById(1);

@@ -33,7 +33,7 @@
                             new SelectList(Model.TargetActivities, "Value", "Text"),
                             "Selected activity", new { @id = "targetActivity", @class = "form-control"})
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 noOfTimes">
                             @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed", new { @class = "form-label"})
 
                             @Html.Editor("TargetNoOfTimes", null, new { htmlAttributes = new { @class="form-control"}})
@@ -67,6 +67,13 @@
                             </div>
                         </div>
 
+                        <div class="optionalFields challengesRelated">
+                            <label>Select targeted weekly challenges (optional)</label>
+                            @Html.ListBoxFor(m => m.SelectedChallengesIds,
+                            new SelectList(Model.WeeklyChallengesItems, "Value", "Text"),
+                            new { @class = "form-control" })
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">Submit</button>
@@ -84,34 +91,45 @@
         $(document).ready(function () {
             $('#targetActivity').change(function () {
 
+
                 var selectedActivityId = $(this).val();
 
                 if (selectedActivityId !== '') {
 
                     var allActivities = @Html.Raw(Json.Serialize(Model.AllTargetActivities));
-                    console.log("all ", allActivities)
                     var selectedActivity = allActivities.find(act => act.id == selectedActivityId);
-                    console.log("selected ", selectedActivity)
 
                     if (selectedActivity.isPracticeRelated == null) {
                         $('.optionalFields').hide();
+                        $('.noOfTimes').show();
                     } else {
                         if (selectedActivity.isPracticeRelated) {
-                            $('.practiceRelated').show();
+                            if (selectedActivity.id == 5) {
+                                $('.challengesRelated').show();
+                                $('.practiceRelated').hide();
+                                $('.noOfTimes').hide();
+                            } else {
+                                $('.practiceRelated').show();
+                                $('.noOfTimes').show();
+                                $('.challengesRelated').hide();
+                            }
                             $('.questionRelated').hide();
                         } else {
                             $('.practiceRelated').hide();
+                            $('.challengesRelated').hide();
                             $('.questionRelated').show();
+                            $('.noOfTimes').show();
                         }
                     }
                 } else {
                     $('.optionalFields').hide();
+                    $('.noOfTimes').show();
                 }
             });
 
             // Initially hide the additional fields
             $('.optionalFields').hide();
+            $('.noOfTimes').show();
         });
     </script>
-
 }

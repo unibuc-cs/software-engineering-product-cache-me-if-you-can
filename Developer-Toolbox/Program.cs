@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.Configuration;
 using DotNetEnv;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,9 @@ builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IBadgeRepository, BadgeRepository>();
 builder.Services.AddScoped<IRewardActivity, IRewardActivityImpl>();
 
+builder.Services.AddScoped<ILockedExerciseRepository, LockedExerciseRepository>();
+builder.Services.AddScoped<ILockedSolutionRepository, LockedSolutionRepository>();
+
 // Hangfire configuration
 builder.Services.AddHangfire(config => config
     .UseSqlServerStorage(connectionString)); 
@@ -72,17 +76,16 @@ builder.Services.AddScoped<IEmailService>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<EmailSettings>>();
     var logger = sp.GetRequiredService<ILogger<IEmailService>>();
-
     return emailProvider switch
     {
         EmailProvider.MailHog => new MailHogEmailService(settings, logger),
-
-/*        EmailProvider.Gmail => new GmailEmailService(settings, logger),
-        EmailProvider.Smtp => new SmtpEmailService(settings, logger),*/
-
         _ => throw new ArgumentException("Invalid email provider")
     };
 });
+
+// If you need IEmailSender, register it to use the same instance
+builder.Services.AddScoped<IEmailSender>(sp =>
+    sp.GetRequiredService<IEmailService>() as IEmailSender);
 
 
 var app = builder.Build();

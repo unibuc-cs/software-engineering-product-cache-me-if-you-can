@@ -271,7 +271,28 @@ namespace Developer_Toolbox.Controllers
             }
 
         }
-        
+
+        [Authorize(Roles = "User,Moderator,Admin")]
+        public IActionResult MyBadges()
+        {
+
+            var badges = db.UserBadges.Include("Badge")
+                .Where(ub => ub.UserId == _userManager.GetUserId(User))
+                .OrderByDescending(ub => ub.ReceivedAt).Select(ub => new
+                {
+                    Title = ub.Badge.Title,
+                    Description = ub.Badge.Description,
+                    AuthorId = ub.Badge.AuthorId,
+                    Image = ub.Badge.Image,
+                    Id = ub.BadgeId,
+                    ReceivedAt = ub.ReceivedAt
+                }).ToList();
+
+            ViewBag.Badges = badges;
+            return View();
+
+        }
+
 
     }
 

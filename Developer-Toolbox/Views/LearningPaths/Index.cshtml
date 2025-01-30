@@ -3,132 +3,83 @@
 @{
     ViewData["Title"] = "Index";
 }
-@if (TempData.ContainsKey("message"))
-{
-    <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
-}
-<br />
-<div style="position: relative; height: 50px;">
-    <a href="/LockedSolutions/Index"
-       style="background-color: #3B82F6; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold; transition: background-color 0.3s; position: absolute; left: 30px;"
-       onmouseover="this.style.backgroundColor='#2563EB';"
-       onmouseout="this.style.backgroundColor='#3B82F6';">
-        My Solutions
-    </a>
 
-    @if (ViewBag.IsModerator || ViewBag.IsAdmin)
+<link rel="stylesheet" href="~/css/exercises.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+
+<section class="features-area features-one">
+
+    @if (TempData.ContainsKey("message"))
     {
-        <a href="/LearningPaths/New"
-           style="background-color: #3B82F6; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; font-weight: bold; transition: background-color 0.3s; position: absolute; right: 30px;"
-           onmouseover="this.style.backgroundColor='#2563EB';"
-           onmouseout="this.style.backgroundColor='#3B82F6';">
-            Create Learning Path
-        </a>
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
     }
-</div>
-
-<h1 class="text-3xl font-bold text-gray-800" style="text-align: center;">Available Learning Paths <i class="bi bi-highlighter"></i></h1>
-<br />
-
-<div>
-    @foreach (var item in ViewBag.Paths)
-    {
-        <div class="path-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <h1 class="path-title">@item.Name</h1>
-                @if (ViewBag.IsAdmin || ViewBag.CurrentUser == item.UserId)
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Learning paths</h3>
+                    
+                </div>
+                <!-- row -->
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col d-flex justify-content-between align-items-center" style="margin-right: 2%">    
+                <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/LockedSolutions/Index" role="button"> My submissions</a>
+                @if (ViewBag.IsModerator || ViewBag.IsAdmin)
                 {
-                    <div class="d-flex gap-2">
-                        <a href="/LearningPaths/Edit/@item.Id" class="text-primary">
-                            <i class="bi bi-pencil-square fs-5"></i>
-                        </a>
-                        <form method="post" action="/LearningPaths/Delete/@item.Id" class="d-inline">
-                            <button type="submit" class="btn btn-link text-danger p-0">
-                                <i class="bi bi-trash fs-5"></i>
-                            </button>
-                        </form>
+                    <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/LearningPaths/New" role="button"> + Create Learning Path</a>
+                }
+            </div>
+        </div>
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row g-5 d-flex justify-content-start">
+                @foreach (var item in ViewBag.Paths)
+                {
+                    <div class="col" style="max-width: fit-content">
+                        <div class="card exercise-card border-0 rounded-4 shadow-sm">
+                            <div class="position-relative p-2">
+                                <span class="badge bg-primary badge-custom">Created by: @item.User?.UserName</span>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                <h5 class="card-title mb-3 fw-bold text-center">@item.Name</h5>
+                                <p class="card-text text-center text-muted mb-4">
+                                    @item.Description
+                                </p>
+
+                                @if (ViewBag.IsAdmin || ViewBag.CurrentUser == item.UserId)
+                                {
+                                    <div style="display:flex; justify-content: space-between;">
+                                        <a asp-action="Edit" asp-controller="LearningPaths" asp-route-id="@item.Id" class="btn btn-no-outline">
+                                            <i class="lni lni-write" style="font-size: x-large; color: var(--primary)"></i>
+                                        </a>
+                                        <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold; font-size: small"
+                                           asp-controller="LearningPaths" asp-action="Show" asp-route-id="@item.Id">
+                                            Start Learning
+                                        </a>
+                                        <form method="post" asp-action="Delete" asp-controller="LearningPaths" asp-route-id="@item.Id">
+                                            <button type="submit" class="btn btn-no-outline">
+                                                <i class="lni lni-trash-can" style="font-size: x-large; color: var(--primary)"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold; font-size: small"
+                                       asp-controller="LearningPaths" asp-action="Show" asp-route-id="@item.Id">
+                                        Start Learning
+                                    </a>
+                                }
+                            </div>
+                        </div>
                     </div>
                 }
             </div>
-            <p class="path-description">@item.Description</p>
-            <div class="path-meta">
-                <span class="path-author">
-                    <i class="bi bi-person"></i>
-                    Created by: @item.User?.UserName
-                </span>
-                <a class="btn btn-primary custom-btn mr-10" href="/LearningPaths/Show/@item.Id">
-                    <i class="bi bi-arrow-right"></i>Start Learning
-                </a>
-            </div>
         </div>
-    }
-</div>
+    </div>
+    <!-- container -->
 
-
-<style>
-    .path-card {
-        background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        border: 1px solid #e5e7eb;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.2s ease;
-    }
-
-        .path-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-color: #2563eb;
-        }
-
-    .path-title {
-        font-size: 1.7rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 0.75rem;
-    }
-
-    .path-description {
-        color: #4b5563;
-        margin-bottom: 1rem;
-        line-height: 1.5;
-    }
-
-    .path-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 0.5rem;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .path-author {
-        font-size: 0.875rem;
-        color: #6b7280;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-        .path-author i {
-            font-size: 1rem;
-        }
-
-    .path-button {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: white;
-        background-color: #2563eb;
-        border-radius: 0.375rem;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
-    }
-
-        .path-button:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-</style>
+ 
+</section>

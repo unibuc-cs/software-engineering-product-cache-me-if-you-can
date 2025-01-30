@@ -25,17 +25,20 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         // This is for code execution:  <summary>
         private readonly HttpClient _httpClient;
+        private readonly ILockedExerciseRepository _lockedExerciseRepository;
 
         public LockedExercisesController(ApplicationDbContext context,
             IWebHostEnvironment environment,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, HttpClient httpClient)
+            RoleManager<IdentityRole> roleManager, HttpClient httpClient,
+            ILockedExerciseRepository lockedExerciseRepository)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _env = environment;
             _httpClient = httpClient;   // variable for http request to send the code
+            _lockedExerciseRepository = lockedExerciseRepository;
         }
 
         //Conditii de afisare a butoanelor de editare si stergere
@@ -191,7 +194,7 @@ namespace Developer_Toolbox.Controllers
                                       .OrderByDescending(s => s.LockedExerciseId)
                                       .FirstOrDefault();
 
-            
+
             bool hasAccess = false;
 
             if (ViewBag.IsAdmin)
@@ -202,12 +205,12 @@ namespace Developer_Toolbox.Controllers
                                                           .Where(e => e.LearningPathId == ex.LearningPathId)
                                                           .Min(e => e.Id))
             {
-               
+
                 hasAccess = true;
             }
             else if (lastSolvedExercise != null && id <= lastSolvedExercise.LockedExerciseId + 1)
             {
-                
+
                 hasAccess = true;
             }
 
@@ -218,7 +221,7 @@ namespace Developer_Toolbox.Controllers
                 return RedirectToAction("Show", "LearningPaths", new { id = ex.LearningPathId });
             }
 
-            
+
             ViewBag.CurrentCode = "";
             var cpp = new SelectListItem { Text = "C++", Value = "cpp" };
             var python = new SelectListItem { Text = "Python", Value = "python" };
@@ -364,7 +367,7 @@ namespace Developer_Toolbox.Controllers
             var selectList = new List<SelectListItem>();
 
             var paths = from path in db.LearningPaths
-                             select path;
+                        select path;
 
             foreach (var path in paths)
             {
@@ -434,8 +437,8 @@ namespace Developer_Toolbox.Controllers
                                 var alreadySolved = solutions.Count() > 1;
                                 //if (!alreadySolved)
                                 //{
-                                   // RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE);
-                                   // RewardBadgeForSolvingExercise(id);
+                                // RewardActivity((int)ActivitiesEnum.SOLVE_EXERCISE);
+                                // RewardBadgeForSolvingExercise(id);
                                 //}
                             }
 
@@ -460,6 +463,29 @@ namespace Developer_Toolbox.Controllers
             db.Add(solution1);
             db.SaveChanges();
             return BadRequest(new { error = "Error processing request" });
+        }
+
+        public IActionResult GetAllLockedExercises()
+        {
+            var lockedExercises = _lockedExerciseRepository.GetAllLockedExercises();
+            return View(lockedExercises);
+        }
+
+        // Noua metodă GetSolutionById
+        public IActionResult GetLockedExerciseById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var lockedExercise = _lockedExerciseRepository.GetLockedExerciseById(id);
+            if (lockedExercise == null)
+            {
+                return NotFound();
+            }
+
+            return View(lockedExercise);
         }
     }
 }
