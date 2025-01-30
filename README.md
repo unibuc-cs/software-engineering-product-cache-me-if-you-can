@@ -313,3 +313,56 @@ According to the OWASP Top 10, the following security tactics are implemented:
   - Controlled data access through repository pattern
   - Proper data validation using model attributes
   - Input sanitization before database operations
+
+---
+# CI/CD
+
+## Environments Used
+
+In our project, we used GitHub as a Version Control System (VCS), and followed the standard and well known `Gitflow` as a workflow as follows:
+
+- **Development Environment:**
+  - Each team member worked on their local machines, running the .NET and Python FastAPI applications.  
+  - The Python execution service was containerized and run locally using Docker.  
+  - Configuration was managed using `.env` files, which contained environment-specific settings.  
+
+- **Pre-Production / Main Branch (Staging Equivalent):**
+  - The `main` branch in our GitHub repository represents the production-ready state of the application.  
+  - All features were merged into `develop`, tested, and only stable changes were merged into `main`.  
+  - Sensitive configuration values were removed from `.env` files to prepare for CI/CD integration.  
+
+
+# Differences Between the Environments
+
+| Aspect              | Development Environment                     | Pre-Production (main branch)         |
+|--------------------|-------------------------------------------|--------------------------------------|
+| **Code Execution** | Locally run .NET app & containerized Python FastAPI | Ready for cloud deployment         |
+| **Branching Strategy** | Feature branches merged into develop | Only stable changes in main        |
+| **Configuration**  | .env files with local values              | .env values removed for CI/CD compatibility |
+
+
+# Configuration Specifications
+
+- **.NET Application:**
+  - Used environment variables to configure:
+    - Database connections  
+    - API endpoints  
+    - Authentication  
+  - `.env` files were read using configuration libraries  
+
+- **Python FastAPI Execution Service:**
+  - Containerized with Docker, ensuring consistency across environments  
+  - Used a `.env` file to manage execution settings  
+
+- **Git Flow Process:**
+  - Developers worked on feature branches  
+  - Changes were merged into `develop` for testing  
+  - `main` reflects the most stable version, ensuring readiness for CI/CD  
+
+## Future CI/CD Considerations
+
+- **While we have not deployed the application, we have taken steps to prepare for a smooth CI/CD process:**
+  - By removing .env values from the repo, we ensure security and ease of integration with CI/CD pipelines.
+  - Future steps could involve automating builds and tests using GitHub Actions or a similar CI tool.
+  - Deployment could be done using Docker containers in a cloud environment like AWS, Azure, or GCP.
+
