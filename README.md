@@ -182,7 +182,7 @@ FOR coding enthusiasts WHO seek an interactive platform for learning programming
 
 ### ERD
 <p align="center">
-  <img src="Diagrams/MDS-Diagrams/ERD_Updated.png" alt="ERD updated" style="max-height: 500px;">
+  <img src="Diagrams/MDS-Diagrams/erd_latest.svg" alt="ERD updated" style="max-height: 500px;">
 </p>
 
 # Functional requirements
@@ -280,6 +280,102 @@ Cristi, age 27, is a 5-year experienced full-stack developer at a multinational 
   - Set up email notification templates for answered questions
   - Implement logic to trigger email notifications when an answer is received
 
+
+---
+# Arhitectural Design
+The resulted product is a complete toolbox for a developer's learning journey, as we planned. It is a space where 
+everyone can start coding. It has a special zone for technical questions and answers and community interactions,
+and a zone for coding exercises, challenges and learning paths. The user is motivated by the gamification of the platform. They are rewarded
+with reputation points and constantly new badges, they compete with others for the first place, they compete with themselves during weekly challenges.
+The user is always kept up to date by being notified in the app or by email about events and answers received.
+
+The platform evolved a lot from its first phase. From simple coding exercises and the ability to ask and answer questions
+the platform became more attractive for users by adding many new useful features. The app is built so the moderators and admins can always add new custom challenges,
+badges, exercises, learning paths and can have an overview of the interaction between users and the platform. The dashboard provides statistics about users'engagement and their activity
+so they can make strategies for a more imapctful experience.
+
+The technologies used are almost the same as in the first stage of the project.
+Additionally, he have used Docker for containerization, HangFire for synchronous notifications and
+Mailhog for email notifications.
+
+
+### **Synchronous Notifications for WeeklyChallenges**
+
+The application sends notifications to users about **WeeklyChallenges** through an automated system managed by **Hangfire**. These notifications are sent in three cases:
+
+- **When a WeeklyChallenge starts**: Users are notified about the start of a new challenge.
+- **When a WeeklyChallenge is ending soon**: A notification is sent with the message "is ending soon" to remind users not to miss the opportunity to complete the challenge.
+- **When a WeeklyChallenge has ended**: After the challenge has reached its final date, users receive a notification informing them that the challenge has ended.
+
+### **How it works:**
+
+- **Check every minute:** Hangfire runs a recurring job every minute to check for active challenges.
+- **Create notifications only if not sent before:** Notifications are generated only if they haven't been sent before for the same **WeeklyChallenges**, avoiding duplicates.
+- **Real-time updates:** The **Notifications** section in the application is updated in real-time, ensuring that users are always informed about the status of their challenges.
+
+### **Hangfire Configuration:**
+
+- Hangfire is configured to run the job for checking active challenges every minute. This job checks if challenges are ongoing and sends appropriate notifications to users based on the status of the challenges.
+
+### **Email Notifications**
+
+The email notifications are an important improvement for the application. 
+The emails are sent:
+
+- with the confirmation link when a user creates an account
+- when a challenge starts
+- when a challenge is ending soon
+- when a challenge has ended
+- when the user receives a new badge
+- when a user receives an answer to their question
+- when a user violates the community rules and their content is removed from the platform
+
+For the development stage we have used Mailhog for its simple configuration so we can focus on the feature itself.
+We created an interface for the email sending service so the email feature is almost ready for production. It only needs
+a new provider for whom we create an implementation of the interface and some configurations (like the provider, the port, the server)
+in the specific appsettings.json file. As we said, for the development stage, we used Mailhog, we created an implementation and added in the devlopment configuration
+file the settings we needed.
+
+---
+# QA
+
+Application testing is conducted through a dedicated external project - **Developer-ToolboxTests**, which contains unit tests for the application's models and controllers. This process ensures that each component functions correctly and that different scenarios are handled properly.
+
+## **Technologies Used**  
+
+The following libraries are used for testing:
+
+- **xUnit** – A testing framework used for writing and running unit tests in .NET.  
+- **Moq** – A mocking library that allows for dependency isolation and independent component testing.  
+
+## **Testing Strategy**  
+
+Unit tests are organized into two main categories:
+
+### **1. Controller Tests**  
+These tests verify whether the application's endpoints return the expected results and handle various scenarios correctly, such as:
+
+- Correct **ViewResult** responses containing the expected data.  
+- Proper handling of invalid values (e.g., returning a `NotFoundResult` when an object does not exist).  
+- Correct interaction with repositories, ensuring that methods are called with the expected parameters.  
+
+Controller testing also involves using the **Repositories** folder, where each model has an associated **ModelRepository** and an interface **IModelRepository**, defining the methods used in the controller.  
+
+### **2. Model Tests**  
+These tests verify the correct initialization and integrity of a model's properties.  
+
+- Ensuring that objects are properly created.  
+- Validating that the properties hold the expected values.  
+
+The testing was driven in parallel with the development of the features, so the bugs don't propagate
+and the developers have a solid based to build the app on.
+
+Unit testing is fundamental for building correctly the app and ensuring that the new features added don't come with new bugs and 
+destroy other features. For future work although we would like to use other testing methods too, to test the interaction between components and the ui.
+
+<p align="center">
+  <img src="Diagrams/MDS-Diagrams/kanban.png" alt="kanban">
+</p>
 
 ---
 # Security Analysis
