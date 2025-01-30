@@ -332,7 +332,7 @@ In our project, we used GitHub as a Version Control System (VCS), and followed t
   - Sensitive configuration values were removed from `.env` files to prepare for CI/CD integration.  
 
 
-# Differences Between the Environments
+## Differences Between the Environments
 
 | Aspect              | Development Environment                     | Pre-Production (main branch)         |
 |--------------------|-------------------------------------------|--------------------------------------|
@@ -341,7 +341,7 @@ In our project, we used GitHub as a Version Control System (VCS), and followed t
 | **Configuration**  | .env files with local values              | .env values removed for CI/CD compatibility |
 
 
-# Configuration Specifications
+## Configuration Specifications
 
 - **.NET Application:**
   - Used environment variables to configure:
