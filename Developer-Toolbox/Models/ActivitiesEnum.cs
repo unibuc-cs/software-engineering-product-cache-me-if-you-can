@@ -7,7 +7,7 @@
         BE_UPVOTED = 3,
         SOLVE_EXERCISE = 4,
         COMPLETE_CHALLENGE = 5,
-        ADD_EXERCISE = 7,
-        ADD_CHALLENGE = 8
+        ADD_EXERCISE = 6,
+        ADD_CHALLENGE = 7
     }
 }

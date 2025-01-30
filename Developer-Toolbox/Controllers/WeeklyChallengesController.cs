@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Developer_Toolbox.Interfaces;
 using Hangfire;
+using Developer_Toolbox.Repositories;
 
 namespace Developer_Toolbox.Controllers
 {
@@ -16,11 +18,25 @@ namespace Developer_Toolbox.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
+        private readonly IWeeklyChallengeRepository _weeklyChallengeRepository;
 
-        public WeeklyChallengesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public WeeklyChallengesController(
+            ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            IRewardBadge IRewardBadge,
+            IEmailService IEmailService,
+            IRewardActivity iRewardActivity,
+            IWeeklyChallengeRepository weeklyChallengeRepository)
         {
             db = context;
             _userManager = userManager;
+            _IRewardBadge = IRewardBadge;
+            _IEmailService = IEmailService;
+            _IRewardActivity = iRewardActivity;
+            _weeklyChallengeRepository = weeklyChallengeRepository;
         }
 
         private void SetAccessRights()
@@ -68,7 +84,8 @@ namespace Developer_Toolbox.Controllers
 
             if (TempData.ContainsKey("message"))
             {
-                ViewBag.message = TempData["message"].ToString();
+                ViewBag.Message = TempData["message"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
 
@@ -195,13 +212,17 @@ namespace Developer_Toolbox.Controllers
                     });
                 }
 
+                weeklyChallenge.UserId = _userManager.GetUserId(User);
                 // Salvăm noul WeeklyChallenge
                 db.WeeklyChallenges.Add(weeklyChallenge);
                 db.SaveChanges();
 
                 // Adăugăm job-ul Hangfire pentru notificarea utilizatorilor
-                // Hangfire: notifică utilizatorii (pentru exemplu, trimiterea unui e-mail)
-                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));
+                // Hangfire: notifică utilizatorii
+/*                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));*/
+
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.ADD_CHALLENGE, _userManager.GetUserId(User));
+                RewardBadgeForAddingChallenge().Wait();
 
                 TempData["message"] = "The weekly challenge has been successfully added.";
                 TempData["messageType"] = "alert-success";
@@ -262,6 +283,10 @@ namespace Developer_Toolbox.Controllers
 
             // Transmitem WeeklyChallenge către view
             ViewBag.WeeklyChallenge = weeklyChallenge;
+
+            ViewBag.Message = TempData["message"];
+            ViewBag.MessageType = TempData["messageType"];
+
             return View();
         }
 
@@ -429,23 +454,48 @@ namespace Developer_Toolbox.Controllers
             return RedirectToAction("Index");
         }
 
-        public void SendNotificationToUsers(int challengeId)
+        [NonAction]
+        private async Task RewardBadgeForAddingChallenge()
         {
-            // Căutăm utilizatorii care trebuie notificați 
-            var users = db.ApplicationUsers.ToList();
+            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_CHALLENGE).ToList();
+            if (badges == null) { return; }
 
-            foreach (var user in users)
+            foreach (var badge in badges)
             {
-                SendEmailNotification(user.Email, challengeId);
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
+
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+
+                _IRewardBadge.RewardAddChallengeBadge(badge, user);
             }
+
         }
 
-        private void SendEmailNotification(string userEmail, int challengeId)
+
+        // Noua metodă GetAllWeeklyChallenges
+        public IActionResult GetAllWeeklyChallenges()
         {
-            // Logică pentru trimiterea unui e-mail (sau altă metodă de notificare)
-            var subject = "New Weekly Challenge Posted!";
-            var body = $"A new weekly challenge has been posted. Challenge ID: {challengeId}";
-            // Folosește serviciile tale de email pentru a trimite mesajul
+            var weeklyChallenges = _weeklyChallengeRepository.GetAllWeeklyChallenges();
+            return View(weeklyChallenges);
+        }
+
+        // Noua metodă GetWeeklyChallengeById
+        public IActionResult GetWeeklyChallengeById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var weeklyChallenge = _weeklyChallengeRepository.GetWeeklyChallengeById(id);
+            if (weeklyChallenge == null)
+            {
+                return NotFound();
+            }
+
+            return View(weeklyChallenge);
         }
 
 

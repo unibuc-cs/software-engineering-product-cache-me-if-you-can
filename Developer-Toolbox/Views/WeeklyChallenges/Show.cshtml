@@ -4,76 +4,78 @@
     var solutionsSummary = ViewBag.SolutionsSummary; // Raportul soluțiilor
 }
 
-<div class="container py-4">
-    <div class="card shadow">
-        <!-- Card Header -->
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <!-- Titlul provocării -->
-            <h2 class="mb-0">@challenge.Title</h2>
+<link rel="stylesheet" href="~/css/form.css" asp-append-version="true" />
 
-            <!-- Progresul soluțiilor -->
-            <span class="badge bg-success fs-5">
-                Progres: @solutionsSummary
-            </span>
-        </div>
+<div class="container mt-5">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12 col-sm-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <div class="position-relative p-2 d-flex justify-content-end">
+                        <span class="badge bg-primary badge-custom fs-5">Progres: @solutionsSummary</span>
+                    </div>
+                    <h3 class="card-title text-center mb-4">@challenge.Title</h3>
+                    <div class="mb-3 text-black">
+                        <h5 class="py-2">Summary:</h5>
+                        <p class="px-3 text-black">
+                            <strong>Start Date:</strong> @challenge.StartDate.ToString("MMMM dd, yyyy")
+                        </p>
+                        <p class="px-3  text-black">
+                            <strong>End Date:</strong> @challenge.EndDate.ToString("MMMM dd, yyyy")
+                        </p>
+                        <p class="px-3  text-black">
+                            <strong>Difficulty:</strong> @challenge.Difficulty
+                        </p>
+                        <p class="px-3  text-black">
+                            <strong>Reward Points:</strong> @challenge.RewardPoints
+                        </p>
+                        <hr />
+                        <h5 class="py-2">Description:</h5>
+                        <p class=" px-3  text-black">@challenge.Description</p>
+                        <hr />
+                        <h5 class="py-2">Exercises:</h5>
+                        @if (challenge.WeeklyChallengeExercises != null && challenge.WeeklyChallengeExercises.Count > 0)
+                        {
+                            <ul class="list-group-flush">
+                                @foreach (var exercise in challenge.WeeklyChallengeExercises)
+                                {
+                                    <li class="list-group-item" style="border: none;">
+                                        <a href="/Exercises/Show/@exercise.Exercise.Id" class="text-decoration-none">
+                                            @exercise.Exercise.Title
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No exercises available for this challenge.</p>
+                        }
+                    </div>
 
-        <!-- Card Body -->
-        <div class="card-body">
-            <p class="text-muted">
-                <strong>Start Date:</strong> @challenge.StartDate.ToString("MMMM dd, yyyy")
-            </p>
-            <p class="text-muted">
-                <strong>End Date:</strong> @challenge.EndDate.ToString("MMMM dd, yyyy")
-            </p>
-            <p class="text-muted">
-                <strong>Difficulty:</strong> @challenge.Difficulty
-            </p>
-            <p class="text-muted">
-                <strong>Reward Points:</strong> @challenge.RewardPoints
-            </p>
-            <hr />
-            <h5>Description:</h5>
-            <p>@challenge.Description</p>
+                    <div class="d-flex justify-content-between align-items-center py-3">
+                        <a href="/WeeklyChallenges/Index" class="btn btn-primary px-3 rounded-pill">Back to Challenges</a>
 
-            <!-- Section for exercises -->
-            <hr />
-            <h5>Exercises:</h5>
-            @if (challenge.WeeklyChallengeExercises != null && challenge.WeeklyChallengeExercises.Count > 0)
-            {
-                <ul class="list-group">
-                    @foreach (var exercise in challenge.WeeklyChallengeExercises)
-                    {
-                        <li class="list-group-item">
-                            <a href="/Exercises/Show/@exercise.Exercise.Id" class="text-decoration-none">
-                                @exercise.Exercise.Title
-                            </a>
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p class="text-muted">No exercises available for this challenge.</p>
-            }
-        </div>
+                        @if (ViewBag.EsteAdmin)
+                        {
+                            <!-- Button Container: Edit and Delete -->
+                            <div class="d-flex gap-2">
+                                <!-- Edit Button -->
+                                <a href="/WeeklyChallenges/Edit/@challenge.Id" class="btn btn-outline-primary px-4 rounded-pill">Edit</a>
 
-        <!-- Card Footer -->
-        <div class="card-footer d-flex justify-content-between align-items-center">
-            <a href="/WeeklyChallenges/Index" class="btn btn-secondary px-3 rounded-pill">Back to Challenges</a>
-
-            @if (ViewBag.EsteAdmin)
-            {
-                <!-- Button Container: Edit and Delete -->
-                <div class="d-flex gap-2">
-                    <!-- Edit Button -->
-                    <a href="/WeeklyChallenges/Edit/@challenge.Id" class="btn btn-outline-secondary px-3 rounded-pill">Edit</a>
-
-                    <!-- Delete Button -->
-                    <form method="post" asp-action="DeleteConfirmed" asp-controller="WeeklyChallenges" asp-route-id="@challenge.Id" class="d-inline">
-                        <button type="submit" class="btn btn-outline-danger px-3 rounded-pill">Delete</button>
-                    </form>
+                                <!-- Delete Button -->
+                                <form method="post" asp-action="DeleteConfirmed" asp-controller="WeeklyChallenges" asp-route-id="@challenge.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-primary px-3 rounded-pill">Delete</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>

@@ -17,18 +17,24 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IReactionRepository _reactionRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public ReactionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IReactionRepository reactionRepository,
-            IRewardBadge iRewardBadge)
+            IRewardBadge iRewardBadge,
+            IEmailService emailService,
+            IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _reactionRepository = reactionRepository;
             _IRewardBadge = iRewardBadge;
+            _IEmailService = emailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
@@ -63,7 +69,7 @@ namespace Developer_Toolbox.Controllers
                         reaction.Liked = true;
                         // Incrementam numărului de like-uri
                         question.LikesNr++;
-                        RewardActivity((int)ActivitiesEnum.BE_UPVOTED);
+                        _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId);
                     }
                     
                    
@@ -76,7 +82,7 @@ namespace Developer_Toolbox.Controllers
                     // Incrementam numărului de like-uri
                     question.LikesNr++;
                     db.Reactions.Add(reaction);
-                    RewardActivity((int)ActivitiesEnum.BE_UPVOTED);
+                    _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId);
                 }
 
                 
@@ -108,7 +114,7 @@ namespace Developer_Toolbox.Controllers
                         {
                             reaction.Liked = false;
                             question.LikesNr--;
-                            RewardActivity((int)ActivitiesEnum.BE_UPVOTED, true);
+                            _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId, true);
                         }
                         reaction.Disliked = true;
                         // Incrementam numărului de dislike-uri
@@ -148,7 +154,7 @@ namespace Developer_Toolbox.Controllers
                     reaction.Liked = false;
                     // Decrementam numărului de like-uri
                     question.LikesNr--;
-                    RewardActivity((int)ActivitiesEnum.BE_UPVOTED, true);
+                    _IRewardActivity.RewardActivity((int)ActivitiesEnum.BE_UPVOTED, question.UserId, true);
                 }
 
 
@@ -208,28 +214,9 @@ namespace Developer_Toolbox.Controllers
         }
 
 
-        [NonAction]
-        private void RewardActivity(int activityId, bool cancel = false)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            if (cancel == true)
-            {
-                user.ReputationPoints -= reward;
-            } else
-            {
-                user.ReputationPoints += reward;
-            }
-            db.SaveChanges();
-
-        }
 
         [NonAction]
-        private void RewardBadge(string questionAuthorId)
+        private async void RewardBadge(string questionAuthorId)
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.BE_UPVOTED).ToList();
             if (badges == null) { return; }
@@ -240,7 +227,10 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == questionAuthorId);
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardBeUpvotedBadge(badge, questionAuthorId);
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+
+                _IRewardBadge.RewardBeUpvotedBadge(badge, user);
+
             }
 
         }

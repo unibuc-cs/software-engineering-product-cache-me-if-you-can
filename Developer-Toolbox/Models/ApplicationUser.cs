@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,6 +15,8 @@ namespace Developer_Toolbox.Models
         //[Required(ErrorMessage = "Last name is required")]
         //[StringLength(100, ErrorMessage = "Last name cannot have more than 100 characters")]
         public string? LastName { get; set; }
+
+        [DefaultValue(0)]
         public int? ReputationPoints { get; set; }
         public string? EmailAddress { get; set; }
 

@@ -1,125 +1,139 @@
-﻿<div class="py-3 px-5 d-flex flex-column gap-3">
-    <div class="d-flex justify-content-between">
-        <h1 class="gray-dark" style="color:#595959">Questions:</h1>
-        <a class="btn btn-outline-secondary py-sm-3 px-sm-3 rounded-pill " style="font-weight:bold;" asp-area="" asp-controller="Bookmarks" asp-action="Show"> <i class="bi bi-bookmark-heart"></i> Saved </a>
-    </div>
+﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/questions.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/form.css" asp-append-version="true" />
 
-    @if (TempData["message"] != null)
+
+<section class="features-area features-one">
+    @if (TempData.ContainsKey("message"))
     {
-        <div class="alert p-3 rounded-3 text-center mb-5 @ViewBag.Alert">
-            @ViewBag.Message
-        </div>
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
     }
-
-    <div class="d-flex flex-column justify-content-center align-items-center">
-        @if (ViewBag.UserCurent != null)
-        {
-            <!-- Formular adaugare întrebare -->
-            <div class="card formpost w-50">
-                <form method="post" action="/Questions/New">
-
-                    <div class="card-body p-4">
-                        <div class="box-shadow alert-primary row py-2 px-3 rounded-2 mb-4"><h3 style="color:#595959">Ask something:</h3></div>
-
-                        <div class="row mb-2">
-                            <label>Title</label>
-                            <input class="form-control border-primary" name="Title"></input>
-                        </div>
-
-                        <div class="row mb-2">
-
-                            <label>Description</label>
-                            <textarea class="form-control border-primary" name="Description"></textarea>
-
-                        </div>
-
-                        <br />
-                        <h4 style="color:#595959">Select tags:</h4>
-                        <div class="d-flex flex-row gap-4" style="color:#595959">
-                           
-                            @foreach (var tag in ViewBag.Tags)
-                            {
-                                <div >
-                                    <input type="checkbox" name="TagIds" value="@tag.Id" id="tag-@tag.Id" />
-                                    <label for="tag-@tag.Id">@tag.Name</label>
-                                </div>
-                            }
-                        </div>
-                        <button class="btn btn-primary px-3 rounded-pill mb-3 mt-4 mr-auto"  type="submit">Submit</button>
-
-                    </div>
-
-                </form>
-
-            </div>
-        }
-        <br />
-        <br/>
-        <hr class="w-100 m-0 p-0" />
-     </div>
-        
-    <div class="container">
-        <!-- Motorul de cautare -->
-        <form method="GET" class="row d-flex justify-content-center align-items-center w-100">
-                <div class="input-group mb-3 w-50 mr-0 ">
-                    <input type="text" class="form-control" placeholder="Search topics or keywords" name="search" value="@ViewBag.SearchString">
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Questions</h3>
+                    <p class="text">
+                        Do you want to read question and answers or to share your knowledge on a specific topic? Check our tags!
+                    </p>
                 </div>
-        </form>
-        @foreach (var item in ViewBag.QuestionsWithAutor)
-        {
-            <div class="row justify-content-center align-items-center">
-                <div class="col-md-8">
-                    <div class="card">
+                <!-- row -->
+            </div>
+        </div>
+
+        <!-- Formular adaugare întrebare -->
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-md-12 col-sm-12">
+                    <div class="card shadow-lg">
                         <div class="card-body">
-                            <a href="/ApplicationUsers/Show/@item.AutorId" style="text-decoration: none;">
-                                <h3 class="card-title alert-primary py-3 px-3 rounded-2"><i class="bi bi-person-fill"></i> @item.AutorFirstName @item.AutorLastName</h3>
-                            </a>
-                            <div class="card-title"><h3>@item.Question.Title</h3></div>
-                            <br /><br />
-                            <div class="d-flex justify-content-between align-items-start flex-row mt-3">
-                                <small class="alert-secondary">@item.Question.CreatedDate</small>
-                                @foreach (var questionTag in item.Tags)
-                                {
-                                    <a asp-action="Show" asp-controller="Tags" asp-route-id="@questionTag.Id" class="btn btn-warning border rounded-pill text-black px-3 mb-3 animated slideInRight" style="font-weight:bold;">#@questionTag.Name</a>
-                                }
-                                <div class="d-flex flex-row justify-content-end">
-                                    <a class="btn btn-outline-primary px-3 rounded-pill mb-3" href="/Questions/Show/@item.Question.Id">See question</a>
+                            <h3 class="card-title text-center mb-4">Ask question</h3>
+                            <form method="post" enctype="multipart/form-data" action="/Questions/New">
+                                <div class="mb-3">
+                                    @Html.Label("Title", "Title")
+
+                                    @Html.TextBox("Title", null, new { @class = "form-control" })
+                                    @Html.ValidationMessage("Title", "", new { @class = "text-danger" })
                                 </div>
+                                <div class="mb-3">
+                                    @Html.Label("Description", "Description", new { @class = "form-label" })
+
+                                    @Html.TextArea("Description", null, new { @class = "form-control"})
+                                    @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+                                </div>
+                                <label>Tags</label>
+                                <div class="d-flex flex-row gap-4" style="color:#595959">
+                                    @foreach (var tag in ViewBag.Tags)
+                                    {
+                                        <div>
+                                            <input type="checkbox" name="TagIds" value="@tag.Id" id="tag-@tag.Id" />
+                                            <label for="tag-@tag.Id">@tag.Name</label>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+                                    <div id="formFeedback" class="mt-3"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container pt-5">
+        <div class="row justify-content-center">
+            <h2 class="subtitle text-center">Related questions</h2>
+        </div>
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <!-- Motorul de cautare -->
+                <div class="search-wrapper">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <form method="GET">
+                            <input type="text" class="form-control search-input" placeholder="Search topics or keywords" name="search" value="@ViewBag.SearchString">
+                            <button class="btn btn-primary search-button" type="submit">
+                                Search
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="row g-5 d-flex justify-content-start">
+                @foreach (var item in ViewBag.QuestionsWithAutor)
+                {
+                    <div class="col" style="max-width: fit-content">
+                        <div class="card question-card border-0 rounded-4 shadow-sm">
+                            <div class="position-relative p-2 d-flex justify-content-between">
+                                <div>
+                                    @foreach (var questionTag in item.Tags)
+                                    {
+                                        <a asp-action="Show" asp-controller="Tags" asp-route-id="@questionTag.Id" class="badge bg-primary badge-custom">#@questionTag.Name</a>
+                                    }
+                                </div>
+                                <a href="/ApplicationUsers/Show/@item.AutorId" style="text-decoration: none;"><i class="bi bi-person-fill"></i> @item?.AutorUsername</a>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                <h5 class="card-title mb-3 fw-bold text-center">@item.Question.Title</h5>
+                                <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold"
+                                   asp-controller="Questions" asp-action="Show" asp-route-id="@item?.Question.Id">
+                                    Show
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <br />
-        }
-        <div class="row justify-content-center align-items-center">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item">
-                        <a class="page-link" href="@ViewBag.PaginationBaseUrl=1" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-
-                    @for (int i = 1; i <= ViewBag.lastPage; i++)
-                    {
-                        <li class="page-item"> <a class="page-link" href="@ViewBag.PaginationBaseUrl=@i">@(i)</a> </li>
-                    }
-
-                    <li class="page-item">
-                        <a class="page-link" href="@ViewBag.PaginationBaseUrl=@(ViewBag.lastPage)" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+                }
+            </div> 
         </div>
     </div>
+    <!-- container -->
+    <div class=" mb-2 d-flex justify-content-center ">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" href="@ViewBag.PaginationBaseUrl=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.lastPage; i++)
+                {
+                    <li class="page-item"> <a class="page-link" href="@ViewBag.PaginationBaseUrl=@i">@(i)</a> </li>
+                }
+
+                <li class="page-item">
+                    <a class="page-link" href="@ViewBag.PaginationBaseUrl=@(ViewBag.lastPage)" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
-
-       
-
-
-   
-</div>
+</section>

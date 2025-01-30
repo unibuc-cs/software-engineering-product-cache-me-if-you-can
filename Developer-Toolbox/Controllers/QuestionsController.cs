@@ -2,6 +2,7 @@
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,27 +17,31 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IQuestionRepository _questionRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public QuestionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IQuestionRepository questionRepository,
-             IRewardBadge iRewardBadge)
+             IRewardBadge iRewardBadge,
+             IEmailService emailService,
+             IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _questionRepository = questionRepository;
             _IRewardBadge = iRewardBadge;
+            _IEmailService = emailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
         {
             ViewBag.AfisareButoane = false;
-
-
             ViewBag.EsteAdmin = User.IsInRole("Admin");
-
+            ViewBag.EsteModerator = User.IsInRole("Moderator");
             ViewBag.UserCurent = _userManager.GetUserId(User);
         }
 
@@ -50,8 +55,7 @@ namespace Developer_Toolbox.Controllers
                                         .Select(qst => new
                                         {
                                             Question = qst,
-                                            AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).FirstName,
-                                            AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).LastName,
+                                            AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
                                             AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).Id,
                                             Tags = db.QuestionTags.Where(qt => qt.QuestionId == qst.Id).Select(qt => qt.Tag).ToList()
                                         })
@@ -78,9 +82,7 @@ namespace Developer_Toolbox.Controllers
                                 .Select(qst => new
                                 {
                                     Question = qst,
-                                    AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).FirstName,
-                                    AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).LastName,
-                                    //AutorUserName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
+                                    AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
                                     AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).Id,
                                     //Adaugare tags pt views
                                     Tags = db.QuestionTags.Where(qt => qt.QuestionId == qst.Id).Select(qt => qt.Tag).ToList()
@@ -102,7 +104,8 @@ namespace Developer_Toolbox.Controllers
 
             if (TempData.ContainsKey("message"))
             {
-                ViewBag.message = TempData["message"].ToString();
+                ViewBag.Message = TempData["message"].ToString();
+                ViewBag.MessageType = TempData["messageType"].ToString();
             }
 
 
@@ -157,7 +160,7 @@ namespace Developer_Toolbox.Controllers
             if (_userManager.GetUserId(User) != null)
             {
                 userConectat = true;
-                if (db.ApplicationUsers.FirstOrDefault(user => user.Id == _userManager.GetUserId(User)).FirstName != null)
+                if (db.ApplicationUsers.FirstOrDefault(user => user.Id == _userManager.GetUserId(User)).UserName != null)
                     userProfilComplet = true;
             }
 
@@ -167,7 +170,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
             ViewBag.Tags = db.Tags.ToList();
@@ -188,8 +191,7 @@ namespace Developer_Toolbox.Controllers
                                         .Select(answ => new
                                         {
                                             Answer = answ,
-                                            AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).FirstName,
-                                            AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).LastName,
+                                            AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).UserName,
                                             AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).Id
                                         })
                                         .ToList();
@@ -230,7 +232,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
             return View();
         }
@@ -286,11 +288,11 @@ namespace Developer_Toolbox.Controllers
                 db.Questions.Add(question);
                 db.SaveChanges();
 
-                RewardActivity((int)ActivitiesEnum.POST_QUESTION);
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.POST_QUESTION, _userManager.GetUserId(User));
                 RewardBadge();
 
                 TempData["message"] = "The question has been successfully added.";
-                TempData["messageType"] = "alert-primary";
+                TempData["messageType"] = "alert-success";
 
                 var refererUrl = Request.Headers["Referer"].ToString();
                 return Redirect(refererUrl);
@@ -305,69 +307,102 @@ namespace Developer_Toolbox.Controllers
                     TempData["message"] = "The title cannot exceed 100 characters";
                 if (question.Title.Length < 5)
                     TempData["message"] = "The title must be at least 5 characters long";
+                TempData["messageType"] = "alert-danger";
                 // Exception handling code
                 var refererUrl = Request.Headers["Referer"].ToString();
                 return Redirect(refererUrl);
             }
         }
 
-
+        [Authorize(Roles = "Admin,Moderator,User")]
         public IActionResult Edit(int id)
         {
             Question question = db.Questions.Find(id);
 
             ViewBag.Question = question;
 
-            return View(question);
+            if (question?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                return View(question);
+            } else {
+
+                TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+
         }
 
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public ActionResult Edit(int id, Question requestQuestion)
         {
             Question question = db.Questions.Find(id);
 
-            if (ModelState.IsValid)
+            if (question?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
-                question.Title = requestQuestion.Title;
-                question.Description = requestQuestion.Description;
+                if (ModelState.IsValid)
+                {
+                    question.Title = requestQuestion.Title;
+                    question.Description = requestQuestion.Description;
 
-                db.SaveChanges();
-                TempData["message"] = "The question has been successfully edited.";
-                TempData["messageType"] = "alert-primary";
+                    db.SaveChanges();
+                    TempData["message"] = "The question has been successfully edited.";
+                    TempData["messageType"] = "alert-success";
 
-                return Redirect("/Questions/Index");
-
-
-
+                    return Redirect("/Questions/Index");
+                }
+                else
+                {
+                    return View(question);
+                }
             }
             else
             {
-                return View(question);
-            }
+                TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                TempData["messageType"] = "alert-success";
+                return RedirectToAction("Index");
+            }      
         }
 
+        [Authorize(Roles = "Admin,Moderator,User")]
         public ActionResult Delete(int id)
         {
             Question question = db.Questions.Find(id);
 
-            var answers = db.Answers.Where(c => c.QuestionId == id);
-            db.Answers.RemoveRange(answers);
+            if (question?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                var answers = db.Answers.Where(c => c.QuestionId == id);
+                db.Answers.RemoveRange(answers);
 
-            var bookmarks = db.Bookmarks.Where(b => b.QuestionId == id);
-            db.Bookmarks.RemoveRange(bookmarks);
+                var bookmarks = db.Bookmarks.Where(b => b.QuestionId == id);
+                db.Bookmarks.RemoveRange(bookmarks);
 
-            // Remove associated tags (assuming QuestionTag relationship)
-            var questionTags = db.QuestionTags.Where(qt => qt.QuestionId == id);
-            db.QuestionTags.RemoveRange(questionTags);
+                // Remove associated tags (assuming QuestionTag relationship)
+                var questionTags = db.QuestionTags.Where(qt => qt.QuestionId == id);
+                db.QuestionTags.RemoveRange(questionTags);
 
-            db.Questions.Remove(question);
-            TempData["message"] = "The question has been successfully deleted.";
-            TempData["messageType"] = "alert-primary";
+                db.Questions.Remove(question);
+                TempData["message"] = "The question has been successfully deleted.";
+                TempData["messageType"] = "alert-success";
 
-            db.SaveChanges();
+                db.SaveChanges();
 
-            return RedirectToAction("Index");
-        }
+                // daca intrebarea a fost stearsa pentru ca incalca standardele comunitatii, cel care a postat este notificat prin email
+                if (User.IsInRole("Moderator") && question.UserId != _userManager.GetUserId(User) || User.IsInRole("Admin"))
+                {
+                    NotifyQuestionAuthor(question);
+                }
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["message"] = "You are not allowed to delete a question that you didn't post!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+            }
 
         // Noua metodă GetAllQuestions
         public IActionResult GetAllQuestions()
@@ -394,22 +429,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardActivity(int activityId)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            user.ReputationPoints += reward;
-       
-            db.SaveChanges();
-
-        }
-
-        [NonAction]
-        private void RewardBadge()
+        private async void RewardBadge()
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_QUESTION).ToList();
             if (badges == null) { return; }
@@ -420,8 +440,20 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardPostQuestionBadge(badge, _userManager.GetUserId(User));
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+
+                _IRewardBadge.RewardPostQuestionBadge(badge, user);
+
             }
+
+        }
+
+        [NonAction]
+        private async void NotifyQuestionAuthor(Question question)
+        {
+            ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
+            if (user == null) { return; }
+            await _IEmailService.SendContentDeletedByAdminEmailAsync(user.Email, user.UserName, question.Title + "<br>" + question.Description);
 
         }
 

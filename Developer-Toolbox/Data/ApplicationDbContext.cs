@@ -29,6 +29,12 @@ namespace Developer_Toolbox.Data
         public DbSet<WeeklyChallengeExercise> WeeklyChallengeExercises { get; set; }
         public DbSet<WeeklyChallenge> WeeklyChallenges { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<BadgeChallenge> BadgeChallenges { get; set; }
+
+        public DbSet<LockedExercise> LockedExercises { get; set; }
+        public DbSet<LearningPath> LearningPaths { get; set; }
+
+        public DbSet<LockedSolution> LockedSolutions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -123,17 +129,34 @@ namespace Developer_Toolbox.Data
 
             // Configurarea relației Many-to-Many
             modelBuilder.Entity<WeeklyChallengeExercise>()
-                .HasKey(wce => new { wce.WeeklyChallengeId, wce.ExerciseId });
+            .HasKey(wce => new { wce.WeeklyChallengeId, wce.ExerciseId });
 
             modelBuilder.Entity<WeeklyChallengeExercise>()
-                .HasOne(wce => wce.WeeklyChallenge)
-                .WithMany(wce => wce.WeeklyChallengeExercises)
-                .HasForeignKey(wce => wce.WeeklyChallengeId);
+            .HasOne(wce => wce.WeeklyChallenge)
+            .WithMany(wce => wce.WeeklyChallengeExercises)
+            .HasForeignKey(wce => wce.WeeklyChallengeId);
 
             modelBuilder.Entity<WeeklyChallengeExercise>()
-                .HasOne(wce => wce.Exercise)
-                .WithMany(wce => wce.WeeklyChallengeExercises)
-                .HasForeignKey(wce => wce.ExerciseId);
+            .HasOne(wce => wce.Exercise)
+            .WithMany(wce => wce.WeeklyChallengeExercises)
+            .HasForeignKey(wce => wce.ExerciseId);
+
+           
+             modelBuilder.Entity<BadgeChallenge>()
+             .HasKey(bc => new { bc.BadgeId, bc.WeeklyChallengeId });   
+             modelBuilder.Entity<BadgeChallenge>()
+             .HasOne(bc => bc.WeeklyChallenge)
+             .WithMany(bc => bc.BadgeChallenges)
+             .HasForeignKey(bc => bc.WeeklyChallengeId);
+             modelBuilder.Entity<BadgeChallenge>()
+             .HasOne(bc => bc.Badge)
+             .WithMany(bc => bc.BadgeChallenges)
+             .HasForeignKey(bc => bc.BadgeId);
+
+            modelBuilder.Entity<ApplicationUser>()
+            .Property(au => au.ReputationPoints)
+            .HasDefaultValueSql("0");
+
         }
     }
 }

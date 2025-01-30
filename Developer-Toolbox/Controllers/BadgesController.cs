@@ -1,6 +1,7 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Interfaces;
 using Developer_Toolbox.Models;
+using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,18 +17,21 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private IWebHostEnvironment _env;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IBadgeRepository _badgeRepository;
 
         public BadgesController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IWebHostEnvironment environment,
-            IRewardBadge iRewardBadge)
+            IRewardBadge iRewardBadge,
+            IBadgeRepository badgeRepository)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _env = environment;
             _IRewardBadge = iRewardBadge;
+            _badgeRepository = badgeRepository;
         }
 
         //Conditii de afisare a butoanelor de editare si stergere
@@ -155,6 +159,15 @@ namespace Developer_Toolbox.Controllers
                     db.SaveChanges();
                 }
 
+                if (badge.SelectedChallengesIds != null)
+                {
+                    foreach (var chId in badge.SelectedChallengesIds)
+                    {
+                        db.BadgeChallenges.Add(new BadgeChallenge(badge.Id, chId));
+                    }
+                    db.SaveChanges();
+                }
+
                 RewardBadge(badge);
 
                 TempData["message"] = "The badge has been added";
@@ -195,8 +208,21 @@ namespace Developer_Toolbox.Controllers
             // preluam badge ul cautat
             Badge badge = db.Badges.Find(id);
             badge = initBadge(badge);
-
-            if (!(bool)badge.TargetActivity.isPracticeRelated)
+            
+            if (badge.TargetActivityId == (int)ActivitiesEnum.COMPLETE_CHALLENGE)
+            {
+                var challenges = from bc in db.BadgeChallenges
+                                 join ch in db.WeeklyChallenges on bc.WeeklyChallengeId equals ch.Id
+                                 where bc.BadgeId == badge.Id
+                                 select new SelectListItem
+                                 {
+                                     Value = ch.Id.ToString(),
+                                     Text = ch.Title,
+                                 };
+                ViewBag.SelectedChallenges = challenges.ToList();
+                
+            }
+            else if (badge.TargetActivity.isPracticeRelated != null && !(bool)badge.TargetActivity.isPracticeRelated)
             {
                 var tags = from bt in db.BadgeTags
                            join t in db.Tags on bt.TagId equals t.Id
@@ -210,6 +236,7 @@ namespace Developer_Toolbox.Controllers
             } else
             {
                 ViewBag.SelectedTags = new List<SelectListItem>();
+                ViewBag.SelectedChallenges = new List<SelectListItem>();
             }
 
             //restrictionam permisiunile
@@ -288,8 +315,21 @@ namespace Developer_Toolbox.Controllers
                 badge = initBadge(badge);
                 badge.Title = requestBadge.Title;
                 badge.Description = requestBadge.Description;
+                
+                if (badge.TargetActivityId == (int)ActivitiesEnum.COMPLETE_CHALLENGE)
+                {
+                    var challenges = from bc in db.BadgeChallenges
+                               join ch in db.WeeklyChallenges on bc.WeeklyChallengeId equals ch.Id
+                               where bc.BadgeId == badge.Id
+                               select new SelectListItem
+                               {
+                                   Value = ch.Id.ToString(),
+                                   Text = ch.Title,
+                               };
+                    ViewBag.SelectedChallenges = challenges.ToList();
 
-                if (!(bool)badge.TargetActivity.isPracticeRelated)
+                }
+                else if (!(bool)badge.TargetActivity.isPracticeRelated)
                 {
                     var tags = from bt in db.BadgeTags
                                join t in db.Tags on bt.TagId equals t.Id
@@ -304,6 +344,7 @@ namespace Developer_Toolbox.Controllers
                 else
                 {
                     ViewBag.SelectedTags = new List<SelectListItem>();
+                    ViewBag.SelectedChallenges = new List<SelectListItem>();
                 }
                 return View(badge);
             }
@@ -436,6 +477,26 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
+        public IEnumerable<SelectListItem> GetAllWeeklyChallenges()
+        {
+            var selectList = new List<SelectListItem>();
+
+            var challenges = from challenge in db.WeeklyChallenges
+                       select challenge;
+
+            foreach (var challenge in challenges)
+            {
+                selectList.Add(new SelectListItem
+                {
+                    Value = challenge.Id.ToString(),
+                    Text = challenge.Title
+                });
+            }
+
+            return selectList;
+        }
+
+        [NonAction]
         private async Task<string?> SaveImage(IFormFile file)
         {
             if (file == null)
@@ -494,32 +555,41 @@ namespace Developer_Toolbox.Controllers
             // preluam tagurile posibile pentru dropdown
             badge.TargetTagsItems = GetAllTags();
 
+            // preluam challenge-urile disponibile pentru selectie
+            badge.WeeklyChallengesItems = GetAllWeeklyChallenges();
+
             return badge;
         }
 
         [NonAction]
         private void RewardBadge(Badge badge)
         {
-            var userIds = db.ApplicationUsers.Select(u => u.Id).ToList();
+            var users = db.ApplicationUsers.ToList();
 
-            foreach (var userId in userIds) 
+            foreach (var user in users) 
             {
                 switch (badge.TargetActivityId)
                 {
                     case (int)ActivitiesEnum.POST_QUESTION:
-                        _IRewardBadge.RewardPostQuestionBadge(badge, userId);
+                        _IRewardBadge.RewardPostQuestionBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.POST_ANSWER:
-                        _IRewardBadge.RewardPostAnswerBadge(badge, userId);
+                        _IRewardBadge.RewardPostAnswerBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.BE_UPVOTED:
-                        _IRewardBadge.RewardBeUpvotedBadge(badge, userId);
+                        _IRewardBadge.RewardBeUpvotedBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.SOLVE_EXERCISE:
-                        _IRewardBadge.RewardSolveExerciseBadge(badge, userId);
+                        _IRewardBadge.RewardSolveExerciseBadge(badge, user);
                         break;
                     case (int)ActivitiesEnum.ADD_EXERCISE:
-                        _IRewardBadge.RewardAddExerciseBadge(badge, userId);
+                        _IRewardBadge.RewardAddExerciseBadge(badge, user);
+                        break;
+                    case (int)ActivitiesEnum.ADD_CHALLENGE:
+                        _IRewardBadge.RewardAddChallengeBadge(badge, user);
+                        break;
+                    case (int)ActivitiesEnum.COMPLETE_CHALLENGE:
+                        _IRewardBadge.RewardCompleteChallengeBadge(badge, user);
                         break;
                 }
             }
@@ -529,9 +599,11 @@ namespace Developer_Toolbox.Controllers
         [NonAction]
         private bool isDuplicate(Badge badge)
         {
-            var badgesForTheSameActivityAndNoOfTimes = db.Badges.Include("BadgeTags").Include("TargetCategory").Where(b => b.TargetActivityId == badge.TargetActivityId && b.TargetNoOfTimes == badge.TargetNoOfTimes).ToList();
+            var badgesForTheSameActivityAndNoOfTimes = db.Badges.Include("TargetCategory").Where(b => b.TargetActivityId == badge.TargetActivityId && b.TargetNoOfTimes == badge.TargetNoOfTimes).ToList();
+
             var activity = db.Activities.Where(a => a.Id == badge.TargetActivityId).FirstOrDefault();
-            if ((bool)activity.isPracticeRelated)
+
+            if (activity.isPracticeRelated == null || activity.isPracticeRelated == true)
             {
                 if (badge.TargetCategoryId != null && badge.TargetLevel != null)
                 {
@@ -545,6 +617,20 @@ namespace Developer_Toolbox.Controllers
                 {
                     return badgesForTheSameActivityAndNoOfTimes.Any(b => b.TargetLevel.Equals(badge.TargetLevel));
                 }
+                else if (badge.SelectedChallengesIds != null && badge.SelectedChallengesIds.Any())
+                {
+                    var badgeChallenges = from b in badgesForTheSameActivityAndNoOfTimes
+                                          join bc in db.BadgeChallenges on b.Id equals bc.BadgeId
+                                          group bc by bc.BadgeId into g
+                                          select new
+                                          {
+                                              BadgeId = g.Key,
+                                              ChallengesIds = g.Select(b => b.WeeklyChallengeId).ToList(),
+                                          };
+                    badgeChallenges = badgeChallenges.ToList();
+
+                    return badgeChallenges.Any(bc => bc.ChallengesIds.Any() && bc.ChallengesIds.Count == badge.SelectedChallengesIds.Count && badge.SelectedChallengesIds.All(item => bc.ChallengesIds.Contains(item)));
+                }
                 else
                 {
                     return badgesForTheSameActivityAndNoOfTimes.Any();
@@ -556,9 +642,19 @@ namespace Developer_Toolbox.Controllers
             }
             else
             {
-                if (badge.BadgeTags != null && badge.BadgeTags.Any())
+                if (badge.SelectedTagsIds != null && badge.SelectedTagsIds.Any())
                 {
-                    return badgesForTheSameActivityAndNoOfTimes.Any(b => b.BadgeTags != null && b.BadgeTags.Equals(badge.BadgeTags));
+                    var badgeTags = from b in badgesForTheSameActivityAndNoOfTimes
+                                          join bt in db.BadgeTags on b.Id equals bt.BadgeId
+                                          group bt by bt.BadgeId into g
+                                          select new
+                                          {
+                                              BadgeId = g.Key,
+                                              TagsIds = g.Select(b => b.TagId).ToList(),
+                                          };
+                    badgeTags = badgeTags.ToList();
+
+                    return badgeTags.Any(bt => bt.TagsIds.Any() && bt.TagsIds.Count == badge.SelectedTagsIds.Count && badge.SelectedTagsIds.All(item => bt.TagsIds.Contains(item)));
                 }
                 else
                 {
@@ -566,6 +662,30 @@ namespace Developer_Toolbox.Controllers
                 }
             }
 
+        }
+
+        // Noua metodă GetAllBadges
+        public IActionResult GetAllBadges()
+        {
+            var badges = _badgeRepository.GetAllBadges();
+            return View(badges);
+        }
+
+        // Noua metodă GetBadgeById
+        public IActionResult GetBadgeById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var badge = _badgeRepository.GetBadgeById(id);
+            if (badge == null)
+            {
+                return NotFound();
+            }
+
+            return View(badge);
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
+using Developer_Toolbox.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,17 @@ namespace Developer_Toolbox.Controllers
         private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly INotificationRepository _notificationRepository;
 
         public NotificationsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            INotificationRepository notificationRepository)
         {
             _db = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _notificationRepository = notificationRepository;
         }
 
         // Afișarea notificărilor utilizatorului curent (personale și globale)
@@ -33,6 +37,9 @@ namespace Developer_Toolbox.Controllers
                 .Where(n => (n.UserId == null || n.UserId == userId) && n.IsRead == false) // Notificări globale sau specifice
                 .OrderByDescending(n => n.CreatedAt)
                 .ToList();
+
+            ViewBag.Message = TempData["message"];
+            ViewBag.MessageType = TempData["messageType"];
 
             return View(notifications);
         }
@@ -124,5 +131,30 @@ namespace Developer_Toolbox.Controllers
 
             return View(notification);
         }
+
+        // Noua metodă GetAllNotifications
+        public IActionResult GetAllNotifications()
+        {
+            var notifications = _notificationRepository.GetAllNotifications();
+            return View(notifications);
+        }
+
+        // Noua metodă GetNotificationById
+        public IActionResult GetNotificationById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var notification = _notificationRepository.GetNotificationById(id);
+            if (notification == null)
+            {
+                return NotFound();
+            }
+
+            return View(notification);
+        }
+
     }
 }

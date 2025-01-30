@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "FAQ";
+}
+
+<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/questions.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/faq.css" asp-append-version="true" />
+
+<section class="features-area features-one min-vh-100 ">
+    <div class="faq-container">
+        <div class="row justify-content-center pb-5">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Frequently asked questions</h3>
+                </div>
+                <!-- row -->
+            </div>
+        </div>
+        <!-- row -->
+        <!-- General Questions -->
+        <div class="faq-section">
+            <h2>General Platform Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    How do I get started with coding exercises?
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Select a domain from our categories and start with beginner-level exercises. Your progress is automatically saved and you'll earn reputation points and badges as you solve exercises and complete challenges. If you want to master particular concepts or technologies, you can take advantage of the hands-on learning experience by following a learning path. Here you find exercises with detailed instructions. The exercises are ordered according to their difficulty and will be unlocked progressively as you advance through the learning path.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    How does the reputation system work?
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="faq-answer text-black">
+                    <p style="color: #374151">You can earn reputation points and badges.</p>
+                    <p style="color: #374151">
+                        You earn reputation points by:
+                    </p>
+                    <ul style="list-style-type: circle; padding-left: 30px; color: #374151">
+                        <li>
+                            Solving exercises
+                        </li>
+                        <li>
+                            Providing helpful answers or asking technical questions
+                        </li>
+                        <li>
+                            Being upvoted
+                        </li>
+                        <li>
+                            Participating in weekly challenges
+                        </li>
+                    </ul>
+                    <p style="color: #374151">
+                       If you are a moderator or admin, you can additionally receive reputation points if you contribute to the platform by adding new exercises and challenges.
+                        </p>
+                    <p style="color: #374151">
+                       At the Reputation points section from our platform you can find exactly how much you are rewarded for each activity.
+                        </p>
+                    <p style="color: #374151">
+                        Also, you can make a collection of badges. Every badge is unique and can be received if you do a specific action (e.g. answer to 3 questions related to C++). New badges are added periodically. You will be notified by email every time you get a new badge.
+                        </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercises & Challenges -->
+        <div class="faq-section">
+            <h2>Exercises and Challenges</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I switch programming languages while solving an exercise?
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Sure. We provide exercise solving with Python and C++. Your progress for each of them is temporarily saved while you are solving the exercise. You can switch between them without loosing progress.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    How do weekly coding challenges work?
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                        Weekly challenges are special collections of exercises on particular topics and have deadlines. They are a unique opportunity to compete with yourself and with time pressure. Also, they are the perfect way you can stay motivated and can observe your progress over time. Completing challenges earns you extra reputation points and special badges. You will be notified when a challenge starts, is almost finished or has ended, so you don't miss it.
+                </div>
+            </div>
+        </div>
+
+        <!-- Community & Support -->
+        <div class="faq-section">
+            <h2>Community Features</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    How can I ask technical questions?
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Click the "Ask" button, select relevant tags, and provide details about your problem. Other users can answer, and you'll be notified when you receive responses. Your question might help other users that encounter the same problem too, so you will be rewarded for your contribution. Also, you can give feedback to other questions. Please take care to follow the platform's rules when you are interacting with other users.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    How do bookmarks work?
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    You can bookmark any question to save it for later. You will find the bookmark section by clicking on the bookmark icon in the navbar.
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- container -->
+</section>
+
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+}

@@ -1,5 +1,6 @@
 nenv
 .idea
+.env
 .ipynb_checkpoints
 .mypy_cache
 .vscode
@@ -64,7 +65,7 @@ archive.zip
 *.app
 
 # txt
-*.txt
+#*.txt
 
 # vs
 *.vs

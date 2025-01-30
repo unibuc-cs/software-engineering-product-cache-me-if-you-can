@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.7.34221.43
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Developer-Toolbox", "Developer-Toolbox.csproj", "{34ED9C86-5C7E-45E1-884E-A94EB80E76E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Developer-ToolboxTests", "..\Developer-ToolboxTests\Developer-ToolboxTests.csproj", "{93C13999-915A-4BB1-93DC-6966B811423F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Developer-ToolboxTests", "..\Tests\Developer-ToolboxTests.csproj", "{93C13999-915A-4BB1-93DC-6966B811423F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

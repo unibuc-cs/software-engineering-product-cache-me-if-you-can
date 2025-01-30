@@ -1,0 +1,41 @@
+﻿@model Developer_Toolbox.Models.LearningPath
+
+@{
+    ViewBag.Title = "Create New Learning Path";
+}
+<section class="p-3">
+    <h2>Create New Learning Path</h2>
+    <hr />
+
+
+    @using (Html.BeginForm(actionName: "New", controllerName: "LearningPaths", method: FormMethod.Post))
+    {
+        <div class="row mb-3">
+            <b>
+                @Html.Label("Name", "Name")
+            </b>
+            <div class="col-sm-3">
+                @Html.TextBox("Name", null, new { @class = "form-control" })
+                @Html.ValidationMessage("Name", null, new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <b>
+                @Html.Label("Description", "Description")
+            </b>
+            <div class="col-sm-3">
+                @Html.TextArea("Description", null, new { @class = "form-control" })
+                @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <br />
+
+        <div class="flex justify-end">
+            <button class="btn btn-primary" type="submit">Create Learning Path</button>
+        </div>
+    }
+
+</section>

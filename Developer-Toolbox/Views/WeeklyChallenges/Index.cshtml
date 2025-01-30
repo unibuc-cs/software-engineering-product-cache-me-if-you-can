@@ -1,87 +1,109 @@
-﻿<div class="py-3 px-5 d-flex flex-column gap-3">
-    <div class="d-flex justify-content-between">
-        <h1 class="gray-dark" style="color:#595959">Weekly Challenges:</h1>
+﻿
+<link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
 
-        @if (ViewBag.EsteAdmin)
-        {
-            <!-- Butonul New Challenge în colțul din dreapta sus -->
-            <a href="/WeeklyChallenges/New" class="btn btn-primary rounded-pill float-end" style="width: auto;">New Challenge</a>
-        }    
-    </div>
-
-    @if (TempData["message"] != null)
+<section class="features-area features-one" style="min-height: 100vh">
+    @if (TempData.ContainsKey("message"))
     {
-        <div class="alert p-3 rounded-3 text-center mb-5 @ViewBag.Alert">
-            @ViewBag.Message
-        </div>
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
     }
-
-    <div class="container custom-container">
-        <!-- Motorul de căutare -->
-        <form method="GET" class="row d-flex justify-content-center align-items-center w-100 mb-4">
-            <div class="input-group mb-3 w-75">
-                <!-- Am schimbat w-100 în w-75 pentru a se potrivi cu lățimea cardurilor -->
-                <input type="text" class="form-control" placeholder="Search challenges..." name="search" value="@ViewBag.SearchString">
-                <button class="btn btn-outline-secondary" type="submit">Search</button>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Weekly challenges</h3>
+                </div>
+                <!-- row -->
             </div>
-        </form>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col d-flex justify-content-between align-items-center" style="margin-right: 2%">
+                <form method="GET" id="filterForm" class="d-flex justify-content-between align-items-center" style="padding-left: 1rem">
+                    <div class="search-wrapper">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="form-control search-input" placeholder="Search anything..." name="search" value="@ViewBag.SearchString">
+                            <button class="btn btn-primary search-button" type="submit">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                @if (ViewBag.EsteAdmin)
+                {
+                    <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/WeeklyChallenges/New" role="button"> + Add Challenge</a>
+                }
+            </div>
+        </div>
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row g-5 d-flex justify-content-start">
+                @foreach (var challenge in ViewBag.WeeklyChallenges)
+                {
+                    <div class="col" style="max-width: fit-content">
+                        <div class="card challenge-card border-0 rounded-4 shadow-sm">
+                            <div class="position-relative p-2 d-flex justify-content-between">
+                                <span class="badge bg-primary badge-custom">@challenge.Difficulty</span>
+                                <span class="badge badge-custom" style="color: var(--primary); border: 1px solid var(--primary)">@challenge.StartDate.ToString("yyyy-MM-dd") - @challenge.EndDate.ToString("yyyy-MM-dd")</span>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                <h5 class="card-title mb-3 fw-bold text-center">@challenge.Title</h5>
+                                <p class="card-text text-center text-muted mb-4">
+                                    @challenge.Description    
+                                </p>
 
-        <!-- Afișare paginată a challenge-urilor -->
-        @foreach (var challenge in ViewBag.WeeklyChallenges)
-        {
-            <div class="row justify-content-center align-items-center mb-4">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title alert-primary py-3 px-3 rounded-2">@challenge.Title</h3>
-                            <p class="card-text">@challenge.Description</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="alert-secondary">@challenge.StartDate.ToString("yyyy-MM-dd") - @challenge.EndDate.ToString("yyyy-MM-dd")</small>
 
-                                <!-- Grup de butoane pentru Delete, Edit și View -->
-                                <div class="d-flex gap-2">
-                                    @if (ViewBag.EsteAdmin)
-                                    {
-                                        <!-- Butonul pentru Delete -->
-                                        <form method="post" asp-action="DeleteConfirmed" asp-controller="WeeklyChallenges" asp-route-id="@challenge.Id" class="d-inline">
-                                            <button type="submit" class="btn btn-outline-danger px-3 rounded-pill">Delete</button>
-                                        </form>
-
-                                        <!-- Butonul pentru Edit -->
-                                        <a class="btn btn-outline-secondary px-3 rounded-pill" href="/WeeklyChallenges/Edit/@challenge.Id">Edit</a>
-                                    }
-                                    <!-- Butonul pentru View Challenge -->
-                                    <a class="btn btn-outline-primary px-3 rounded-pill" href="/WeeklyChallenges/Show/@challenge.Id">View Challenge</a>
-                                </div>
+                                @if (ViewBag.EsteAdmin)
+                                {
+                                    <div style="display:flex; justify-content: space-between;">
+                                        <a asp-action="Edit" asp-controller="WeeklyChallenges" asp-route-id="@challenge.Id" class="btn btn-no-outline">
+                                            <i class="lni lni-write" style="font-size: x-large; color: var(--primary)"></i>
+                                        </a>
+                                        <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold"
+                                           asp-controller="WeeklyChallenges" asp-action="Show" asp-route-id="@challenge.Id">
+                                            Solve
+                                        </a>
+                                        <form method="post" asp-action="DeleteConfirmed" asp-controller="WeeklyChallenges" asp-route-id="@challenge.Id">
+                                            <button type="submit" class="btn btn-no-outline">
+                                                <i class="lni lni-trash-can" style="font-size: x-large; color: var(--primary)"></i>
+                                            </button>
+                                        </form>                  
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-outline-primary py-2 px-5 rounded-pill" style="font-weight: bold"
+                                       asp-controller="WeeklyChallenges" asp-action="Show" asp-route-id="@challenge.Id">
+                                        Solve
+                                    </a>
+                                }
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             </div>
-        }
-
-        <!-- Paginare -->
-        <div class="row justify-content-center align-items-center">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item">
-                        <a class="page-link" href="@ViewBag.PaginationBaseUrl=1" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-
-                    @for (int i = 1; i <= ViewBag.lastPage; i++)
-                    {
-                        <li class="page-item"> <a class="page-link" href="@ViewBag.PaginationBaseUrl=@i">@(i)</a> </li>
-                    }
-
-                    <li class="page-item">
-                        <a class="page-link" href="@ViewBag.PaginationBaseUrl=@(ViewBag.lastPage)" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
-</div>
+    <!-- container -->
+
+    <div class=" mb-2 d-flex justify-content-center ">
+        <nav aria-label="Page navigation" style="color:#0d6efd">
+            <ul class="pagination">
+                <li class="page-item">
+                    <a class="page-link" style="color:#0d6efd" href="/WeeklyChallenges/Index/@ViewBag.CategoryId?page=1&@ViewBag.QueryString" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                @for (int i = 1; i <= ViewBag.lastPage; i++)
+                {
+                    <li class="page-item"> <a class="page-link" style="color:#0d6efd" href="/WeeklyChallenges/Index/@ViewBag.CategoryId?page=@i&@ViewBag.QueryString">@(i)</a> </li>
+                }
+                <li class="page-item">
+                    <a class="page-link" style="color:#0d6efd" href="/WeeklyChallenges/Index/@ViewBag.CategoryId?page=@(ViewBag.lastPage)&@ViewBag.QueryString" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</section>
