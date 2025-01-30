@@ -1,60 +1,71 @@
-﻿<section class="p-3">
+﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/badges.css" asp-append-version="true" />
+
+
+<section class="features-area features-one">
     @if (TempData.ContainsKey("message"))
     {
         <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
     }
-    <br />
-
-    @if (ViewBag.IsAdmin || ViewBag.IsModerator)
-    {
-        <div class="d-flex justify-content-end">
-            <a class=" btn btn-success custom-btn mr-10" href="/Badges/New">New Badge</a>
-        </div>
-
-        <hr />
-    }
-
-    <h2 class="text-center"> Badges <i class="bi bi-clipboard2-check-fill"></i> </h2>
-    <br />
-
     <div class="container">
-        <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
-            @foreach (var badge in ViewBag.Badges)
-            {
-                <div class="col">
-                    <div class="card border-light mb-3" style="width: 18rem; height: 27rem">
-                        <img src="@badge.Image" class="card-img-top" alt="@badge.Title image" style="height: 13rem">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@badge.Title</h5>
-                            <p class="card-text" style="height: 7rem">@badge.Description</p>
-                            @if (badge.AuthorId == ViewBag.CurrentUser || ViewBag.IsAdmin)
-                            {
-                                <div style="display:flex; justify-content: space-between;">
-                                    <a asp-action="Edit" asp-controller="Badges" asp-route-id="@badge.Id">
-                                        <svg style="width:20px; height:20px;" fill="none" stroke="#FF0000" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
-                                        </svg>
-                                    </a>
-                                    <form method="post" asp-action="Delete" asp-controller="Badges" asp-route-id="@badge.Id">
-                                        <button type="submit" class="btn btn-no-outline">
-                                            <svg style="width:20px; height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#FF0000">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                            </svg>
-                                        </button>
-                                    </form>
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Badges</h3>
+                </div>
+                <!-- row -->
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col d-flex justify-content-end" style="margin-right: 2%">
+
+                @if (ViewBag.IsAdmin || ViewBag.IsModerator)
+                {
+                    <a class="btn btn-outline-primary py-sm-3 px-sm-4 rounded-pill me-3" style="font-weight:bold;" href="/Badges/New" role="button"> + Add Badge</a>
+                }
+            </div>
+        </div>
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row g-5 d-flex justify-content-start">
+                @foreach (var badge in ViewBag.Badges)
+                {
+                    <div class="col" style="max-width: fit-content">
+                        <div class="card badge-card border-0 rounded-4 shadow-sm">
+                            <div class="position-relative">
+                                <div class="badge-image">
+                                    <img src="@badge.Image" class="img-fluid rounded-start" alt="@badge.Title">
                                 </div>
-                            }
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                <h5 class="card-title mb-3 fw-bold text-center">@badge.Title</h5>
+                                <p class="card-text text-center text-muted mb-4">
+                                    @badge.Description
+                                </p>
+
+                                @if (badge.AuthorId == ViewBag.CurrentUser || ViewBag.IsAdmin)
+                                {
+                                    <div style="display:flex; justify-content: space-between;">
+                                        <a asp-action="Edit" asp-controller="Badges" asp-route-id="@badge.Id" class="btn btn-no-outline">
+                                            <i class="lni lni-write" style="font-size: x-large; color: var(--primary)"></i>
+                                        </a>
+                                        <form method="post" asp-action="Delete" asp-controller="Badges" asp-route-id="@badge.Id">
+                                            <button type="submit" class="btn btn-no-outline">
+                                                <i class="lni lni-trash-can" style="font-size: x-large; color: var(--primary)"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                               
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
-
-    <br />
-    <br />
-
-    <div class=" mb-2 ">
+    <!-- container -->
+    <div class=" mb-2 d-flex justify-content-center ">
         <nav aria-label="Page navigation" style="color:#0d6efd">
             <ul class="pagination">
                 <li class="page-item">
@@ -74,5 +85,4 @@
             </ul>
         </nav>
     </div>
-
 </section>

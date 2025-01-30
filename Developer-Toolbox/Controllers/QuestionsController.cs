@@ -55,8 +55,7 @@ namespace Developer_Toolbox.Controllers
                                         .Select(qst => new
                                         {
                                             Question = qst,
-                                            AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).FirstName,
-                                            AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).LastName,
+                                            AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
                                             AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).Id,
                                             Tags = db.QuestionTags.Where(qt => qt.QuestionId == qst.Id).Select(qt => qt.Tag).ToList()
                                         })
@@ -83,9 +82,7 @@ namespace Developer_Toolbox.Controllers
                                 .Select(qst => new
                                 {
                                     Question = qst,
-                                    AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).FirstName,
-                                    AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).LastName,
-                                    //AutorUserName = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
+                                    AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).UserName,
                                     AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == qst.UserId).Id,
                                     //Adaugare tags pt views
                                     Tags = db.QuestionTags.Where(qt => qt.QuestionId == qst.Id).Select(qt => qt.Tag).ToList()
@@ -107,7 +104,8 @@ namespace Developer_Toolbox.Controllers
 
             if (TempData.ContainsKey("message"))
             {
-                ViewBag.message = TempData["message"].ToString();
+                ViewBag.Message = TempData["message"].ToString();
+                ViewBag.MessageType = TempData["messageType"].ToString();
             }
 
 
@@ -162,7 +160,7 @@ namespace Developer_Toolbox.Controllers
             if (_userManager.GetUserId(User) != null)
             {
                 userConectat = true;
-                if (db.ApplicationUsers.FirstOrDefault(user => user.Id == _userManager.GetUserId(User)).FirstName != null)
+                if (db.ApplicationUsers.FirstOrDefault(user => user.Id == _userManager.GetUserId(User)).UserName != null)
                     userProfilComplet = true;
             }
 
@@ -172,7 +170,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
             ViewBag.Tags = db.Tags.ToList();
@@ -193,8 +191,7 @@ namespace Developer_Toolbox.Controllers
                                         .Select(answ => new
                                         {
                                             Answer = answ,
-                                            AutorFirstName = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).FirstName,
-                                            AutorLastName = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).LastName,
+                                            AutorUsername = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).UserName,
                                             AutorId = db.ApplicationUsers.FirstOrDefault(user => user.Id == answ.UserId).Id
                                         })
                                         .ToList();
@@ -235,7 +232,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
             return View();
         }
@@ -295,7 +292,7 @@ namespace Developer_Toolbox.Controllers
                 RewardBadge();
 
                 TempData["message"] = "The question has been successfully added.";
-                TempData["messageType"] = "alert-primary";
+                TempData["messageType"] = "alert-success";
 
                 var refererUrl = Request.Headers["Referer"].ToString();
                 return Redirect(refererUrl);
@@ -310,6 +307,7 @@ namespace Developer_Toolbox.Controllers
                     TempData["message"] = "The title cannot exceed 100 characters";
                 if (question.Title.Length < 5)
                     TempData["message"] = "The title must be at least 5 characters long";
+                TempData["messageType"] = "alert-danger";
                 // Exception handling code
                 var refererUrl = Request.Headers["Referer"].ToString();
                 return Redirect(refererUrl);
@@ -329,6 +327,7 @@ namespace Developer_Toolbox.Controllers
             } else {
 
                 TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                TempData["messageType"] = "alert-danger";
                 return RedirectToAction("Index");
             }
 
@@ -349,7 +348,7 @@ namespace Developer_Toolbox.Controllers
 
                     db.SaveChanges();
                     TempData["message"] = "The question has been successfully edited.";
-                    TempData["messageType"] = "alert-primary";
+                    TempData["messageType"] = "alert-success";
 
                     return Redirect("/Questions/Index");
                 }
@@ -361,6 +360,7 @@ namespace Developer_Toolbox.Controllers
             else
             {
                 TempData["message"] = "You are not allowed to edit a question that you didn't post!";
+                TempData["messageType"] = "alert-success";
                 return RedirectToAction("Index");
             }      
         }
@@ -384,7 +384,7 @@ namespace Developer_Toolbox.Controllers
 
                 db.Questions.Remove(question);
                 TempData["message"] = "The question has been successfully deleted.";
-                TempData["messageType"] = "alert-primary";
+                TempData["messageType"] = "alert-success";
 
                 db.SaveChanges();
 
@@ -399,6 +399,7 @@ namespace Developer_Toolbox.Controllers
             else
             {
                 TempData["message"] = "You are not allowed to delete a question that you didn't post!";
+                TempData["messageType"] = "alert-danger";
                 return RedirectToAction("Index");
             }
             }

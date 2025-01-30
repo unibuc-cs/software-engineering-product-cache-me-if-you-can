@@ -46,12 +46,12 @@ namespace Developer_Toolbox.Controllers
         public IActionResult Index(string search)
         {
             SetAccessRights();
-            var users = db.ApplicationUsers.Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName)); // Convertim DbSet în interogare
+            var users = db.ApplicationUsers.Where(u => !string.IsNullOrEmpty(u.UserName)); // Convertim DbSet în interogare
 
             if (!string.IsNullOrEmpty(search))
             {
                 // Cautăm după nume sau prenume
-                users = users.Where(a => a.FirstName.Contains(search) || a.LastName.Contains(search));
+                users = users.Where(a => a.UserName.Contains(search));
             }
 
             ViewBag.Users = users.ToList(); // Obținem lista completă de utilizatori după aplicarea filtrului
@@ -59,7 +59,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
             return View();
         }
@@ -71,7 +71,7 @@ namespace Developer_Toolbox.Controllers
 
             // Obținem mai întâi lista completă ordonată
             var allUsers = db.ApplicationUsers
-                .Where(u => !string.IsNullOrEmpty(u.FirstName) && !string.IsNullOrEmpty(u.LastName))
+                .Where(u => !string.IsNullOrEmpty(u.UserName))
                 .OrderByDescending(user => user.ReputationPoints)
                 .ToList();
 
@@ -81,9 +81,7 @@ namespace Developer_Toolbox.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 ViewBag.Users = allUsers
-                    .Where(a =>
-                        a.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                        a.LastName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    .Where(a =>                       
                         a.UserName.Contains(search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
@@ -97,7 +95,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
             return View();
         }
@@ -141,7 +139,7 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
             return View();
@@ -168,6 +166,9 @@ namespace Developer_Toolbox.Controllers
             db.ApplicationUsers.Add(user);
 
             db.SaveChanges();
+            TempData["message"] = "Profile created successfully!";
+            TempData["messageType"] = "alert-success";
+
             return View(user);
 
         }
@@ -176,65 +177,98 @@ namespace Developer_Toolbox.Controllers
         // HttpGet implicit
         // Se afiseaza formularul impreuna cu datele aferente profilului din baza de date
 
-        
+        [Authorize(Roles ="User,Moderator,Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
             ApplicationUser user = db.ApplicationUsers
                                         .Where(u => u.Id == _userManager.GetUserId(User))
                                         .First();
-           
-            user.Id = _userManager.GetUserId(User);
-            ViewBag.User = user;
-            return View(user);
+            if (user.Id == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                user.Id = _userManager.GetUserId(User);
+                ViewBag.User = user;
+                return View(user);
+            }
+            else
+            {
+
+                TempData["message"] = "You are not allowed to edit a profile that is not yours!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+            
         }
 
+        [Authorize(Roles = "User,Moderator,Admin")]
         // Se adauga profilul modificat in baza de date
         [HttpPost]
         public IActionResult Edit(string id, ApplicationUser requestProfile)
         {
             ApplicationUser user = db.Users.Find(id);
 
-            user.FirstName = requestProfile.FirstName;
-            user.LastName = requestProfile.LastName;
+            user.UserName = requestProfile.UserName;
             user.Description = requestProfile.Description;
             user.Birthday= requestProfile.Birthday;
-           
-            TempData["message"] = "You edited your profile successfully!";
-            TempData["messageType"] = "alert-success";
-            db.SaveChanges();
-            
-            return RedirectToAction("Index");
-        }
-        public async Task<ActionResult> Delete(string id)
-        {
-            ApplicationUser user = db.ApplicationUsers
-                                   .Where(user => user.Id == id).First();
 
-           
-
-                if (user == null)
+            if (user.Id == _userManager.GetUserId(User) || User.IsInRole("Admin"))
             {
-                // Handle the case where user is not found
+                TempData["message"] = "You edited your profile successfully!";
+                TempData["messageType"] = "alert-success";
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
-
-            if (user.Id == _userManager.GetUserId(User) || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+            else
             {
 
-                db.ApplicationUsers.Remove(user);
-               TempData["message"] = "Your profile has been deleted.";
-               TempData["messageType"] = "alert-success";
+                TempData["message"] = "You are not allowed to edit a profile that is not yours!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+            
+        }
+
+        [Authorize(Roles = "User,Moderator,Admin")]
+        public async Task<ActionResult> Delete(string id)
+        {
+
+            if (_userManager.GetUserId(User) ==id || User.IsInRole("Admin"))
+            {
+                var notifications = db.Notifications.Where(n => n.UserId == id).ToList();
+                foreach (Notification notification in notifications)
+                {
+                    db.Notifications.Remove(notification);
+                }
                 db.SaveChanges();
 
-                await _signInManager.SignOutAsync(); 
+                ApplicationUser user = db.ApplicationUsers
+                                       .Where(user => user.Id == id).First();
+
+                if (user == null)
+                {
+                    // Handle the case where user is not found
+                    TempData["message"] = "Couldn't find user.";
+                    TempData["messageType"] = "alert-danger";
+                    return RedirectToAction("Index");
+                }
+
+                db.ApplicationUsers.Remove(user);
+                TempData["message"] = "Your profile has been deleted.";
+                TempData["messageType"] = "alert-success";
+                db.SaveChanges();
+
+                await _signInManager.SignOutAsync();
 
                 // Redirect to the Index page
                 return RedirectToAction("Index");
-                
             }
+            else
+            {
 
-            else return RedirectToAction("Index");
+                TempData["message"] = "You are not allowed to delete a profile that isn't yours!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
 
         }
         

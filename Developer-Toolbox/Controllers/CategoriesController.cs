@@ -77,14 +77,6 @@ namespace Developer_Toolbox.Controllers
             return View();
         }
 
-        public ActionResult Show(int id)
-        {
-            // preluam categoria ceruta
-            Category category = db.Categories.Find(id);
-
-            // o transmitem catre view
-            return View(category);
-        }
 
         [Authorize(Roles = "Admin,Moderator")]
         public ActionResult New()

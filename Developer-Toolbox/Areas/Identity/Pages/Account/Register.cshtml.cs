@@ -124,6 +124,7 @@ namespace Developer_Toolbox.Areas.Identity.Pages.Account
 
                 //await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
                 user.UserName = Input.UserName;
+                user.ReputationPoints = 0;
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 

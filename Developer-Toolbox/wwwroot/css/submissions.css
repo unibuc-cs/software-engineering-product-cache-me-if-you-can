@@ -1,0 +1,14 @@
+﻿.submission-card {
+    overflow: hidden;
+    width: 350px;
+    height: 230px;
+}
+
+    .submission-card:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .submission-card .card-text {
+        height: 50px;
+        overflow: hidden;
+    }

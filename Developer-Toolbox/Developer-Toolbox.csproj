@@ -22,11 +22,15 @@
     <None Remove="Views\NewFolder1\**" />
     <None Remove="Views\NewFolder2\**" />
   </ItemGroup>
+	<PropertyGroup>
+		<EnableScopedCssCompilation>true</EnableScopedCssCompilation>
+	</PropertyGroup>
+
 
   <ItemGroup>
     <Content Remove="wwwroot\img\bell3.png" />
   </ItemGroup>
-
+	
   <ItemGroup>
     <None Include="wwwroot\Ace\src\ace.js" />
     <None Include="wwwroot\Ace\src\ext-beautify.js" />

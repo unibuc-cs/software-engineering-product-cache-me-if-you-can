@@ -1,27 +1,33 @@
 ﻿@model Developer_Toolbox.Models.Tag
 
+<link rel="stylesheet" href="~/css/form.css" asp-append-version="true" />
 
-<div class="container py-5">
-    <h2 class="text-center">Edit Tag</h2>
 
-    <div class="row">
-        <div class="col-6 offset-3">
-            <form class="d-flex flex-column gap-3 overflow-auto" method="post" action="/Tags/Edit/@Model.Id">
-                <div>
-                    @Html.Label("Name", "Tag Name")
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12 col-sm-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Edit tag</h3>
+                    <form method="post" enctype="multipart/form-data" action="/Tags/Edit/@Model.Id">
+                        <div class="mb-3">
+                            @Html.Label("Name", "Tag Name")
 
-                    @Html.TextBox("Name", null, new { @class = "form-control" })
+                            @Html.TextBox("Name", null, new { @class = "form-control" })
 
-                    @Html.ValidationMessageFor(m => m.Name, null, new{@class = "text-danger"})
+                            @Html.ValidationMessageFor(m => m.Name, null, new{@class = "text-danger"})
+                        </div>
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">Save changes</button>
+                            <div id="formFeedback" class="mt-3"></div>
+                        </div>
+                    </form>
                 </div>
-                <button class="btn btn-outline" style="background-color:pink; color:black;" type="submit">Edit Tag</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
-
-
 
 
 

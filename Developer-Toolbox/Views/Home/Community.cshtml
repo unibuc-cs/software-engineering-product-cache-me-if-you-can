@@ -1,0 +1,89 @@
+﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+
+@{
+    ViewData["Title"] = "Community";
+}
+
+
+<!--====== FEATURE ONE PART START ======-->
+<section class="features-area features-one">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">Meet our community</h3>
+                    <p class="text">
+                        Visualize community statistics, check other users' profiles and compete for the first place in the leaderboard. Welcome to our community!
+                    </p>
+                </div>
+                <!-- row -->
+            </div>
+        </div>
+        <!-- row -->
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-7 col-sm-9">
+                <div class="features-style-one text-center">
+                    <div class="features-icon">
+                        <i class="lni lni-dashboard"></i>
+                    </div>
+                    <div class="features-content">
+                        <h4 class="features-title">Dashboard</h4>
+                        <p class="text">
+                            Consult the latest statistics about the community engagement and trends
+                        </p>
+                        <div>
+                            <a class="btn btn-outline-primary py-sm-2 px-sm-3 rounded-pill" style="font-weight: bold"
+                               asp-controller="Dashboard" asp-action="Index">
+                                EXPLORE
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- single features -->
+            </div>
+            <div class="col-lg-4 col-md-7 col-sm-9">
+                <div class="features-style-one text-center">
+                    <div class="features-icon">
+                        <i class="lni lni-users"></i>
+                    </div>
+                    <div class="features-content">
+                        <h4 class="features-title">Community</h4>
+                        <p class="text">
+                            Check other users' profiles or search for your friends. Become motivated to strengthen your own profile
+                        </p>
+                        <div>
+                            <a class="btn btn-outline-primary py-sm-2 px-sm-3 rounded-pill" style="font-weight: bold"
+                               asp-controller="ApplicationUsers" asp-action="Index">
+                                EXPLORE
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- single features -->
+            </div>
+            <div class="col-lg-4 col-md-7 col-sm-9">
+                <div class="features-style-one text-center">
+                    <div class="features-icon">
+                        <i class="lni lni-cup"></i>
+                    </div>
+                    <div class="features-content">
+                        <h4 class="features-title">Leaderboard</h4>
+                        <p class="text">
+                            Prepare to compete with other passionate users for the first place in the race for reputation points
+                        </p>
+                        <div>
+                            <a class="btn btn-outline-primary py-sm-2 px-sm-3 rounded-pill" style="font-weight: bold"
+                               asp-controller="ApplicationUsers" asp-action="Leaderboard">
+                                EXPLORE
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- single features -->
+            </div>
+        </div>
+        <!-- row -->
+    </div>
+    <!-- container -->
+</section>
+<!--====== FEATURE ONE PART ENDS ======-->

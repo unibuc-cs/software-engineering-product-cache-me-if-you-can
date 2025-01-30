@@ -1,6 +1,7 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
 using Developer_Toolbox.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,6 +22,8 @@ namespace Developer_Toolbox.Controllers
             db = context;
             _solutionRepository = solutionRepository;
         }
+
+        [Authorize(Roles = "User,Moderator,Admin")]
         public async Task<IActionResult> Index()
         {
             // Get the current user's ID
@@ -38,61 +41,55 @@ namespace Developer_Toolbox.Controllers
             if (TempData.ContainsKey("message"))
             {
                 ViewBag.Message = TempData["message"];
-                ViewBag.Alert = TempData["messageType"];
+                ViewBag.MessageType = TempData["messageType"];
             }
 
             return View();
         }
 
-
-    public ActionResult New()
-        {
-            // Retrieve the list of exercises
-            var exercises = db.Exercises.ToList();
-
-            ViewBag.Exercises = new SelectList(exercises, "Id", "Title");
-
-            var solution = new Solution();
-
-            // Return the view with the Solution object and the list of exercises
-            return View(solution);
-        }
-
-        [HttpPost]
-        public ActionResult New(Solution solution)
-        {
-            if (ModelState.IsValid)
-            {
-                // Process the form data and save the new solution object
-                db.Solutions.Add(solution);
-                db.SaveChanges();
-                TempData["message"] = "Solution created!";
-                TempData["messageType"] = "alert-success";
-                return RedirectToAction("Index");
-            }
-            // If ModelState is not valid, return the view with validation errors
-            return View(solution);
-        }
-
-
+        [Authorize(Roles ="User,Moderator,Admin")]
         public IActionResult Show(int id) 
         { 
             Solution solution = db.Solutions.Include("Exercise")
                                         .Where(sol => sol.Id == id)
                                         .First();
-
-            return View(solution);
+            if(solution != null && solution.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                return View(solution);
+            }
+            else
+            {
+                TempData["message"] = "You are not allowed to view a solution that you didn't submitted!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+            
         }
 
-        
+
+        [Authorize(Roles ="User,Moderator,Admin")]
         [HttpPost]
         public IActionResult Delete(int id)
         {
             Solution solution = db.Solutions.Find(id);
-            db.Solutions.Remove(solution);
-            db.SaveChanges();
 
-            return RedirectToAction("Index");
+            if (solution != null && solution.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                db.Solutions.Remove(solution);
+                db.SaveChanges();
+
+                TempData["message"] = "Solution successfully deleted";
+                TempData["messageType"] = "alert-success";
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["message"] = "You are not allowed to delete a solution that you didn't submitted!";
+                TempData["messageType"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+                
         }
 
         public IActionResult GetAllSolutions()

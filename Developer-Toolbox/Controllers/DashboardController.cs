@@ -66,7 +66,7 @@ namespace Developer_Toolbox.Controllers
         private async Task<List<Question>> GetQuestionsWithNoAnswers()
         {
             // Fetch all questions with no answers
-            return await _context.Questions
+            return await _context.Questions.Include("User")
                 .Where(q => !_context.Answers.Any(a => a.QuestionId == q.Id))
                 .ToListAsync();
         }
@@ -95,8 +95,7 @@ namespace Developer_Toolbox.Controllers
                     {
                         UserId = userStats.UserId,
                         TotalAnswers = userStats.TotalAnswers, // Renaming for display purposes
-                        FirstName = user.FirstName ?? "N/A",
-                        LastName = user.LastName ?? "N/A"
+                        Username = user.UserName ?? "N/A",
                     })
                 .ToList();
 
@@ -181,8 +180,7 @@ namespace Developer_Toolbox.Controllers
     {
         public string UserId { get; set; }
         public int TotalAnswers { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string Username { get; set; }
     }
 
     // for popular learning topics
