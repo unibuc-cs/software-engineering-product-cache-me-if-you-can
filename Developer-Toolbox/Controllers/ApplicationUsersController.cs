@@ -81,9 +81,7 @@ namespace Developer_Toolbox.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 ViewBag.Users = allUsers
-                    .Where(a =>
-                        a.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                        a.LastName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    .Where(a =>                       
                         a.UserName.Contains(search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
@@ -179,7 +177,7 @@ namespace Developer_Toolbox.Controllers
         // HttpGet implicit
         // Se afiseaza formularul impreuna cu datele aferente profilului din baza de date
 
-        [Authorize(Roles ="User")]
+        [Authorize(Roles ="User,Moderator,Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -202,7 +200,7 @@ namespace Developer_Toolbox.Controllers
             
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User,Moderator,Admin")]
         // Se adauga profilul modificat in baza de date
         [HttpPost]
         public IActionResult Edit(string id, ApplicationUser requestProfile)
@@ -230,7 +228,7 @@ namespace Developer_Toolbox.Controllers
             
         }
 
-        [Authorize(Roles = "User,Admin")]
+        [Authorize(Roles = "User,Moderator,Admin")]
         public async Task<ActionResult> Delete(string id)
         {
 
