@@ -311,5 +311,6 @@ namespace Developer_Toolbox.Interfaces
 
             this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
         }
+
     }
 }

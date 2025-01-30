@@ -1,0 +1,51 @@
+﻿<link rel="stylesheet" href="~/css/feature_section.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/badges.css" asp-append-version="true" />
+
+
+<section class="features-area features-one">
+    @if (TempData.ContainsKey("message"))
+    {
+        <h4 class="@ViewBag.MessageType p-3 rounded-3 text-center mb-5">@ViewBag.Message</h4>
+    }
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-title text-center">
+                    <h3 class="title">My Badges</h3>
+                </div>
+                <!-- row -->
+            </div>
+        </div>
+        <!-- row -->
+        <div class="container py-5">
+            <div class="row g-5 d-flex justify-content-start">
+                @if (ViewBag.Badges.Count > 0)
+                {
+                    @foreach (var badge in ViewBag.Badges)
+                    {
+                        <div class="col" style="max-width: fit-content">
+                            <div class="card my-badge-card border-0 rounded-4 shadow-sm">
+                                <div class="position-relative">
+                                    <div class="my-badge-image">
+                                        <img src="@badge.Image" class="img-fluid rounded-start" alt="@badge.Title">
+                                    </div>
+                                </div>
+                                <div class="card-body p-4 d-flex flex-column justify-content-around">
+                                    <h5 class="card-title mb-3 fw-bold text-center">@badge.Title</h5>
+                                    <p class="card-text text-center text-muted mb-4">
+                                        @badge.Description
+                                    </p>
+                                    <span class="badge badge-custom d-flex align-items-center justify-content-center" style="color: var(--primary); border: 1px solid var(--primary); height: 50px; font-size:medium">Received at: @badge.ReceivedAt</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="fs-5 text-black text-center">You have no badges yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</section>

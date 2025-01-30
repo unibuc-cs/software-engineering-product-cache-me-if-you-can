@@ -14,12 +14,13 @@ namespace Developer_Toolbox.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext db;
-        private readonly ISolutionRepository _solutionRepository;
-        public LockedSolutionsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly ILockedSolutionRepository _lockedSolutionRepository;
+        public LockedSolutionsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ILockedSolutionRepository lockedSolutionRepository)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             db = context;
+            _lockedSolutionRepository = lockedSolutionRepository;
         }
 
         [Authorize]
@@ -96,6 +97,25 @@ namespace Developer_Toolbox.Controllers
 
             return RedirectToAction("Index");
         }
+        public IActionResult GetAllLockedSolutions()
+        {
+            var lockedSolutions = _lockedSolutionRepository.GetAllLockedSolutions();
+            return View(lockedSolutions);
+        }
+        public IActionResult GetLockedSolutionById(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var lockedSolution = _lockedSolutionRepository.GetLockedSolutionById(id);
+            if (lockedSolution == null)
+            {
+                return NotFound();
+            }
+
+            return View(lockedSolution);
+        }
     }
 }

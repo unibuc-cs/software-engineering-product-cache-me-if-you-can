@@ -1,10 +1,11 @@
 ﻿using Developer_Toolbox.Models;
 using Microsoft.Extensions.Options;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Developer_Toolbox.Interfaces
 {
-    public class MailHogEmailService : IEmailService
+    public class MailHogEmailService : IEmailService, IEmailSender
     {
         private readonly EmailSettings _settings;
         private readonly ILogger<IEmailService> _logger;
@@ -22,7 +23,7 @@ namespace Developer_Toolbox.Interfaces
             };
         }
 
-        private async Task SendEmailAsync(string to, string subject, string htmlBody)
+        public async Task SendEmailAsync(string to, string subject, string htmlBody)
         {
             using var message = new MailMessage
             {
