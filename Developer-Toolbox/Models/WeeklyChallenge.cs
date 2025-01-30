@@ -9,6 +9,8 @@ namespace Developer_Toolbox.Models
         [Key]
         public int Id { get; set; }
 
+        public string? UserId { get; set; }
+
         [Required(ErrorMessage = "The title field is required!")]
         [StringLength(100, ErrorMessage = "The title cannot exceed 100 characters")]
         [MinLength(5, ErrorMessage = "The title must be at least 5 characters long")]
@@ -31,6 +33,8 @@ namespace Developer_Toolbox.Models
         // Relație Many-to-Many cu Exercise
         [MinimumCount(1, ErrorMessage = "At least one exercise is required.")]
         public virtual ICollection<WeeklyChallengeExercise>? WeeklyChallengeExercises { get; set; }
+
+        public virtual ICollection<BadgeChallenge>? BadgeChallenges { get; set; }
 
         // Custom validation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

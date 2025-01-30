@@ -17,18 +17,24 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAnswerRepository _answerRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public AnswersController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IAnswerRepository answerRepository,
-            IRewardBadge iRewardBadge)
+            IRewardBadge iRewardBadge,
+            IEmailService iEmailService,
+            IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _answerRepository = answerRepository;
             _IRewardBadge = iRewardBadge;
+            _IEmailService = iEmailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
@@ -63,8 +69,11 @@ namespace Developer_Toolbox.Controllers
                 db.Answers.Add(answ);
                 db.SaveChanges();
 
-                RewardActivity((int)ActivitiesEnum.POST_ANSWER);
-                RewardBadge();
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.POST_ANSWER, _userManager.GetUserId(User));
+                RewardBadge().Wait();
+
+
+                NotifyQuestionAuthor(answ.QuestionId).Wait();
 
                 return Redirect("/Questions/Show/" + answ.QuestionId);
             }
@@ -81,13 +90,18 @@ namespace Developer_Toolbox.Controllers
         [HttpPost]
         public IActionResult Delete(int id)
         {
-            SetAccessRights();
             Answer answ = db.Answers.Find(id);
 
             if (answ?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
                 db.Answers.Remove(answ);
                 db.SaveChanges();
+
+            // daca raspunsul a fost sters pentru ca incalca standardele comunitatii, cel care a postat este notificat prin email
+            if (User.IsInRole("Moderator") && answ.UserId != _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                NotifyAnswerAuthor(answ);
+            }
 
             }
             else
@@ -125,8 +139,9 @@ namespace Developer_Toolbox.Controllers
 
             if (answ?.UserId == _userManager.GetUserId(User) || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
-                try
-                {
+
+            try
+            {
 
                     answ.Content = requestAnswer.Content;
 
@@ -142,6 +157,7 @@ namespace Developer_Toolbox.Controllers
             else
             {
                 TempData["message"] = "You are not allowed to edit an answer that you didn't post!";
+                TempData["messageType"] = "alert-danger";
                 return Redirect("/Questions/Show/" + answ.QuestionId);
             }       
         }
@@ -170,23 +186,9 @@ namespace Developer_Toolbox.Controllers
             return View(answer);
         }
 
-        [NonAction]
-        private void RewardActivity(int activityId)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            user.ReputationPoints += reward;
-
-            db.SaveChanges();
-
-        }
 
         [NonAction]
-        private void RewardBadge()
+        private async Task RewardBadge()
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_ANSWER).ToList();
             if (badges == null) { return; }
@@ -197,9 +199,29 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardPostAnswerBadge(badge, _userManager.GetUserId(User));
-                
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+
+                _IRewardBadge.RewardPostAnswerBadge(badge, user);             
             }
+
+        }
+
+        [NonAction]
+        private async Task NotifyQuestionAuthor(int? questionId)
+        {
+            Question question = db.Questions.Find(questionId);
+            ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
+            if (user == null) { return; }
+            await _IEmailService.SendAnsweredReceivedEmailAsync(user.Email, user.UserName, question);
+
+        }
+
+        [NonAction]
+        private async void NotifyAnswerAuthor(Answer answer)
+        {
+            ApplicationUser user = db.ApplicationUsers.Find(answer.UserId);
+            if (user == null) { return; }
+            await _IEmailService.SendContentDeletedByAdminEmailAsync(user.Email, user.UserName, answer.Content);
 
         }
 

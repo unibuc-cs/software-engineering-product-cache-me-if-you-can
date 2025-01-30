@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Developer_Toolbox.Interfaces;
 using Hangfire;
 using Developer_Toolbox.Repositories;
 
@@ -17,15 +18,24 @@ namespace Developer_Toolbox.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
         private readonly IWeeklyChallengeRepository _weeklyChallengeRepository;
 
-        public WeeklyChallengesController(ApplicationDbContext context, 
+        public WeeklyChallengesController(
+            ApplicationDbContext context, 
             UserManager<ApplicationUser> userManager,
-            IWeeklyChallengeRepository weeklyChallengeRepository
-            )
+            IRewardBadge IRewardBadge,
+            IEmailService IEmailService,
+            IRewardActivity iRewardActivity,
+            IWeeklyChallengeRepository weeklyChallengeRepository)
         {
             db = context;
             _userManager = userManager;
+            _IRewardBadge = IRewardBadge;
+            _IEmailService = IEmailService;
+            _IRewardActivity = iRewardActivity;
             _weeklyChallengeRepository = weeklyChallengeRepository;
         }
 
@@ -201,13 +211,17 @@ namespace Developer_Toolbox.Controllers
                     });
                 }
 
+                weeklyChallenge.UserId = _userManager.GetUserId(User);
                 // Salvăm noul WeeklyChallenge
                 db.WeeklyChallenges.Add(weeklyChallenge);
                 db.SaveChanges();
 
                 // Adăugăm job-ul Hangfire pentru notificarea utilizatorilor
-                // Hangfire: notifică utilizatorii (pentru exemplu, trimiterea unui e-mail)
-                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));
+                // Hangfire: notifică utilizatorii
+/*                BackgroundJob.Enqueue(() => SendNotificationToUsers(weeklyChallenge.Id));*/
+
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.ADD_CHALLENGE, _userManager.GetUserId(User));
+                RewardBadgeForAddingChallenge().Wait();
 
                 TempData["message"] = "The weekly challenge has been successfully added.";
                 TempData["messageType"] = "alert-success";
@@ -435,23 +449,23 @@ namespace Developer_Toolbox.Controllers
             return RedirectToAction("Index");
         }
 
-        public void SendNotificationToUsers(int challengeId)
+        [NonAction]
+        private async Task RewardBadgeForAddingChallenge()
         {
-            // Căutăm utilizatorii care trebuie notificați 
-            var users = db.ApplicationUsers.ToList();
+            var badges = db.Badges.Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.ADD_CHALLENGE).ToList();
+            if (badges == null) { return; }
 
-            foreach (var user in users)
+            foreach (var badge in badges)
             {
-                SendEmailNotification(user.Email, challengeId);
-            }
-        }
+                // if user has already the badge, skip
+                var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
+                if (usersBadges) continue;
 
-        private void SendEmailNotification(string userEmail, int challengeId)
-        {
-            // Logică pentru trimiterea unui e-mail (sau altă metodă de notificare)
-            var subject = "New Weekly Challenge Posted!";
-            var body = $"A new weekly challenge has been posted. Challenge ID: {challengeId}";
-            // Folosește serviciile tale de email pentru a trimite mesajul
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+
+                _IRewardBadge.RewardAddChallengeBadge(badge, user);
+            }
+
         }
 
 

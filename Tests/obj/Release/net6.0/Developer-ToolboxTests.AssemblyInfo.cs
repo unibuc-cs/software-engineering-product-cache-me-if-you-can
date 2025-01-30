@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Developer-ToolboxTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c5f7c2cadb436050cc8dea39fbb15b10775a288b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("Developer-ToolboxTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Developer-ToolboxTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

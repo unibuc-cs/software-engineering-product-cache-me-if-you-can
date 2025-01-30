@@ -1,6 +1,7 @@
 ﻿using Developer_Toolbox.Data;
 using Developer_Toolbox.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Developer_Toolbox.Interfaces
@@ -9,13 +10,15 @@ namespace Developer_Toolbox.Interfaces
     {
 
         private readonly ApplicationDbContext db;
+        private readonly IEmailService emailService;
 
-        public IRewardBadgeImpl(ApplicationDbContext context)
+        public IRewardBadgeImpl(ApplicationDbContext context, IEmailService emailService)
         {
             db = context;
+            this.emailService = emailService;  
         }
 
-        public void RewardPostQuestionBadge(Badge badge, string userId)
+        public async void RewardPostQuestionBadge(Badge badge, ApplicationUser user)
         {
             int noQuestionsPosted;
 
@@ -23,7 +26,7 @@ namespace Developer_Toolbox.Interfaces
             {
                 // check if the user posted more than TargetNoOfTimes questions having tags in BadgeTags
 
-                var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == userId).ToList();
+                var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == user.Id).ToList();
                 var badgeTags = badge.BadgeTags?.Select(b => b.TagId).ToList();
 
                 noQuestionsPosted = 0;
@@ -44,7 +47,7 @@ namespace Developer_Toolbox.Interfaces
             else
             {
                 // check only if the user posted more than TargetNoOfTimes questions
-                noQuestionsPosted = db.Questions.Count(q => q.UserId == userId);
+                noQuestionsPosted = db.Questions.Count(q => q.UserId == user.Id);
             }
 
             if (noQuestionsPosted >= badge.TargetNoOfTimes)
@@ -52,17 +55,20 @@ namespace Developer_Toolbox.Interfaces
                 // assign badge
                 db.UserBadges.Add(new UserBadge
                 {
-                    UserId = userId,
+                    UserId = user.Id,
                     BadgeId = badge.Id,
                     ReceivedAt = DateTime.Now
                 });
 
+                db.SaveChanges();
+
+                await this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
             }
 
-            db.SaveChanges();
         }
 
-        public void RewardPostAnswerBadge(Badge badge, string userId)
+        public void RewardPostAnswerBadge(Badge badge, ApplicationUser user)
         {
 
             int noAnswersPosted;
@@ -71,7 +77,7 @@ namespace Developer_Toolbox.Interfaces
             {
                 // check if the user posted more than TargetNoOfTimes answers to questions having tags in BadgeTags
 
-                var answersPosted = db.Answers.Include("Question").Include("Question.QuestionTags").Where(a => a.UserId == userId).ToList();
+                var answersPosted = db.Answers.Include("Question").Include("Question.QuestionTags").Where(a => a.UserId == user.Id).ToList();
                 Console.WriteLine(answersPosted);
                 noAnswersPosted = 0;
                 foreach (var answer in answersPosted)
@@ -91,7 +97,7 @@ namespace Developer_Toolbox.Interfaces
             else
             {
                 // check only if the user posted more than TargetNoOfTimes questions
-                noAnswersPosted = db.Answers.Count(q => q.UserId == userId);
+                noAnswersPosted = db.Answers.Count(q => q.UserId == user.Id);
             }
 
             if (noAnswersPosted >= badge.TargetNoOfTimes)
@@ -99,21 +105,24 @@ namespace Developer_Toolbox.Interfaces
                 // assign badge
                 db.UserBadges.Add(new UserBadge
                 {
-                    UserId = userId,
+                    UserId = user.Id,
                     BadgeId = badge.Id,
                     ReceivedAt = DateTime.Now
                 });
 
+                db.SaveChanges();
+
+                this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
             }
 
-            db.SaveChanges();
         }
 
-        public void RewardBeUpvotedBadge(Badge badge, string userId)
+        public void RewardBeUpvotedBadge(Badge badge, ApplicationUser user)
         {
             int noUpvotes = 0;
 
-            var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == userId).ToList();
+            var questionsPosted = db.Questions.Include("QuestionTags").Where(q => q.UserId == user.Id).ToList();
 
             if (badge.BadgeTags != null && badge.BadgeTags.Count != 0)
             {
@@ -147,21 +156,24 @@ namespace Developer_Toolbox.Interfaces
                 // assign badge
                 db.UserBadges.Add(new UserBadge
                 {
-                    UserId = userId,
+                    UserId = user.Id,
                     BadgeId = badge.Id,
                     ReceivedAt = DateTime.Now
                 });
 
+                db.SaveChanges();
+
+                this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
             }
 
-            db.SaveChanges();
+            
         }
 
-        public void RewardSolveExerciseBadge(Badge badge, string userId)
+        public void RewardSolveExerciseBadge(Badge badge, ApplicationUser user)
         {
             int noExercisesSolved = 0;
 
-            var exercisesSolved = db.Solutions.Include("Exercise").Where(s => s.UserId == userId && s.Score == 100).Select(s => s.Exercise).Distinct().ToList();
+            var exercisesSolved = db.Solutions.Include("Exercise").Where(s => s.UserId == user.Id && s.Score == 100).Select(s => s.Exercise).Distinct().ToList();
 
             if (badge.TargetLevel != null && badge.TargetCategory != null)
             {
@@ -186,33 +198,118 @@ namespace Developer_Toolbox.Interfaces
                 // assign badge
                 db.UserBadges.Add(new UserBadge
                 {
-                    UserId = userId,
+                    UserId = user.Id,
                     BadgeId = badge.Id,
                     ReceivedAt = DateTime.Now
                 });
 
+                db.SaveChanges();
+
+                this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
             }
 
-            db.SaveChanges();
         }
 
-        public void RewardAddExerciseBadge(Badge badge, string userId)
+        public void RewardAddExerciseBadge(Badge badge, ApplicationUser user)
         {
-            int noExercisesPosted = db.Exercises.Count(ex => ex.UserId == userId);
+            int noExercisesPosted = db.Exercises.Count(ex => ex.UserId == user.Id);
 
             if (noExercisesPosted >= badge.TargetNoOfTimes)
             {
                 // assign badge
                 db.UserBadges.Add(new UserBadge
                 {
-                    UserId = userId,
+                    UserId = user.Id,
                     BadgeId = badge.Id,
                     ReceivedAt = DateTime.Now
                 });
 
+                db.SaveChanges();
+
+                this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
             }
 
+        }
+
+        public void RewardAddChallengeBadge(Badge badge, ApplicationUser user)
+        {
+            int noChallengesPosted = db.WeeklyChallenges.Count(ex => ex.UserId == user.Id);
+
+            if (noChallengesPosted >= badge.TargetNoOfTimes)
+            {
+                // assign badge
+                db.UserBadges.Add(new UserBadge
+                {
+                    UserId = user.Id,
+                    BadgeId = badge.Id,
+                    ReceivedAt = DateTime.Now
+                });
+
+                db.SaveChanges();
+
+                this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
+
+            }
+            
+        }
+
+        public void RewardCompleteChallengeBadge(Badge badge, ApplicationUser user)
+        {
+            var badgeChallenges = from bc in db.BadgeChallenges
+                                  where bc.BadgeId == badge.Id
+                                  select bc.WeeklyChallengeId;
+
+            var badgeChallengesList = badgeChallenges.ToList();
+
+            if (!(badgeChallengesList != null && badgeChallengesList.Any()))
+            {
+                return;
+            }
+
+            foreach (var challengeId in badgeChallengesList)
+            {
+
+                var challenge = db.WeeklyChallenges.Find(challengeId);
+
+                // Lista de ExerciseIds asociate acestui WeeklyChallenge
+                var exerciseIds = from ce in db.WeeklyChallengeExercises
+                                  where ce.WeeklyChallengeId == challengeId
+                                  select ce.ExerciseId;
+
+                // Numărul total de exerciții asociate provocării
+                var nrTotal = exerciseIds.Count();
+
+                // Filtrăm soluțiile pentru a le lua doar pe cele care au data CreatedAt între StartDate și EndDate
+                var nrSolutii = db.Solutions
+                    .Where(s => s.UserId == user.Id
+                        && s.Score == 100
+                        && s.ExerciseId.HasValue
+                        && exerciseIds.Contains(s.ExerciseId.Value)
+                        && s.CreatedAt >= challenge.StartDate.Date
+                        && s.CreatedAt <= challenge.EndDate.AddDays(1).Date)
+                    .Select(s => s.ExerciseId)
+                    .Distinct() 
+                    .Count();
+
+                if (nrSolutii < 1)
+                {
+                    return;
+                } 
+            }
+
+            // assign badge
+            db.UserBadges.Add(new UserBadge
+            {
+                UserId = user.Id,
+                BadgeId = badge.Id,
+                ReceivedAt = DateTime.Now
+            });
+
             db.SaveChanges();
+
+            this.emailService.SendBadgeAwardedEmailAsync(user.Email, user.UserName, badge);
         }
     }
 }

@@ -22,3 +22,10 @@ The server will be accessible at http://localhost:8000.
  ```
  openssl rand -base64 32
  ```
+
+ # Docker Commands Guide for Mailhog
+ 1. Create and start the container.
+  ```
+ docker-compose up -d mailhog
+  ```
+  2. The server will be accesible at http://localhost:8025/.

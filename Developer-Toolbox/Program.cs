@@ -7,6 +7,7 @@ using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.Configuration;
 using DotNetEnv;
@@ -45,6 +46,7 @@ builder.Services.AddScoped<IWeeklyChallengeRepository, WeeklyChallengeRepository
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IBadgeRepository, BadgeRepository>();
+builder.Services.AddScoped<IRewardActivity, IRewardActivityImpl>();
 
 // Hangfire configuration
 builder.Services.AddHangfire(config => config
@@ -53,6 +55,30 @@ builder.Services.AddHangfire(config => config
 builder.Services.AddHangfireServer();  // Configurarea serverului Hangfire pentru a executa joburi
 
 builder.Services.AddScoped<ChallengeNotificationService>();  // Inregistreaza serviciul pentru verificarea provocarilor
+
+
+// Email service
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+var emailProvider = builder.Configuration
+    .GetValue<EmailProvider>("EmailSettings:Provider");
+
+builder.Services.AddScoped<IEmailService>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<EmailSettings>>();
+    var logger = sp.GetRequiredService<ILogger<IEmailService>>();
+
+    return emailProvider switch
+    {
+        EmailProvider.MailHog => new MailHogEmailService(settings, logger),
+
+/*        EmailProvider.Gmail => new GmailEmailService(settings, logger),
+        EmailProvider.Smtp => new SmtpEmailService(settings, logger),*/
+
+        _ => throw new ArgumentException("Invalid email provider")
+    };
+});
 
 
 var app = builder.Build();

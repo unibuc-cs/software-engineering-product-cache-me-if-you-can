@@ -17,18 +17,24 @@ namespace Developer_Toolbox.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IQuestionRepository _questionRepository;
         private readonly IRewardBadge _IRewardBadge;
+        private readonly IEmailService _IEmailService;
+        private readonly IRewardActivity _IRewardActivity;
 
         public QuestionsController(ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IQuestionRepository questionRepository,
-             IRewardBadge iRewardBadge)
+             IRewardBadge iRewardBadge,
+             IEmailService emailService,
+             IRewardActivity iRewardActivity)
         {
             db = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _questionRepository = questionRepository;
             _IRewardBadge = iRewardBadge;
+            _IEmailService = emailService;
+            _IRewardActivity = iRewardActivity;
         }
 
         private void SetAccessRights()
@@ -285,7 +291,7 @@ namespace Developer_Toolbox.Controllers
                 db.Questions.Add(question);
                 db.SaveChanges();
 
-                RewardActivity((int)ActivitiesEnum.POST_QUESTION);
+                _IRewardActivity.RewardActivity((int)ActivitiesEnum.POST_QUESTION, _userManager.GetUserId(User));
                 RewardBadge();
 
                 TempData["message"] = "The question has been successfully added.";
@@ -382,14 +388,20 @@ namespace Developer_Toolbox.Controllers
 
                 db.SaveChanges();
 
+                // daca intrebarea a fost stearsa pentru ca incalca standardele comunitatii, cel care a postat este notificat prin email
+                if (User.IsInRole("Moderator") && question.UserId != _userManager.GetUserId(User) || User.IsInRole("Admin"))
+                {
+                    NotifyQuestionAuthor(question);
+                }
+
                 return RedirectToAction("Index");
-            } 
+            }
             else
             {
                 TempData["message"] = "You are not allowed to delete a question that you didn't post!";
                 return RedirectToAction("Index");
             }
-        }
+            }
 
         // Noua metodă GetAllQuestions
         public IActionResult GetAllQuestions()
@@ -416,22 +428,7 @@ namespace Developer_Toolbox.Controllers
         }
 
         [NonAction]
-        private void RewardActivity(int activityId)
-        {
-            var reward = db.Activities.First(act => act.Id == activityId)?.ReputationPoints;
-            if (reward == null) { return; }
-
-            var user = db.ApplicationUsers.Where(user => user.Id == _userManager.GetUserId(User)).First();
-            if (user == null) { return; }
-
-            user.ReputationPoints += reward;
-       
-            db.SaveChanges();
-
-        }
-
-        [NonAction]
-        private void RewardBadge()
+        private async void RewardBadge()
         {
             var badges = db.Badges.Include("BadgeTags").Where(b => b.TargetActivity.Id == (int)ActivitiesEnum.POST_QUESTION).ToList();
             if (badges == null) { return; }
@@ -442,8 +439,20 @@ namespace Developer_Toolbox.Controllers
                 var usersBadges = db.UserBadges.Any(ub => ub.BadgeId == badge.Id && ub.UserId == _userManager.GetUserId(User));
                 if (usersBadges) continue;
 
-                _IRewardBadge.RewardPostQuestionBadge(badge, _userManager.GetUserId(User));
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+
+                _IRewardBadge.RewardPostQuestionBadge(badge, user);
+
             }
+
+        }
+
+        [NonAction]
+        private async void NotifyQuestionAuthor(Question question)
+        {
+            ApplicationUser user = db.ApplicationUsers.Find(question.UserId);
+            if (user == null) { return; }
+            await _IEmailService.SendContentDeletedByAdminEmailAsync(user.Email, user.UserName, question.Title + "<br>" + question.Description);
 
         }
 
