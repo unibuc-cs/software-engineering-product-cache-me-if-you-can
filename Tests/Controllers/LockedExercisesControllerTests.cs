@@ -6,82 +6,82 @@ using Moq;
 using System.Collections.Generic;
 using Xunit;
 
-public class ExercisesControllerTests
+public class LockedExercisesControllerTests
 {
     [Fact]
-    public void GetAllExercises_ReturnsViewResult_WithListOfExercises()
+    public void GetAllLockedExercises_ReturnsViewResult_WithListOfLockedExercises()
     {
         // Arrange
-        var mockRepo = new Mock<IExerciseRepository>();
-        mockRepo.Setup(repo => repo.GetAllExercises())
-            .Returns(GetTestExercises());
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
+        var mockRepo = new Mock<ILockedExerciseRepository>();
+        mockRepo.Setup(repo => repo.GetAllLockedExercises())
+            .Returns(GetTestLockedExercises());
+        var controller = new LockedExercisesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
-        var result = controller.GetAllExercises();
+        var result = controller.GetAllLockedExercises();
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<IEnumerable<Exercise>>(viewResult.ViewData.Model);
+        var model = Assert.IsAssignableFrom<IEnumerable<LockedExercise>>(viewResult.ViewData.Model);
         Assert.Equal(2, model.Count()); // verificăm dacă avem 2 exerciții în model
     }
 
     [Fact]
-    public void GetExerciseById_ReturnsViewResult_WithExercise()
+    public void GetLockedExerciseById_ReturnsViewResult_WithLockedExercise()
     {
         // Arrange
-        var mockRepo = new Mock<IExerciseRepository>();
-        mockRepo.Setup(repo => repo.GetExerciseById(1))
-            .Returns(GetTestExercise());
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
+        var mockRepo = new Mock<ILockedExerciseRepository>();
+        mockRepo.Setup(repo => repo.GetLockedExerciseById(1))
+            .Returns(GetTestLockedExercise());
+        var controller = new LockedExercisesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
-        var result = controller.GetExerciseById(1);
+        var result = controller.GetLockedExerciseById(1);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsAssignableFrom<Exercise>(viewResult.ViewData.Model);
+        var model = Assert.IsAssignableFrom<LockedExercise>(viewResult.ViewData.Model);
         Assert.Equal(1, model.Id); // verificăm dacă ID-ul este corect
     }
 
     [Fact]
-    public void GetExerciseById_ReturnsNotFound_WhenIdIsNull()
+    public void GetLockedExerciseById_ReturnsNotFound_WhenIdIsNull()
     {
         // Arrange
-        var mockRepo = new Mock<IExerciseRepository>();
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
+        var mockRepo = new Mock<ILockedExerciseRepository>();
+        var controller = new LockedExercisesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
-        var result = controller.GetExerciseById(null);
+        var result = controller.GetLockedExerciseById(null);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
-    public void GetExerciseById_ReturnsNotFound_WhenExerciseNotFound()
+    public void GetLockedExerciseById_ReturnsNotFound_WhenLockedExerciseNotFound()
     {
         // Arrange
-        var mockRepo = new Mock<IExerciseRepository>();
-        mockRepo.Setup(repo => repo.GetExerciseById(1))
-            .Returns((Exercise)null);
-        var controller = new ExercisesController(null, null, null, null, mockRepo.Object, null, null, null);
+        var mockRepo = new Mock<ILockedExerciseRepository>();
+        mockRepo.Setup(repo => repo.GetLockedExerciseById(1))
+            .Returns((LockedExercise)null);
+        var controller = new LockedExercisesController(null, null, null, null, null, mockRepo.Object);
 
         // Act
-        var result = controller.GetExerciseById(1);
+        var result = controller.GetLockedExerciseById(1);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
 
-    private List<Exercise> GetTestExercises()
+    private List<LockedExercise> GetTestLockedExercises()
     {
-        return new List<Exercise>
+        return new List<LockedExercise>
     {
-        new Exercise
+        new LockedExercise
         {
             Id = 1,
-            CategoryId = 1,
+            LearningPathId = 1,
             Title = "Test Exercise 1",
             Description = "Description for Test Exercise 1",
             Date = DateTime.Now,
@@ -91,10 +91,10 @@ public class ExercisesControllerTests
             Difficulty = "Easy",
             TestCases = "Test cases for Test Exercise 1"
         },
-        new Exercise
+        new LockedExercise
         {
             Id = 2,
-            CategoryId = 2,
+            LearningPathId = 2,
             Title = "Test Exercise 2",
             Description = "Description for Test Exercise 2",
             Date = DateTime.Now,
@@ -107,12 +107,12 @@ public class ExercisesControllerTests
     };
     }
 
-    private Exercise GetTestExercise()
+    private LockedExercise GetTestLockedExercise()
     {
-        return new Exercise
+        return new LockedExercise
         {
             Id = 1,
-            CategoryId = 1,
+            LearningPathId = 1,
             Title = "Test Exercise 1",
             Description = "Description for Test Exercise 1",
             Date = DateTime.Now,

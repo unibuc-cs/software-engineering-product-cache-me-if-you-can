@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj": {}
+    "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj": {
+    "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj",
+        "projectUniqueName": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj",
         "projectName": "Developer-Toolbox",
-        "projectPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj",
-        "packagesPath": "C:\\Users\\Miru\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\obj\\",
+        "projectPath": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj",
+        "packagesPath": "C:\\Users\\alexandra\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Miru\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\alexandra\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -45,6 +45,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "DotNetEnv": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
             "Hangfire.AspNetCore": {
               "target": "Package",
               "version": "[1.8.17, )"
@@ -67,11 +71,11 @@
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.0.29, )"
+              "version": "[6.0.35, )"
             },
             "Microsoft.AspNetCore.Identity.UI": {
               "target": "Package",
-              "version": "[6.0.29, )"
+              "version": "[6.0.35, )"
             },
             "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
@@ -79,7 +83,7 @@
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[6.0.29, )"
+              "version": "[6.0.35, )"
             },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
@@ -89,15 +93,15 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.29, )"
+              "version": "[6.0.35, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
-              "version": "[6.0.16, )"
+              "version": "[6.0.18, )"
             },
             "Moq": {
               "target": "Package",
-              "version": "[4.20.70, )"
+              "version": "[4.18.2, )"
             },
             "xunit": {
               "target": "Package",
@@ -115,6 +119,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.29, 6.0.29]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[6.0.29, 6.0.29]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.29, 6.0.29]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.29, 6.0.29]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -127,17 +149,17 @@
         }
       }
     },
-    "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj": {
+    "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj",
+        "projectUniqueName": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj",
         "projectName": "Developer-ToolboxTests",
-        "projectPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj",
-        "packagesPath": "C:\\Users\\Miru\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Tests\\obj\\",
+        "projectPath": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Tests\\Developer-ToolboxTests.csproj",
+        "packagesPath": "C:\\Users\\alexandra\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Miru\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\alexandra\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -151,8 +173,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj": {
-                "projectPath": "C:\\Users\\Miru\\Desktop\\Inginerie Software\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj"
+              "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj": {
+                "projectPath": "C:\\Users\\alexandra\\source\\repos\\software-engineering-product-cache-me-if-you-can\\Developer-Toolbox\\Developer-Toolbox.csproj"
               }
             }
           }
@@ -178,7 +200,7 @@
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.0.29, )"
+              "version": "[6.0.35, )"
             },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
@@ -216,6 +238,20 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.29, 6.0.29]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.29, 6.0.29]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.29, 6.0.29]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
