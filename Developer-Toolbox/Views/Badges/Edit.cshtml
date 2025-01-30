@@ -33,47 +33,59 @@
                             new SelectList(Model.TargetActivities, "Value", "Text"),
                             "Selected activity", new { @id = "targetActivity", @class = "form-control", @disabled = "disabled", @required = "false"})
                         </div>
-                        <div class="mb-3">
-                            @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed", new { @class = "form-label"})
 
-                            @Html.Editor("TargetNoOfTimes", null, new { htmlAttributes = new { @class="form-control", @disabled= "disabled", @required = "false" }})
-                        </div>
-
-                        @if ((bool)Model.TargetActivity.isPracticeRelated)
+                        @if (Model.TargetActivityId == 5)
                         {
-                            <div class="mb-3">
-                                <div class="optionalFields practiceRelated">
-                                    <label class="form-label">Select targeted category</label>
-                                    @Html.DropDownListFor(m => m.TargetCategoryId,
-                                new SelectList(Model.TargetCategories, "Value", "Text"),
-                                "Selected category", new { @id = "targetCategory", @class = "form-control", @disabled = "disabled", @required = "false"})
-                                </div>
+                            <div>
+                                <label>Select targeted weekly challenges (optional)</label>
+                                @Html.ListBoxFor(m => m.SelectedChallengesIds,
+                            new SelectList(ViewBag.SelectedChallenges, "Value", "Text"),
+                            new { @class = "form-control", @disabled = "disabled" })
                             </div>
-                            <div class="mb-3">
-                                <div class="optionalFields practiceRelated">
-                                    @Html.Label("Targeted level of difficulty", null, new { @class = "form-label"})
-                                    @Html.DropDownListFor(
-                                (badge => badge.TargetLevel),
-                                (IEnumerable<SelectListItem>)ViewBag.LevelOfDifficulty,
-                                "Select",
-                                new { @id = "targetDifficulty", @class = "form-control", @disabled = "disabled", @required = "false"}
-                                )
-                                </div>
+                        }
+                        else
+                        {
+                            <div>
+                                @Html.Label("TargetNoOfTimes", "Number of times the activity must be completed")
+
+                                @Html.Editor("TargetNoOfTimes", null, new { htmlAttributes = new { @class="form-control", @disabled= "disabled", @required = "false" }})
                             </div>
 
-                        } else {
-                            <div class="mb-3">
-                                <div class="optionalFields questionRelated">
-                                    <label class="form-label">Selected targeted tags</label>
-                                    @Html.ListBoxFor(m => m.SelectedTagsIds,
-                                new SelectList(ViewBag.SelectedTags, "Value", "Text"),
-                                new { @id = "targetTags", @class = "form-control", @disabled = "disabled", @required = "false"})
-                                </div>
-                            </div>
+                            if (Model.TargetActivity.isPracticeRelated != null)
+                            {
+                                if ((bool)Model.TargetActivity.isPracticeRelated)
+                                {
+                                    <div>
+                                        <label>Select targeted category</label>
+                                        @Html.DropDownListFor(m => m.TargetCategoryId,
+                                            new SelectList(Model.TargetCategories, "Value", "Text"),
+                                            "Selected category", new { @class = "form-control", @disabled = "disabled" })
+                                    </div>
+
+                                    <div>
+                                        @Html.Label("Targeted level of difficulty")
+                                        @Html.DropDownListFor(
+                                            (badge => badge.TargetLevel),
+                                            (IEnumerable<SelectListItem>)ViewBag.LevelOfDifficulty,
+                                            "Select",
+                                            new { @class = "form-control", @disabled = "disabled" }
+                                            )
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        <label>Selected targeted tags</label>
+                                        @Html.ListBoxFor(m => m.SelectedTagsIds,
+                                        new SelectList(ViewBag.SelectedTags, "Value", "Text"),
+                                        new { @class = "form-control", @disabled = "disabled" })
+                                    </div>
+                                }
+                            }
                         }
 
                         <!-- Submit Button -->
-                        <div class="text-center">
+                        <div class="text-center py-2">
                             <button type="submit" class="btn btn-primary btn-lg">Save changes</button>
                             <div id="formFeedback" class="mt-3"></div>
                         </div>
